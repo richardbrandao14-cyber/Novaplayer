@@ -33,9 +33,36 @@ jobs:
       - run: rustup show
       - run: npm ci
       - run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-      - run: cargo clippy --manifest-path src-tauri/Cargo.toml --locked --all-targets -- -D warnings
-      - run: npm run rust:test
-      - run: npm run desktop:build -- --target x86_64-pc-windows-msvc
+      - run: |
+          cargo clippy --manifest-path src-tauri/Cargo.toml --locked --all-targets -- -D warnings 2>&1 | Tee-Object -FilePath windows-clippy.log
+          $stepExit = $LASTEXITCODE
+          if ($stepExit -ne 0) {
+            '### windows-clippy — diagnóstico' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            '```text' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            Get-Content windows-clippy.log -Tail 160 | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            '```' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            exit $stepExit
+          }
+      - run: |
+          npm run rust:test 2>&1 | Tee-Object -FilePath windows-tests.log
+          $stepExit = $LASTEXITCODE
+          if ($stepExit -ne 0) {
+            '### windows-tests — diagnóstico' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            '```text' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            Get-Content windows-tests.log -Tail 160 | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            '```' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            exit $stepExit
+          }
+      - run: |
+          npm run desktop:build -- --target x86_64-pc-windows-msvc 2>&1 | Tee-Object -FilePath windows-build.log
+          $stepExit = $LASTEXITCODE
+          if ($stepExit -ne 0) {
+            '### windows-build — diagnóstico' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            '```text' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            Get-Content windows-build.log -Tail 160 | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            '```' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            exit $stepExit
+          }
       - name: Guardar executável de teste Windows
         uses: actions/upload-artifact@v4
         with:
