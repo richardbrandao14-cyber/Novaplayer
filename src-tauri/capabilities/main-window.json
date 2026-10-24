@@ -1,0 +1,25 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main-window",
+  "description": "Janela principal local: controles e comandos IPTV explicitamente autorizados. Sem plugins gen\u00e9ricos de HTTP, shell ou filesystem; IO validado no Rust.",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-close",
+    "allow-app-info",
+    "allow-list-sources",
+    "allow-save-source",
+    "allow-pick-m3u-file",
+    "allow-remove-source",
+    "allow-start-import",
+    "allow-cancel-import",
+    "allow-import-status",
+    "allow-query-catalog",
+    "allow-list-categories",
+    "allow-series-details",
+    "allow-image-for"
+  ]
+}

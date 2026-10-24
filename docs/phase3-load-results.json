@@ -1,0 +1,55 @@
+{
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "profile": "Rust debug, headless Linux; SQLite in memory; fixture-only XOR protector (NOT DPAPI)",
+  "rssMethod": "/proc child VmRSS/VmHWM every 5ms; includes fixture generation, excludes cargo/compiler; one run per size",
+  "results": [
+    {
+      "records": 1000,
+      "inputBytes": 108178,
+      "parseMs": 10.239,
+      "importMs": 30.321,
+      "queryMs": 0.917,
+      "cancelMs": 0.002,
+      "queryMatches": 111,
+      "returned": 100,
+      "peakRssKiB": 5796,
+      "wallMs": 47.425
+    },
+    {
+      "records": 10000,
+      "inputBytes": 1111678,
+      "parseMs": 105.545,
+      "importMs": 307.456,
+      "queryMs": 11.997,
+      "cancelMs": 0.002,
+      "queryMatches": 1111,
+      "returned": 100,
+      "peakRssKiB": 18492,
+      "wallMs": 444.766
+    },
+    {
+      "records": 30000,
+      "inputBytes": 3401678,
+      "parseMs": 326.238,
+      "importMs": 1138.312,
+      "queryMs": 21.482,
+      "cancelMs": 0.007,
+      "queryMatches": 11111,
+      "returned": 100,
+      "peakRssKiB": 48132,
+      "wallMs": 1558.105
+    },
+    {
+      "records": 50000,
+      "inputBytes": 5691678,
+      "parseMs": 691.777,
+      "importMs": 2294.639,
+      "queryMs": 56.255,
+      "cancelMs": 0.02,
+      "queryMatches": 11111,
+      "returned": 100,
+      "peakRssKiB": 73472,
+      "wallMs": 3167.296
+    }
+  ]
+}

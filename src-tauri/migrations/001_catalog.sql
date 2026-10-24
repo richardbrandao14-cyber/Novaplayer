@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS sources(id TEXT PRIMARY KEY,name TEXT NOT NULL,kind TEXT NOT NULL,config BLOB NOT NULL,status TEXT NOT NULL DEFAULT 'idle',generation TEXT,updated_at INTEGER NOT NULL DEFAULT(unixepoch()));
+CREATE TABLE IF NOT EXISTS categories(source_id TEXT NOT NULL REFERENCES sources(id) ON DELETE CASCADE,kind TEXT NOT NULL,name TEXT NOT NULL,PRIMARY KEY(source_id,kind,name));
+CREATE TABLE IF NOT EXISTS media_items(id TEXT PRIMARY KEY,source_id TEXT NOT NULL REFERENCES sources(id) ON DELETE CASCADE,generation TEXT NOT NULL,external_id TEXT,name TEXT NOT NULL,normalized_name TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('live','movie','series','unknown')),category TEXT,stream BLOB,artwork BLOB,description TEXT,year TEXT,duration TEXT,rating TEXT);
+CREATE INDEX IF NOT EXISTS idx_media_source_kind_category ON media_items(source_id,kind,category,normalized_name,id);
+CREATE INDEX IF NOT EXISTS idx_media_kind_name ON media_items(kind,normalized_name,id);
+CREATE INDEX IF NOT EXISTS idx_media_external ON media_items(source_id,external_id);
+CREATE INDEX IF NOT EXISTS idx_media_generation ON media_items(source_id,generation);
+CREATE VIEW IF NOT EXISTS channels AS SELECT * FROM media_items WHERE kind='live';
+CREATE VIEW IF NOT EXISTS movies AS SELECT * FROM media_items WHERE kind='movie';
+CREATE VIEW IF NOT EXISTS series AS SELECT * FROM media_items WHERE kind='series';
+CREATE TABLE IF NOT EXISTS seasons(id TEXT PRIMARY KEY,series_id TEXT NOT NULL REFERENCES media_items(id) ON DELETE CASCADE,number INTEGER,metadata BLOB);
+CREATE TABLE IF NOT EXISTS episodes(id TEXT PRIMARY KEY,season_id TEXT NOT NULL REFERENCES seasons(id) ON DELETE CASCADE,external_id TEXT,name TEXT,stream BLOB,artwork BLOB,description TEXT,duration TEXT,metadata BLOB);
+CREATE TABLE IF NOT EXISTS import_jobs(id TEXT PRIMARY KEY,source_id TEXT NOT NULL REFERENCES sources(id) ON DELETE CASCADE,status TEXT NOT NULL,valid INTEGER NOT NULL DEFAULT 0,invalid INTEGER NOT NULL DEFAULT 0,started_at INTEGER NOT NULL DEFAULT(unixepoch()),finished_at INTEGER);
+CREATE TABLE IF NOT EXISTS import_errors(id INTEGER PRIMARY KEY,job_id TEXT NOT NULL REFERENCES import_jobs(id) ON DELETE CASCADE,code TEXT NOT NULL,record_number INTEGER);
+CREATE TABLE IF NOT EXISTS metadata_cache(cache_key TEXT PRIMARY KEY,media_id TEXT REFERENCES media_items(id) ON DELETE CASCADE,path TEXT NOT NULL,body BLOB,expires_at INTEGER NOT NULL,size INTEGER NOT NULL);
+PRAGMA user_version=1;

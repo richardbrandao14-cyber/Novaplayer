@@ -1,0 +1,45 @@
+name: Validate NOVA PLAYER
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup show
+      - run: cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --locked
+      - run: cargo clippy --manifest-path src-tauri/Cargo.toml --no-default-features --locked --all-targets -- -D warnings
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: rustup show
+      - run: npm ci
+      - run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+      - run: cargo clippy --manifest-path src-tauri/Cargo.toml --locked --all-targets -- -D warnings
+      - run: npm run rust:test
+      - run: npm run desktop:build -- --target x86_64-pc-windows-msvc
+      - name: Guardar executável de teste Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: NOVA-PLAYER-Windows-x64-test
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/nova-player.exe
+          if-no-files-found: error
+          retention-days: 7
