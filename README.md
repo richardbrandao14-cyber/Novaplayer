@@ -51,8 +51,15 @@ npm run desktop:build
 - [ROADMAP.md](ROADMAP.md): gates e pendências antes de integrações reais.
 - [TESTING.md](TESTING.md): execução, evidências e limitações.
 
-Nenhum commit, push, deploy ou publicação foi realizado. A Fase 3 precisa de autorização explícita.
+O código foi enviado ao GitHub com autorização explícita do proprietário para gerar o executável de teste Windows. Não houve deploy, Release, instalador ou publicação do aplicativo. A Fase 4 não foi autorizada.
 
 ## Resultado atual da Fase 3
 
 27 testes Vitest, 6 cenários Playwright e 22 testes Rust headless aprovados; tipos/lint/Clippy/build web aprovados. Os resultados anteriores neste documento descrevem o marco da Fase 2. O modo real exige Tauri Windows; no navegador não simula importação nativa. Para testes Rust sem WebView use `npm run rust:core`. A workflow Windows prepara um executável de teste sem instalador quando enviada/disparada no GitHub. Nenhum build Windows foi executado pelo agente.
+
+## Capturas reais da demonstração
+
+- [TV ao Vivo](docs/screenshots/nova-live.png)
+- [Detalhes de série](docs/screenshots/nova-series.png)
+
+Estas imagens mostram a interface demonstrativa, sem credenciais ou transmissão real.

@@ -65,7 +65,7 @@ python3 scripts/measure_catalog.py
 
 Caminho recomendado para o proprietário: executar a workflow `Validate NOVA PLAYER` no próprio repositório GitHub. Quando o job Windows passar, baixar o artefato `NOVA-PLAYER-Windows-x64-test`, extrair o ZIP e abrir `nova-player.exe`. WebView2 deve estar instalado. Não há instalador nem assinatura de distribuição; não ignorar alertas do Windows sem conferir origem e integridade do arquivo.
 
-A workflow só poderá executar o código atual após envio autorizado ao repositório. Não há commit ou push feito até este registro. O artefato é de teste e não cria GitHub Release nem publicação do aplicativo.
+A workflow só poderá executar o código atual após envio autorizado ao repositório. O envio foi autorizado pelo proprietário e o commit inicial `b5e96bf` foi enviado para `main`. A primeira execução Windows está em https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40139768385; seu resultado precisa ser confirmado. O artefato é de teste e não cria GitHub Release nem publicação do aplicativo.
 
 Roteiro de teste:
 
