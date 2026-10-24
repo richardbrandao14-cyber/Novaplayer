@@ -4,7 +4,7 @@ Aplicativo desktop de mídia para **Windows 10/11 x64**. O usuário fornece suas
 
 ## Estado atual
 
-Fase 3 parcialmente concluída: importação/persistência reais implementadas, com validação Windows ainda pendente. A interface demonstrativa das Fases 1–2 foi preservada. Oito telas navegáveis, busca global com Ctrl+K, carrosséis, detalhes com temporadas/episódios, favoritos, histórico e cadastro de fontes em memória. Sem streaming, libmpv, EPG real ou serviços externos de metadados. O núcleo Rust agora implementa M3U, Xtream e SQLite. Ver [relatório da Fase 3 e roteiro Windows](docs/PHASE_3.md).
+Fase 3 parcialmente concluída: importação/persistência reais implementadas, com build/testes Windows aprovados e validação manual pendente. A interface demonstrativa das Fases 1–2 foi preservada. Oito telas navegáveis, busca global com Ctrl+K, carrosséis, detalhes com temporadas/episódios, favoritos, histórico e cadastro de fontes em memória. Sem streaming, libmpv, EPG real ou serviços externos de metadados. O núcleo Rust agora implementa M3U, Xtream e SQLite. Ver [relatório da Fase 3 e roteiro Windows](docs/PHASE_3.md).
 
 Os dados são fictícios e as imagens são SVGs autorais locais. Fontes demonstrativas retêm somente nome, tipo e origem do servidor, sem usuário/senha, caminho ou query string. Favoritos, histórico e fontes são reiniciados ao recarregar. Somente menu e preferência de demonstração usam localStorage. Não inserir credenciais reais nos formulários.
 
@@ -41,7 +41,7 @@ npm run rust:test
 npm run desktop:build
 ```
 
-`desktop:build` utiliza `--no-bundle`: não gera instalador. Esses comandos Windows estão configurados, mas ainda não foram executados neste host Linux. A CI está em `.github/workflows/validate.yml`; não foi disparada nem publicada pelo agente. Não interpretar testes web, cargo fmt ou leitura de metadados como build/teste nativo aprovado.
+`desktop:build` utiliza `--no-bundle`: não gera instalador. O [build Windows da CI](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40140035463) passou, incluindo testes e geração do executável. A CI está em `.github/workflows/validate.yml`; nenhum instalador ou Release foi criado. Abertura manual e fontes reais continuam pendentes. Não interpretar testes web, cargo fmt ou leitura de metadados como build/teste nativo aprovado.
 
 ## Documentação
 
@@ -55,7 +55,7 @@ O código foi enviado ao GitHub com autorização explícita do proprietário pa
 
 ## Resultado atual da Fase 3
 
-27 testes Vitest, 6 cenários Playwright e 22 testes Rust headless aprovados; tipos/lint/Clippy/build web aprovados. Os resultados anteriores neste documento descrevem o marco da Fase 2. O modo real exige Tauri Windows; no navegador não simula importação nativa. Para testes Rust sem WebView use `npm run rust:core`. A workflow Windows prepara um executável de teste sem instalador quando enviada/disparada no GitHub. Nenhum build Windows foi executado pelo agente.
+27 testes Vitest, 6 cenários Playwright e 22 testes Rust headless aprovados; tipos/lint/Clippy/build web aprovados. Os resultados anteriores neste documento descrevem o marco da Fase 2. O modo real exige Tauri Windows; no navegador não simula importação nativa. Para testes Rust sem WebView use `npm run rust:core`. A workflow Windows prepara um executável de teste sem instalador quando enviada/disparada no GitHub. O executável de teste foi compilado no Windows pela [CI aprovada](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40140035463), sem teste manual de GUI.
 
 ## Capturas reais da demonstração
 
@@ -63,3 +63,7 @@ O código foi enviado ao GitHub com autorização explícita do proprietário pa
 - [Detalhes de série](docs/screenshots/nova-series.png)
 
 Estas imagens mostram a interface demonstrativa, sem credenciais ou transmissão real.
+
+## Testar agora no Windows
+
+Na execução aprovada acima, baixe o artefato **NOVA-PLAYER-Windows-x64-test**, extraia o ZIP e abra `nova-player.exe`. Isso dispensa Node/Rust no computador de teste. Siga o [roteiro de importação e persistência](docs/PHASE_3.md). Não há reprodução de vídeo nesta versão.

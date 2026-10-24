@@ -1,6 +1,6 @@
 # Fase 3 — implementação e teste Windows
 
-Estado em 24/10/2026: **parcialmente concluída**, porque a aplicação Tauri, DPAPI e o executável Windows ainda não foram compilados/executados em Windows. Núcleo e interface passaram nas verificações disponíveis em Linux. Não há reprodução de vídeo nesta versão.
+Estado em 24/10/2026: **implementação e validação automatizada concluídas; validação manual pendente**. O [build Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40140035463) passou, incluindo Clippy, testes Rust/DPAPI e geração do executável. Ainda não houve abertura manual da interface Windows nem teste com provedor real. Não há reprodução de vídeo nesta versão.
 
 ## Implementação
 
@@ -9,7 +9,7 @@ Estado em 24/10/2026: **parcialmente concluída**, porque a aplicação Tauri, D
 - Normalização preserva origem e identificadores; dados M3U sem tipo inequívoco permanecem sem classificação e podem ser vistos no Início. Não são automaticamente tratados como TV ou filme.
 - SQLite versionado com WAL, transações, índices e paginação até 200 itens. `channels`, `movies` e `series` são views do catálogo normalizado; temporadas/episódios são tabelas, persistidas sob demanda. Falha/cancelamento conserva o catálogo anterior. Jobs interrompidos são recuperados como falha ao reiniciar.
 - Xtream: autenticação, categorias, canais, VOD, séries e detalhes de episódios sob demanda, sem importação de todos os episódios no início.
-- Proteção de configurações, credenciais e URLs por DPAPI do usuário Windows. Não há fallback em texto puro fora do Windows. Testes Linux usam somente um protetor fictício explícito, incapaz de validar a segurança real de DPAPI.
+- Proteção de configurações, credenciais e URLs por DPAPI do usuário Windows. Não há fallback em texto puro fora do Windows. Testes Linux usam somente um protetor fictício explícito. O roundtrip DPAPI real foi testado separadamente pela suíte Windows da CI; proteção/recuperação no computador do proprietário ainda integra o teste manual.
 - DTOs para React não expõem URLs de reprodução, senhas nem caminhos locais. Comandos Tauri têm permissões explícitas apenas para a janela principal; nenhum plugin genérico de shell, HTTP ou filesystem foi autorizado.
 - Cache de imagens sob demanda, 5 MiB de resposta por imagem, quota de 128 MiB e TTL de 7 dias; raster decodificado com limites e normalizado para PNG estático. URLs duplicadas por item são evitadas, mudanças de URL e arquivos órfãos são tratados. Cache de metadados cifrado tem TTL de 1h e limites de tamanho/quantidade.
 - Interface existente preservada. Modo real separado de demo; navegador sem Tauri exibe a exigência do aplicativo desktop. Cadastro real, atualização, remoção, progresso sem porcentagens inventadas, cancelamento, catálogos paginados e detalhes estão ligados a adaptadores IPC.
@@ -25,12 +25,12 @@ Estado em 24/10/2026: **parcialmente concluída**, porque a aplicação Tauri, D
 | Build Vite | Aprovado |
 | Rust sem WebView | 17 testes unitários + 5 testes de integração HTTP aprovados |
 | Clippy do núcleo, todos os targets | Aprovado, sem warnings |
-| Windows/Tauri/DPAPI real | Não executado |
+| Windows/Tauri/DPAPI | Clippy, testes Rust (incluindo DPAPI) e build aprovados na CI; GUI manual pendente |
 | Provedor IPTV real | Não utilizado; somente fixtures e servidores HTTP locais |
 
 Os testes exercitam parsing, caracteres/codificação, entradas inválidas, HLS, limites, migração, paginação, isolamento, atualização atômica, cancelamento, recuperação, arquivo local, autenticação e catálogo Xtream simulado, detalhes de séries, ausência de segredos em DTO/armazenamento de testes, redirects, limites HTTP e erros sanitizados. Testes React usam mocks IPC, não provam execução nativa.
 
-A revisão independente identificou e levou à correção de esperas bloqueantes no executor assíncrono, cancelamento/timeout de DNS, URLs de imagem, recuperação de jobs, tratamento de nomes ausentes e associação de imagem ao ID correto. A revisão não substitui teste Windows.
+A revisão independente identificou e levou à correção de esperas bloqueantes no executor assíncrono, cancelamento/timeout de DNS, URLs de imagem, recuperação de jobs, tratamento de nomes ausentes e associação de imagem ao ID correto. A revisão não substitui o teste manual Windows com fontes autorizadas.
 
 ## Carga sintética medida
 
@@ -54,7 +54,7 @@ python3 scripts/measure_catalog.py
 
 ## Limitações restantes
 
-- É obrigatório compilar e testar Windows antes de aprovar a fase. A workflow inclui teste DPAPI no Windows, build sem bundle e upload de um executável de teste; ainda não foi enviada/disparada pelo agente.
+- A workflow Windows foi executada e aprovada: https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40140035463. O executável de teste foi guardado como artefato, sem instalador ou Release. A aprovação final ainda requer abrir a interface e importar fontes autorizadas no computador do proprietário.
 - Imagens remotas são restritas a HTTPS e IP público, sem SVG/HTML; logos HTTP ou em rede privada usam placeholder. Fontes HTTP/LAN explicitamente cadastradas podem ser importadas, mas redirects entre origens são recusados. Alguns provedores precisarão do endereço direto.
 - Diagnósticos de entradas inválidas são agregados; não há relatório detalhado por linha. Avisos de codificação são expostos no relatório final.
 - Consulta de categorias ainda não é paginada. Grandes quantidades de categorias e volumes reais de metadados exigem validação adicional.
@@ -65,7 +65,7 @@ python3 scripts/measure_catalog.py
 
 Caminho recomendado para o proprietário: executar a workflow `Validate NOVA PLAYER` no próprio repositório GitHub. Quando o job Windows passar, baixar o artefato `NOVA-PLAYER-Windows-x64-test`, extrair o ZIP e abrir `nova-player.exe`. WebView2 deve estar instalado. Não há instalador nem assinatura de distribuição; não ignorar alertas do Windows sem conferir origem e integridade do arquivo.
 
-A workflow só poderá executar o código atual após envio autorizado ao repositório. O envio foi autorizado pelo proprietário e o commit inicial `b5e96bf` foi enviado para `main`. A primeira execução Windows está em https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40139768385; seu resultado precisa ser confirmado. O artefato é de teste e não cria GitHub Release nem publicação do aplicativo.
+A workflow executou o código enviado após autorização explícita do proprietário. O envio foi autorizado pelo proprietário e o commit inicial `b5e96bf` foi enviado para `main`. A primeira execução identificou uma falha Windows; o recurso ICO obrigatório foi corrigido. A execução corrigida foi aprovada em https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40140035463. O código funcional testado corresponde ao commit `debeb31`; commits posteriores apenas atualizam documentação/capturas. O artefato é de teste e não cria GitHub Release nem publicação do aplicativo.
 
 Roteiro de teste:
 
@@ -79,3 +79,7 @@ Roteiro de teste:
 8. Não testar reprodução: ela não faz parte desta fase. Não enviar senhas, tokens, URLs completas ou banco de dados pelo chat ao relatar problemas.
 
 Se o Windows não puder gerar/abrir o executável, registrar a falha com sua etapa e mensagem sanitizada. A Fase 4 não foi autorizada nem iniciada.
+
+## Primeiro teste do proprietário
+
+Abra a execução aprovada, entre na sua conta GitHub e, na seção **Artifacts**, baixe **NOVA-PLAYER-Windows-x64-test**. Extraia o ZIP antes de abrir `nova-player.exe`. Não é necessário instalar Node ou Rust para executar esse arquivo. WebView2 deve estar disponível no Windows. O arquivo não foi assinado para distribuição final nem aberto manualmente pelo agente.

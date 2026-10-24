@@ -55,3 +55,7 @@ O frontend está disponível para revisão e aprovação visual. O gate nativo d
 ## Estado após a implementação da Fase 3
 
 Fase parcialmente concluída, com núcleo e integração React testados conforme [relatório](docs/PHASE_3.md). Falta executar Windows/Tauri/DPAPI e validar manualmente o executável de teste. O pedido de testar o aplicativo não autoriza reprodução de vídeo nem Fase 4. Envio do código ao GitHub depende de autorização conforme AGENTS.md; workflow e artefato de teste estão preparados, não executados remotamente.
+
+## Gate automatizado Windows aprovado
+
+Em 24/10/2026, a [execução corrigida](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40140035463) concluiu build e testes Windows, incluindo DPAPI e artefato executável. Permanece o teste manual de abertura/importação no computador do proprietário. A Fase 4 segue não autorizada.

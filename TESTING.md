@@ -77,3 +77,7 @@ O estado final do frontend está disponível para aprovação visual. A Fase 3 n
 ## Fase 3 — resultado mais recente
 
 Ver [docs/PHASE_3.md](docs/PHASE_3.md): 27 Vitest, 6 Playwright, 17 unitários Rust e 5 integrações HTTP aprovados; TypeScript, ESLint, Clippy e build Vite aprovados. Benchmarks sintéticos registrados em JSON. Estes resultados substituem os números do marco anterior da Fase 2. Tauri/DPAPI/WebView2 Windows e provedores reais não foram executados; fase parcialmente concluída.
+
+## Validação Windows confirmada
+
+Execução [40140035463](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40140035463) aprovada: jobs web, core e Windows concluíram com sucesso. No Windows, `cargo fmt`, Clippy, `npm run rust:test` (inclui teste DPAPI real) e `desktop:build --target x86_64-pc-windows-msvc` passaram, e o artefato de teste foi enviado. Código funcional `debeb31`. Estes resultados substituem as pendências de compilação Windows dos marcos anteriores; teste GUI manual e provedor real continuam não executados.
