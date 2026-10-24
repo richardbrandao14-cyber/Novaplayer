@@ -13,6 +13,7 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: ipc.invoke,
 }));
 import { nativeApi, nativeError } from "../src/integrations/native";
+import Sources from "../src/pages/Sources";
 import { NativeSources } from "../src/components/native/NativeSources";
 import { NativeCatalogBrowser } from "../src/components/native/NativeCatalogBrowser";
 import { NativeDetails } from "../src/components/native/NativeDetails";
@@ -54,6 +55,65 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 describe("fronteira nativa da Fase 3", () => {
+  it("oferece acesso direto ao cadastro real no Windows mesmo com a demonstração ativa", async () => {
+    ipc.available = true;
+    ipc.invoke.mockResolvedValue([]);
+    useAppStore.setState({ demo: true, page: "sources" });
+    const user = userEvent.setup();
+    render(<Sources />);
+    expect(screen.getByText("Agora é a sua lista.")).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Conectar lista de verdade" }),
+    );
+    expect(useAppStore.getState().demo).toBe(false);
+    expect(
+      await screen.findByRole("button", {
+        name: "Adicionar fonte real",
+      }),
+    ).toBeInTheDocument();
+    expect(ipc.invoke).toHaveBeenCalledWith("list_sources", undefined);
+    expect(ipc.invoke).not.toHaveBeenCalledWith(
+      "save_source",
+      expect.anything(),
+    );
+  });
+  it("preserva tipo e campos não secretos quando o cadastro Xtream falha, limpando a senha", async () => {
+    ipc.available = true;
+    ipc.invoke.mockImplementation(async (command: string) => {
+      if (command === "list_sources") return [];
+      if (command === "save_source")
+        throw { code: "validation", message: "raw details must stay hidden" };
+      throw new Error("Unexpected test command");
+    });
+    const user = userEvent.setup();
+    render(<NativeSources />);
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Adicionar fonte real",
+      }),
+    );
+    await user.click(screen.getByRole("radio", { name: "Xtream" }));
+    await user.type(
+      screen.getByLabelText("URL do servidor"),
+      "https://example.com",
+    );
+    await user.type(screen.getByLabelText("Usuário"), "fixture-user");
+    await user.type(screen.getByLabelText("Senha"), "fixture-secret");
+    await user.click(screen.getByRole("button", { name: "Salvar e importar" }));
+    const dialog = screen.getByRole("dialog");
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(
+      "Confira os campos",
+    );
+    expect(screen.getByRole("radio", { name: "Xtream" })).toBeChecked();
+    expect(screen.getByLabelText("URL do servidor")).toHaveValue(
+      "https://example.com",
+    );
+    expect(screen.getByLabelText("Senha")).toHaveValue("");
+    expect(
+      screen.queryByText("raw details must stay hidden"),
+    ).not.toBeInTheDocument();
+  });
+
   it("exibe contagens e observações finais sem revelar conteúdo técnico não permitido", async () => {
     ipc.available = true;
     ipc.invoke.mockResolvedValue([source]);

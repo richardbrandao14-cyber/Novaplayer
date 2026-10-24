@@ -1,3 +1,4 @@
+import { nativeAvailable } from "../integrations/native";
 import { NativeSources } from "../components/native/NativeSources";
 import { useState, type FormEvent } from "react";
 import {
@@ -22,7 +23,8 @@ const blank: SourceDraft = {
   password: "",
 };
 function DemoSources() {
-  const { sources, saveSource, removeSource, notify } = useAppStore();
+  const { sources, saveSource, removeSource, notify, setDemo } = useAppStore();
+  const desktop = nativeAvailable();
   const [editing, setEditing] = useState<string | null>(null);
   const [removing, setRemoving] = useState<DemoSource | null>(null);
   const [open, setOpen] = useState(false);
@@ -86,13 +88,31 @@ function DemoSources() {
       <div className="heading-with-action">
         <PageHeading
           title="Minhas Listas"
-          description="Seu conteúdo, suas escolhas. Integração de fontes prevista para uma próxima fase."
+          description="Demonstração do cadastro. Fontes de exemplo não conectam nem importam conteúdo."
         />
-        <Button onClick={() => changeOpen(true)}>
+        <Button onClick={() => (desktop ? setDemo(false) : changeOpen(true))}>
           <Plus size={17} />
-          Adicionar lista
+          {desktop ? "Adicionar minha lista real" : "Adicionar lista"}
         </Button>
       </div>
+      {desktop && (
+        <section
+          className="real-source-callout"
+          aria-label="Conectar fontes reais"
+        >
+          <div>
+            <span className="eyebrow">PRONTO PARA O SEU CONTEÚDO</span>
+            <h2>Agora é a sua lista.</h2>
+            <p>
+              Esta página mostra exemplos. Para importar canais, filmes e séries
+              da sua fonte autorizada, entre no modo real.
+            </p>
+          </div>
+          <Button onClick={() => setDemo(false)}>
+            Conectar lista de verdade
+          </Button>
+        </section>
+      )}
       {sources.length === 0 ? (
         <div className="source-empty">
           <span className="source-icon">

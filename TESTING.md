@@ -81,3 +81,7 @@ Ver [docs/PHASE_3.md](docs/PHASE_3.md): 27 Vitest, 6 Playwright, 17 unitários R
 ## Validação Windows confirmada
 
 Execução [40140035463](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40140035463) aprovada: jobs web, core e Windows concluíram com sucesso. No Windows, `cargo fmt`, Clippy, `npm run rust:test` (inclui teste DPAPI real) e `desktop:build --target x86_64-pc-windows-msvc` passaram, e o artefato de teste foi enviado. Código funcional `debeb31`. Estes resultados substituem as pendências de compilação Windows dos marcos anteriores; teste GUI manual e provedor real continuam não executados.
+
+## Correção do acesso à importação real e NOVA Crimson
+
+O proprietário confirmou que a lista havia sido cadastrada no formulário demonstrativo; isso não demonstra falha de rede ou do parser. A ação principal de Minhas Listas no Windows agora permite entrar diretamente no cadastro real com a demonstração ativa, com aviso explícito. O formulário Xtream mantém tipo/URL em falha, limpa a senha e mantém mensagens sanitizadas. Dois testes de regressão acrescentados; 29 Vitest aprovados. O uso com a fonte real do proprietário ainda precisa ser realizado no modo nativo.

@@ -109,9 +109,10 @@ export function NativeSources() {
     setBusy(true);
     setError("");
     const input = { ...draft };
-    setDraft(blank);
+    setDraft({ ...input, password: "" });
     try {
       const source = await nativeApi.saveSource(input);
+      setDraft(blank);
       setOpen(false);
       await load();
       await start(source);
@@ -149,7 +150,7 @@ export function NativeSources() {
       <div className="heading-with-action">
         <PageHeading
           title="Minhas Listas"
-          description="Fontes autorizadas · Catálogos locais no aplicativo Windows. Reprodução ainda não disponível."
+          description="Importe seu conteúdo autorizado por URL, arquivo M3U ou acesso Xtream. Reprodução ainda não disponível."
         />
         {nativeAvailable() && (
           <Button onClick={() => changeOpen(true)}>
@@ -162,10 +163,10 @@ export function NativeSources() {
         <DesktopRequired />
       ) : (
         <>
-          <p className="notice">
-            Modo real. URLs e credenciais são enviadas somente ao backend nativo
-            para acesso à fonte que você cadastrar. Use apenas conteúdo
-            autorizado.
+          <p className="notice real-mode-notice">
+            <strong>Modo real ativo · Importação de verdade.</strong> URLs e
+            credenciais são enviadas somente ao backend nativo para acesso à
+            fonte que você cadastrar. Use apenas conteúdo autorizado.
           </p>
           {error && (
             <p role="alert" className="notice">

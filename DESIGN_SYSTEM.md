@@ -42,3 +42,7 @@ A busca global usa Ctrl+K, agrupamento por tipo, setas/Home/End e Enter. Foco vi
 Motion anima somente a opacidade dos contêineres, sem animar listas inteiras. Preferência de movimento reduzido elimina animação de entrada das páginas/hero e transições CSS. Carrosséis também respeitam essa preferência. O menu se torna compacto em até 900 px e permite expansão temporária sobre o conteúdo; a preferência desktop continua persistida.
 
 A área de vídeo e o EPG são estruturas ilustrativas, sempre rotuladas. O botão de prévia apenas explica a indisponibilidade de reprodução; não simula sucesso de playback. SVGs locais são ilustrações abstratas autorais, não capas de obras reais.
+
+## NOVA Crimson — refinamento aprovado em 24/10/2026
+
+A pedido do proprietário, o acento passa a vermelho NOVA (#E52335), com foco claro (#F76775), texto branco nas ações principais, grafite mais profundo e hero de maior escala. Cartões e trilhos ganham presença sem alterar a identidade/estrutura, copiar logotipos ou integrar serviços de streaming. Imagens demonstrativas permanecem locais e identificadas. Estados reduzidos de movimento e foco são preservados.

@@ -3,7 +3,7 @@
   --color-background: #101113;
   --color-foreground: #f3f4f6;
   --color-surface: #191b1f;
-  --color-primary: #a6b8fa;
+  --color-primary: #e52335;
   --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
 }
 :root {
@@ -16,7 +16,7 @@
   font-weight: 400;
   --muted: #adb3bd;
   --border: #ffffff0e;
-  --accent: #a6b8fa;
+  --accent: #f04452;
 }
 * {
   box-sizing: border-box;
@@ -88,7 +88,7 @@ select:focus {
   font-size: 10px;
   font-weight: 650;
   letter-spacing: 2px;
-  color: #c0cadf;
+  color: #e8b1b9;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -103,9 +103,9 @@ select:focus {
 .notice {
   padding: 14px;
   border-radius: 8px;
-  background: #a6b8fa0a;
-  border: 1px solid #a6b8fa24;
-  color: #cbd5f5;
+  background: #f044520a;
+  border: 1px solid #f0445224;
+  color: #f6bcc2;
   line-height: 1.6;
 }
 .app-shell {
@@ -146,7 +146,7 @@ select:focus {
 .brand-symbol {
   width: 29px;
   height: 29px;
-  background: #a6b8fa;
+  background: #f04452;
   color: #101113;
   border-radius: 8px;
   display: grid;
@@ -255,9 +255,9 @@ select:focus {
   color: #fff;
 }
 .nav-item.active {
-  background: #a6b8fa11;
-  border-color: #a6b8fa0d;
-  color: #ced8fa;
+  background: #f0445211;
+  border-color: #f044520d;
+  color: #ffe8eb;
 }
 .nav-item.active svg {
   color: var(--accent);
@@ -328,7 +328,7 @@ main {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #a6b8fa;
+  background: #f04452;
 }
 .page {
   flex: 1;
@@ -382,7 +382,7 @@ main {
   max-width: 620px;
 }
 .hero .eyebrow {
-  color: #bbc9db;
+  color: #e8b1b9;
   font-size: 9px;
   letter-spacing: 1.8px;
   margin-bottom: 22px;
@@ -450,11 +450,11 @@ main {
   min-height: 38px;
 }
 .button-primary {
-  background: #dce4fb;
-  color: #151b29;
+  background: #e52335;
+  color: #ffffff;
 }
 .button-primary:hover {
-  background: #fff;
+  background: #c91b2d;
 }
 .button-secondary {
   background: #22252a;
@@ -556,7 +556,7 @@ main {
   color: #bac4d2;
 }
 .favorite-button.selected {
-  color: #c2cff7;
+  color: #ffbac2;
 }
 .progress-track {
   position: absolute;
@@ -570,7 +570,7 @@ main {
 }
 .progress-track span {
   height: 100%;
-  background: #c4d2fa;
+  background: #f66b76;
   display: block;
 }
 .home-page .shelf:first-of-type .media-grid {
@@ -611,9 +611,9 @@ main {
   background: #252a34;
 }
 .chip.selected {
-  color: #d6dff8;
-  background: #a6b8fa14;
-  border-color: #a6b8fa2b;
+  color: #ffe8eb;
+  background: #f0445214;
+  border-color: #f044522b;
 }
 .result-count {
   margin-left: auto;
@@ -746,7 +746,7 @@ main {
   max-width: 470px;
 }
 .source-icon {
-  background: #a6b8fa0d;
+  background: #f044520d;
   color: #bdcaeb;
   border-radius: 15px;
   padding: 22px;
@@ -786,8 +786,8 @@ main {
   background: #ffffff06;
 }
 .channel-list button.selected {
-  background: #a6b8fa0c;
-  border-color: #a6b8fa1a;
+  background: #f044520c;
+  border-color: #f044521a;
 }
 .channel-list strong {
   font-size: 12px;
@@ -881,7 +881,7 @@ main {
   width: 36px;
   height: 28px;
   background: #101113;
-  border: 2px solid #9daedb;
+  border: 2px solid #f04452;
   border-radius: 6px;
   flex-shrink: 0;
 }
@@ -925,7 +925,7 @@ main {
   top: -80px;
   left: 20px;
   padding: 12px;
-  background: #dce4fb;
+  background: #e52335;
   color: #101113;
   z-index: 100;
 }
@@ -1050,7 +1050,7 @@ main {
 }
 .global-search-trigger:hover {
   background: #22252b;
-  border-color: #a6b8fa30;
+  border-color: #f0445230;
 }
 .mode-strip {
   font-size: 10px;
@@ -1266,10 +1266,10 @@ main {
   align-items: center;
   gap: 9px;
   font-size: 12px;
-  color: #d6deed;
+  color: #e6dce0;
 }
 .menu-item[data-highlighted] {
-  background: #a6b8fa1c;
+  background: #f044521c;
   color: #f2f5ff;
 }
 .progress-track {
@@ -1386,7 +1386,7 @@ main {
 }
 .episode-list progress {
   display: block;
-  accent-color: #a6b8fa;
+  accent-color: #f04452;
   width: 100%;
   height: 4px;
   margin-top: 10px;
@@ -1472,8 +1472,8 @@ main {
 }
 .search-results button:hover,
 .search-results button:focus-visible {
-  background: #a6b8fa0e;
-  border-color: #a6b8fa30;
+  background: #f044520e;
+  border-color: #f0445230;
 }
 .search-results .artwork {
   width: 40px;
@@ -1509,10 +1509,10 @@ main {
   align-items: center;
   gap: 12px;
   padding: 12px 14px 12px 18px;
-  border: 1px solid #a6b8fa3a;
+  border: 1px solid #f044523a;
   border-radius: 10px;
   background: #222935;
-  color: #d7e2fa;
+  color: #ffe0e5;
   box-shadow: var(--nova-elevation-2);
   font-size: 12px;
   animation: fade-in 180ms;
@@ -1534,7 +1534,7 @@ main {
   font-size: 10px;
 }
 .source-card > svg {
-  color: #a6b8fa;
+  color: #f04452;
 }
 .source-card h2 {
   font-size: 18px;
@@ -1591,9 +1591,9 @@ main {
   background: #ffffff06;
 }
 .live-categories button.selected {
-  background: #a6b8fa0e;
-  color: #dde7fd;
-  border-color: #a6b8fa1c;
+  background: #f044520e;
+  color: #ffe8eb;
+  border-color: #f044521c;
 }
 .channel-search {
   margin: 0 0 10px;
@@ -1621,7 +1621,7 @@ main {
   padding: 0 6px;
 }
 .channel-row.selected {
-  background: #a6b8fa0d;
+  background: #f044520d;
   border-left: 2px solid var(--accent);
 }
 .channel-list .channel-select {
@@ -1667,7 +1667,7 @@ main {
   justify-content: center;
 }
 .channel-heart[aria-pressed="true"] {
-  color: #c0d0f6;
+  color: #ffbac2;
 }
 .keyboard-note {
   font-size: 10px;
@@ -1719,7 +1719,7 @@ main {
   padding-top: 3px;
 }
 .epg-row.current > span {
-  color: #b7c9ef;
+  color: #ffb2be;
 }
 .epg-row > div {
   flex: 1;
@@ -1745,7 +1745,7 @@ main {
   display: block;
   width: 40%;
   height: 100%;
-  background: #9caed7;
+  background: #f04452;
   border-radius: 4px;
 }
 .skeleton-layout {
@@ -2230,10 +2230,10 @@ main {
   background: #2b3443;
 }
 .episode-list progress::-webkit-progress-value {
-  background: #a6b8fa;
+  background: #f04452;
 }
 .episode-list progress::-moz-progress-bar {
-  background: #a6b8fa;
+  background: #f04452;
 }
 /* Em janelas menores, o menu expandido continua disponível como painel sobreposto. */
 @media (max-width: 900px) {
@@ -2258,16 +2258,293 @@ main {
   }
 }
 /* Catálogo real usa os mesmos componentes NOVA UI, com consultas sempre paginadas. */
-.native-library-tools { flex-wrap:wrap; align-items:flex-end; gap:16px; }
-.native-library-tools .sort-control select { min-width:145px; max-width:220px; }
-.native-total { font-size:12px; color:#aebbd0; margin:20px 0; }
-.native-pagination { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:18px; margin:30px 0; }
-.native-pagination>span { font-size:12px; color:#b6c2d8; }
-.native-channel-list { max-height:540px; overflow-y:auto; }
-.native-channel-list .artwork { width:40px; height:40px; aspect-ratio:1; flex-shrink:0; }
-.native-channel-list button>span { min-width:0; }
-.native-channel-list strong { overflow:hidden; text-overflow:ellipsis; display:block; }
-.native-job { margin:16px 0; padding:12px; border:1px solid #a6b8fa20; border-radius:8px; }
-.native-job p { font-size:12px; line-height:1.6; color:#c5d0e3; }
-.native-job progress { width:100%; accent-color:#a6b8fa; }
-@media(max-width:650px){.native-library-tools .local-search {width:100%;}.native-library-tools .sort-control {flex:1;min-width:0;}.native-library-tools select {width:100%;max-width:100%!important;min-width:0!important;}}
+.native-library-tools {
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+}
+.native-library-tools .sort-control select {
+  min-width: 145px;
+  max-width: 220px;
+}
+.native-total {
+  font-size: 12px;
+  color: #aebbd0;
+  margin: 20px 0;
+}
+.native-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 30px 0;
+}
+.native-pagination > span {
+  font-size: 12px;
+  color: #b6c2d8;
+}
+.native-channel-list {
+  max-height: 540px;
+  overflow-y: auto;
+}
+.native-channel-list .artwork {
+  width: 40px;
+  height: 40px;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+}
+.native-channel-list button > span {
+  min-width: 0;
+}
+.native-channel-list strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.native-job {
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid #f0445220;
+  border-radius: 8px;
+}
+.native-job p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #c5d0e3;
+}
+.native-job progress {
+  width: 100%;
+  accent-color: #f04452;
+}
+@media (max-width: 650px) {
+  .native-library-tools .local-search {
+    width: 100%;
+  }
+  .native-library-tools .sort-control {
+    flex: 1;
+    min-width: 0;
+  }
+  .native-library-tools select {
+    width: 100%;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+/* NOVA Crimson — solicitação visual aprovada pelo proprietário. */
+:root {
+  --nova-red: #e52335;
+  --nova-red-hover: #c91b2d;
+  --nova-red-soft: #f04452;
+  --accent: #f76775;
+}
+body {
+  background: #0c0d0f;
+}
+.titlebar {
+  background: #0d0e10;
+}
+.brand-symbol {
+  color: #fff;
+  background: var(--nova-red);
+  border-radius: 6px;
+}
+.brand {
+  font-weight: 800;
+  letter-spacing: 2.5px;
+}
+.brand b {
+  color: #efeff2;
+  font-weight: 500;
+}
+.sidebar {
+  background: #0f1012;
+}
+.nav-item.active {
+  background: #e5233512;
+  border-color: #e5233519;
+  color: #fff;
+}
+.nav-item.active svg {
+  color: #ff6879;
+}
+.nav-item.active::before {
+  width: 3px;
+  background: var(--nova-red);
+}
+.button-primary {
+  background: var(--nova-red);
+  color: #fff;
+  box-shadow: 0 5px 20px #e523351a;
+}
+.button-primary:hover {
+  background: var(--nova-red-hover);
+}
+.hero {
+  min-height: 500px;
+  border-radius: 12px;
+  border-color: #ffffff0b;
+}
+.hero-copy {
+  padding: 52px 44px;
+  max-width: 680px;
+}
+.hero h1 {
+  font-size: 76px;
+  line-height: 0.98;
+  letter-spacing: -3px;
+  font-weight: 700;
+}
+.hero h1 em {
+  font-weight: 300;
+}
+.hero .eyebrow {
+  color: #ff9aa8;
+  letter-spacing: 2px;
+}
+.hero-description {
+  font-size: 15px;
+  margin: 20px 0 25px;
+}
+.hero-meta {
+  font-size: 12px;
+}
+.hero-actions .nova-button {
+  padding: 13px 20px;
+  font-size: 12px;
+}
+.hero-shade {
+  background:
+    linear-gradient(90deg, #0b0d12f5 0%, #0b0d12b0 38%, #0b0d1210 75%),
+    linear-gradient(0deg, #0c0d0fd9, transparent 55%);
+}
+.hero-index {
+  border-left: 2px solid var(--nova-red);
+  padding-left: 10px;
+  color: #eee;
+}
+.section-heading h2 {
+  font-size: 20px;
+  font-weight: 650;
+}
+.section-heading > div > p {
+  color: #b0a8ae;
+}
+.carousel-track {
+  gap: 18px;
+  padding-top: 7px;
+}
+.carousel-track > .media-card {
+  flex-basis: 190px;
+}
+.card-open .artwork {
+  border-radius: 9px;
+  border-color: #ffffff12;
+}
+.media-card:hover .artwork {
+  box-shadow: 0 10px 24px #0007;
+}
+.favorite-button.selected {
+  color: #ff7c8b;
+}
+.poster-overlay {
+  background: linear-gradient(transparent, #0c0d0fc7);
+  bottom: 57px;
+  left: 1px;
+  right: 1px;
+  padding: 35px 13px 13px;
+  border-radius: 0 0 9px 9px;
+}
+.card-caption strong {
+  font-size: 14px;
+  font-weight: 550;
+}
+.progress-track span,
+.epg-progress span {
+  background: var(--nova-red);
+}
+.real-source-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  padding: 28px;
+  margin: 0 0 24px;
+  border: 1px solid #e5233545;
+  border-left: 3px solid var(--nova-red);
+  border-radius: 10px;
+  background: #e5233508;
+}
+.real-source-callout h2 {
+  font-size: 24px;
+  letter-spacing: -0.6px;
+  margin: 10px 0;
+  font-weight: 600;
+}
+.real-source-callout p {
+  max-width: 600px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #c6bac2;
+  margin-bottom: 0;
+}
+.real-source-callout .nova-button {
+  flex-shrink: 0;
+}
+.real-source-callout .eyebrow {
+  color: #ff9ba6;
+  font-size: 9px;
+}
+.real-mode-notice strong {
+  color: #fff;
+}
+@media (max-width: 1100px) {
+  .hero {
+    min-height: 470px;
+  }
+  .hero h1 {
+    font-size: 64px;
+  }
+  .hero-copy {
+    padding: 42px 32px;
+  }
+  .carousel-track > .media-card {
+    flex-basis: 170px;
+  }
+  .real-source-callout {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+@media (max-width: 650px) {
+  .hero {
+    min-height: 445px;
+  }
+  .hero-copy {
+    padding: 32px 20px;
+  }
+  .hero h1 {
+    font-size: 52px;
+    letter-spacing: -2px;
+  }
+  .hero-description {
+    font-size: 13px;
+  }
+  .hero-actions .nova-button {
+    padding: 12px 14px;
+    font-size: 11px;
+  }
+  .carousel-track > .media-card {
+    flex-basis: 145px;
+  }
+  .section-heading h2 {
+    font-size: 16px;
+  }
+  .real-source-callout {
+    padding: 22px;
+  }
+}
+.skip-link {
+  color: #fff;
+}

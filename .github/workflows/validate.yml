@@ -31,6 +31,17 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: rustup show
+      - name: Reutilizar dependências Rust verificadas
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            src-tauri/target
+          key: ${{ runner.os }}-rust-1.95-${{ hashFiles('src-tauri/Cargo.lock') }}-${{ hashFiles('src-tauri/src/**/*.rs', 'src-tauri/build.rs') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-1.95-${{ hashFiles('src-tauri/Cargo.lock') }}-
       - run: npm ci
       - run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
       - run: |
