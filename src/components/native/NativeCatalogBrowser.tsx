@@ -9,6 +9,7 @@ import {
   Search,
   Square,
   Tv,
+  Heart,
 } from "lucide-react";
 import type {
   CatalogKind,
@@ -310,6 +311,7 @@ function MediaCatalog({
             mediaId={feature.id}
             hasArtwork={feature.hasArtwork}
             className="browse-feature-art"
+            priority
           />
           <div className="browse-feature-shade" />
           <div>
@@ -396,8 +398,51 @@ function MediaCatalog({
     </div>
   );
 }
+function LiveFavorite({
+  item,
+  onError,
+}: {
+  item: NativeCatalogItem;
+  onError: (message: string) => void;
+}) {
+  const [saved, setSaved] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
+  const bump = useLibraryRevision((s) => s.bump);
+  const favorite = saved ?? item.favorite ?? false;
+  async function toggle() {
+    setBusy(true);
+    onError("");
+    try {
+      const state = await nativeApi.library(item.id);
+      const result = await nativeApi.setLibrary(
+        item.id,
+        !state.favorite,
+        state.watchlist,
+      );
+      setSaved(result.favorite);
+      bump();
+    } catch (error) {
+      onError(nativeError(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <button
+      className={`live-favorite ${favorite ? "active" : ""}`}
+      disabled={busy}
+      aria-pressed={favorite}
+      aria-label={`${favorite ? "Remover dos favoritos" : "Favoritar"} ${item.name || "canal"}`}
+      onClick={() => void toggle()}
+    >
+      <Heart size={17} fill={favorite ? "currentColor" : "none"} />
+    </button>
+  );
+}
 function LiveWorkspace() {
-  const model = useBrowse("live");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [favoriteError, setFavoriteError] = useState("");
+  const model = useBrowse("live", favoritesOnly ? "favorites" : undefined);
   const session = usePlaybackStore((s) => s.session);
   const start = usePlaybackStore((s) => s.start);
   const setMode = usePlaybackStore((s) => s.setMode);
@@ -417,7 +462,36 @@ function LiveWorkspace() {
       )}
       <div className="live-browse-workspace">
         <aside className="live-browse-categories">
+          <h2>Sua TV</h2>
+          <div className="live-library-tabs">
+            <button
+              aria-pressed={!favoritesOnly}
+              className={!favoritesOnly ? "active" : ""}
+              onClick={() => {
+                setFavoritesOnly(false);
+                model.setOffset(0);
+              }}
+            >
+              Todos os canais
+            </button>
+            <button
+              aria-pressed={favoritesOnly}
+              className={favoritesOnly ? "active" : ""}
+              onClick={() => {
+                setFavoritesOnly(true);
+                model.setOffset(0);
+              }}
+            >
+              <Heart size={14} />
+              Favoritos
+            </button>
+          </div>
           <h2>Categorias</h2>
+          {favoriteError && (
+            <p className="notice" role="alert">
+              {favoriteError}
+            </p>
+          )}
           <Categories model={model} vertical />
         </aside>
         <section className="live-browse-channels">
@@ -429,32 +503,40 @@ function LiveWorkspace() {
           <div className="live-channel-scroll" aria-label="Lista de canais">
             {model.data ? (
               model.data.items.map((item) => (
-                <button
-                  key={item.id}
-                  className={`live-channel-row ${current?.id === item.id ? "active" : ""}`}
-                  onClick={() => choose(item)}
-                  aria-label={`${current?.id === item.id ? "Ampliar" : "Prévia de"} ${item.name || "canal"}`}
-                >
-                  <NativeArtwork
-                    mediaId={item.id}
-                    hasArtwork={item.hasArtwork}
-                  />
-                  <span>
-                    <strong>{item.name || "Nome não fornecido"}</strong>
-                    <small>{item.category || "Categoria não informada"}</small>
-                  </span>
-                  {current?.id === item.id ? (
-                    <span className="on-air-dot" />
-                  ) : (
-                    <Play size={14} />
-                  )}
-                </button>
+                <div className="live-channel-entry" key={item.id}>
+                  <button
+                    className={`live-channel-row ${current?.id === item.id ? "active" : ""}`}
+                    onClick={() => choose(item)}
+                    aria-label={`${current?.id === item.id ? "Ampliar" : "Prévia de"} ${item.name || "canal"}`}
+                  >
+                    <NativeArtwork
+                      mediaId={item.id}
+                      hasArtwork={item.hasArtwork}
+                    />
+                    <span>
+                      <strong>{item.name || "Nome não fornecido"}</strong>
+                      <small>
+                        {item.category || "Categoria não informada"}
+                      </small>
+                    </span>
+                    {current?.id === item.id ? (
+                      <span className="on-air-dot" />
+                    ) : (
+                      <Play size={14} />
+                    )}
+                  </button>
+                  <LiveFavorite item={item} onError={setFavoriteError} />
+                </div>
               ))
             ) : (
               <p role="status">Carregando canais…</p>
             )}
             {model.data?.items.length === 0 && (
-              <p>Nenhum canal nesta categoria.</p>
+              <p>
+                {favoritesOnly
+                  ? "Nenhum favorito nesta categoria. Marque o coração ao lado de um canal."
+                  : "Nenhum canal nesta categoria."}
+              </p>
             )}
           </div>
           <Paging model={model} />

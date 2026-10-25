@@ -21,6 +21,7 @@ pub struct PlaybackStatus {
     pub episode_id: Option<String>,
     pub state: String,
     pub hud_ready: bool,
+    pub software_video: bool,
     pub action_id: u64,
     pub ui_action: Option<String>,
     pub position: f64,
@@ -58,6 +59,7 @@ pub enum Control {
     Fullscreen(bool),
     Chrome { fullscreen: bool, episodes: bool },
     Wake,
+    VideoCompatibility(bool),
     Stop,
 }
 enum Request {
@@ -378,11 +380,15 @@ impl Engine {
             ("config", "no"),
             ("terminal", "no"),
             ("msg-level", "all=no"),
-            ("input-default-bindings", "no"),
+            ("input-default-bindings", "yes"),
+            ("input-builtin-bindings", "no"),
+            ("input-builtin-dragging", "no"),
+            ("input-cursor", "yes"),
+            ("input-cursor-passthrough", "no"),
             ("input-vo-keyboard", "yes"),
             ("osc", "no"),
             ("osd-level", "0"),
-            ("cursor-autohide", "3000"),
+            ("cursor-autohide", "5000"),
             ("title", "NOVA PLAYER — Reprodução"),
             ("hwdec", "auto-safe"),
             ("network-timeout", "15"),
@@ -437,16 +443,16 @@ impl Engine {
             engine.option("osc", "yes")?;
             engine.option("osd-level", "1")?;
             engine.option("script-opts", concat!(
-                "osc-layout=floating,osc-title=NOVA PLAYER,osc-floatingtitle=no,osc-windowcontrols=no,",
+                "osc-layout=floating,osc-vidscale=yes,osc-floatingwidth=700,osc-valign=0.8,osc-title=NOVA PLAYER,osc-floatingtitle=no,osc-windowcontrols=no,",
                 "osc-background_color=#111113,osc-held_element_color=#E52335,osc-timecode_color=#E52335,",
-                "osc-hidetimeout=3000,osc-fadeduration=0,osc-idlescreen=no,",
+                "osc-hidetimeout=5000,osc-fadeduration=0,osc-idlescreen=no,",
                 "osc-title_mbtn_left_command=,osc-title_mbtn_mid_command=,osc-title_mbtn_right_command=,",
                 "osc-menu_mbtn_left_command=script-message-to nova_hud settings,",
                 "osc-audio_track_mbtn_left_command=script-message-to nova_hud audio,",
                 "osc-audio_track_mbtn_right_command=script-message-to nova_hud audio,",
                 "osc-sub_track_mbtn_left_command=script-message-to nova_hud sub,",
                 "osc-sub_track_mbtn_right_command=script-message-to nova_hud sub,",
-                "osc-volume_mbtn_right_command=,",
+                "osc-volume_mbtn_left_command=script-message-to nova_hud volume,osc-volume_mbtn_right_command=cycle mute,",
                 "osc-fullscreen_mbtn_left_command=script-message nova-ui fullscreen,",
                 "osc-fullscreen_mbtn_right_command=,",
                 "osc-skip_backward_mbtn_left_down_command=script-message-to nova_hud backward,",
@@ -546,6 +552,7 @@ impl Engine {
                 if episodes { "yes" } else { "no" },
             ]),
             Control::Wake => self.command(&["script-message-to", "nova_hud", "activity"]),
+            Control::VideoCompatibility(v) => self.set("hwdec", if v { "no" } else { "auto-safe" }),
             Control::Pause(v) => self.set("pause", if v { "yes" } else { "no" }),
             Control::Mute(v) => self.set("mute", if v { "yes" } else { "no" }),
             Control::Fullscreen(v) => self.set("fullscreen", if v { "yes" } else { "no" }),
@@ -639,6 +646,7 @@ impl Engine {
         status.duration = self.number("duration");
         status.volume = self.number("volume");
         status.speed = self.number("speed");
+        status.software_video = self.property("hwdec").as_deref() == Some("no");
         status.paused = self.property("pause").as_deref() == Some("yes");
         status.muted = self.property("mute").as_deref() == Some("yes");
         status.seekable = self.property("seekable").as_deref() == Some("yes");
@@ -1082,6 +1090,71 @@ mod tests {
                 800.0,
                 "Vídeo deve acompanhar o resize da superfície"
             );
+            // Enviar entrada à janela real do mpv: testar script-binding não prova hit-testing.
+            engine
+                .command(&["script-message-to", "osc", "osc-visibility", "always"])
+                .unwrap();
+            std::thread::sleep(Duration::from_millis(200));
+            let video_hwnd = unsafe { GetWindow(child as *mut c_void, GW_CHILD) };
+            assert!(
+                !video_hwnd.is_null(),
+                "Janela interativa do mpv deve existir"
+            );
+            let point = |x: i32, y: i32| (x | (y << 16)) as isize;
+            let click = |x: i32, y: i32| unsafe {
+                SendMessageW(video_hwnd, WM_MOUSEMOVE, 0, point(x, y));
+                SendMessageW(video_hwnd, WM_LBUTTONDOWN, 1, point(x, y));
+                SendMessageW(video_hwnd, WM_LBUTTONUP, 0, point(x, y));
+            };
+            click(400, 396);
+            let deadline = std::time::Instant::now() + Duration::from_secs(2);
+            while engine.property("pause").as_deref() != Some("no")
+                && std::time::Instant::now() < deadline
+            {
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            assert_eq!(
+                engine.property("pause").as_deref(),
+                Some("no"),
+                "Clique real no HUD deve continuar reprodução"
+            );
+            std::thread::sleep(Duration::from_millis(350)); // fora do intervalo de duplo clique
+            click(400, 396);
+            let deadline = std::time::Instant::now() + Duration::from_secs(2);
+            while engine.property("pause").as_deref() != Some("yes")
+                && std::time::Instant::now() < deadline
+            {
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            assert_eq!(
+                engine.property("pause").as_deref(),
+                Some("yes"),
+                "Segundo clique real deve pausar"
+            );
+            engine.control(Control::Volume(80.0)).unwrap();
+            unsafe {
+                SendMessageW(video_hwnd, WM_MOUSEMOVE, 0, point(583, 396));
+            }
+            std::thread::sleep(Duration::from_millis(150));
+            unsafe {
+                SendMessageW(
+                    video_hwnd,
+                    WM_MOUSEWHEEL,
+                    ((-120i32 as u32) << 16) as usize,
+                    point(583, 396),
+                );
+            }
+            let deadline = std::time::Instant::now() + Duration::from_secs(2);
+            while engine.number("volume") >= 80.0 && std::time::Instant::now() < deadline {
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            assert!(
+                engine.number("volume") < 80.0,
+                "Roda do mouse sobre volume deve baixar som de verdade"
+            );
+            engine.control(Control::VideoCompatibility(true)).unwrap();
+            assert_eq!(engine.property("hwdec").as_deref(), Some("no"));
+            engine.control(Control::VideoCompatibility(false)).unwrap();
             engine
                 .command(&["script-binding", "nova_hud/nova-fullscreen"])
                 .unwrap();
@@ -1108,7 +1181,7 @@ mod tests {
                 hud_value(&engine, "user-data/nova/visibility").as_deref(),
                 Some("visible")
             );
-            std::thread::sleep(Duration::from_millis(3300));
+            std::thread::sleep(Duration::from_millis(5300));
             assert_eq!(
                 hud_value(&engine, "user-data/nova/visibility").as_deref(),
                 Some("hidden"),
@@ -1118,9 +1191,7 @@ mod tests {
                 hud_value(&engine, "user-data/osc/visibility").as_deref(),
                 Some("never")
             );
-            engine
-                .command(&["script-binding", "nova_hud/nova-wake"])
-                .unwrap();
+            engine.command(&["keypress", "x"]).unwrap();
             std::thread::sleep(Duration::from_millis(150));
             assert_eq!(
                 hud_value(&engine, "user-data/nova/visibility").as_deref(),

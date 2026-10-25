@@ -5,7 +5,7 @@ export function useIdleControls(enabled: boolean, hold: boolean) {
   const wake = useCallback(() => {
     clearTimeout(timer.current);
     setIdle(false);
-    if (enabled && !hold) timer.current = setTimeout(() => setIdle(true), 3000);
+    if (enabled && !hold) timer.current = setTimeout(() => setIdle(true), 5000);
   }, [enabled, hold]);
   useEffect(() => {
     const initial = setTimeout(wake, 0);

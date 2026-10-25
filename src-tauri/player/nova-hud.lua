@@ -36,7 +36,7 @@ local function wake()
         mp.commandv("script-message-to", "osc", "osc-visibility", "always")
     end
     if timer then timer:kill() end
-    timer = mp.add_timeout(3, function()
+    timer = mp.add_timeout(5, function()
         publish_visibility(false)
         mp.commandv("script-message-to", "osc", "osc-visibility", "never")
     end)
@@ -71,10 +71,20 @@ local function select_track(kind)
         if ids[i] then mp.set_property(kind == "audio" and "aid" or "sid", tostring(ids[i])) end
     end})
 end
+local function select_volume()
+    wake()
+    local labels = {"Silenciar"}
+    for value = 10, 100, 10 do labels[#labels+1] = tostring(value) .. "%" end
+    input.select({prompt="Volume", items=labels, submit=function(i)
+        local value = (i-1)*10
+        if value >= 0 and value <= 100 then mp.set_property_number("volume", value); mp.set_property_bool("mute", value == 0) end
+    end})
+end
+mp.register_script_message("volume", select_volume)
 local function settings()
     wake()
-    input.select({prompt="Reprodução",items={"Velocidade", "Áudio", "Legendas"},submit=function(i)
-        if i==1 then select_speed() elseif i==2 then select_track("audio") elseif i==3 then select_track("sub") end
+    input.select({prompt="Reprodução",items={"Velocidade", "Áudio", "Legendas", "Volume", "Alternar compatibilidade de vídeo"},submit=function(i)
+        if i==1 then select_speed() elseif i==2 then select_track("audio") elseif i==3 then select_track("sub") elseif i==4 then select_volume() elseif i==5 then mp.set_property("hwdec", mp.get_property("hwdec") == "no" and "auto-safe" or "no") end
     end})
 end
 mp.register_script_message("settings", settings)
@@ -106,7 +116,6 @@ mp.register_script_message("fullscreen-chrome", function(value, episodes)
 end)
 mp.register_script_message("activity", wake)
 mp.add_key_binding("ANY_UNICODE", "nova-wake", wake)
-mp.add_key_binding("MBTN_LEFT", "nova-wake-click", wake)
 mp.add_key_binding("TAB", "nova-wake-tab", wake)
 mp.add_key_binding("ENTER", "nova-wake-enter", wake)
 mp.add_key_binding("UP", "nova-wake-up", wake)

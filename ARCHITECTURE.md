@@ -152,3 +152,11 @@ A busca global continua consultando todas as fontes, independente dos filtros da
 Em tela cheia com HUD disponível, o cabeçalho e OSC são desenhados no próprio vídeo; o cabeçalho React não reserva altura. `Chrome` envia somente dois booleanos (fullscreen/episódios) ao script confiável. `Wake` sinaliza atividade da interface sem recarregar a mídia. Lua observa movimento dentro do HWND e os atalhos, mostra cabeçalho/OSC e oculta ambos três segundos depois, mesmo pausado. Botões superiores encaminham somente ações fixas para Voltar, tela cheia e painel de episódios; ajustes continuam nativos. Cursor tem prazo de três segundos. Não há alteração de codecs, rede, persistência ou credenciais.
 
 `useIdleControls` cobre o fallback React. Eventos globais de teclado reativam o HUD mesmo quando o foco está no WebView; mouse/teclado do vídeo são tratados no Lua. Painéis React abertos e erros mantêm seus controles acessíveis. Eventos nativos são tratados na consulta assíncrona de status, sem efeitos de estado encadeados. Sair de tela cheia restaura o cabeçalho de navegação e comportamento normal do OSC.
+
+## Revisão TV/HUD/imagens
+
+Favoritos da TV reutilizam library_state; catálogo inclui favorite/watchlist por subconsulta indexada, permitindo botões por registro sem IPC em massa. O filtro combina kind=live com collection=favorites; canal em reprodução independe da lista filtrada.
+
+Bindings fracos de scripts precisam de input-default-bindings=yes, enquanto input-builtin-bindings=no mantém os atalhos do executável mpv fora do app. A prova gráfica usa mensagens Win32 reais no filho do mpv e consulta pausa/volume, não somente script-binding. Timer passa a cinco segundos. Compatibilidade altera hwdec em execução, sem expor opções/URLs genéricas ao frontend.
+
+ImageCache separa locks por chave e escrita/quota; semáforos limitam rede a quatro e normalização a dois trabalhos. Cache hit lê de disco sem aguardar rede alheia. Entrada validada é normalizada para até 1600 px, JPEG/PNG sem metadados remotos. Memória da interface reutiliza dados por ID opaco com LRU limitado e expiração curta; pedidos simultâneos são compartilhados. Não reutilizar clientes sem pinagem/validação de endereço nem desabilitar TLS para ganhar desempenho.

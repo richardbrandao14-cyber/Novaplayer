@@ -1,3 +1,22 @@
+# TV favorita, HUD funcional e capas — revisão atual
+
+- TV: coração por canal, sem reproduzir ao favoritar; filtro Favoritos na própria TV. Estado salvo no SQLite existente e preservado ao atualizar a fonte. Consulta devolve indicadores em lote; não consulta favoritos individualmente ao carregar a lista. Filtrar/remover favorito não encerra o canal selecionado.
+- HUD: causa identificada no código oficial do mpv — `input-default-bindings=no` desativava vínculos fracos do OSC e dos seletores, embora o desenho e bindings forçados funcionassem. Agora vínculos de scripts são habilitados e os atalhos builtin continuam desabilitados. Mouse habilitado explicitamente. Volume tem seletor percentual por clique e roda do mouse. Prazo nativo/fallback/cursor: cinco segundos. A prova Windows envia movimento/clique/roda para a janela real e verifica pausa/volume, sem chamar diretamente o callback do botão; teclado usa `keypress` real.
+- Canais com áudio sem imagem: modo de compatibilidade em Ajustes (interface e HUD nativo), alternando decodificação por hardware/software sem adicionar outra conexão à fonte. É uma opção de diagnóstico/recuperação; causa dos canais do provedor ainda não confirmada. Pode aumentar uso de CPU.
+- Capas: removido bloqueio global durante rede/processamento. Até quatro downloads e dois processamentos simultâneos, deduplicação por chave, cache hits independentes, quota de disco preservada. Prazo total de rede por capa: 12 s. Derivados limitados a 1600 px, JPEG qualidade 88 quando opacos, PNG com transparência. Frontend compartilha pedidos e mantém LRU de 12 MiB/64 capas por até um minuto; destaques têm prioridade e antecipação de carregamento. URLs/credenciais continuam somente no backend; mesmas restrições de HTTPS, endereço público, TLS, tamanho e dimensões.
+
+## Validação local
+
+37 testes frontend, 15 cenários de navegação, 29 testes Rust do núcleo/HTTP, tipos/lint/Clippy/build Vite aprovados. Cenários novos verificam favoritar sem tocar, filtrar mantendo vídeo, dados persistidos/refresh tipado, memória/deduplicação/expiração de capas e operação de compatibilidade.
+
+Teste controlado de seis imagens com atraso simulado de 120 ms cada: paralelo 262 ms, sequencial 761 ms, pico de quatro downloads. A comparação usa mesma normalização e isola serialização; não mede CDN/provedor real. Cache hit não aguardou download lento; solicitações simultâneas da mesma capa baixaram uma única vez. [Medição](benchmarks/artwork-cache-2026-10-25.json).
+
+CI Windows/pacote desta revisão em validação. Confirmar no PC os canais afetados, cliques/volume, compatibilidade e velocidade real das capas. Não declarar os canais sem vídeo resolvidos sem evidência com a fonte real.
+
+---
+
+## Marco anterior — histórico
+
 # Tela cheia — controles por inatividade
 
 Pedido: Voltar e controles de reprodução só devem aparecer durante interação e desaparecer após cerca de três segundos.

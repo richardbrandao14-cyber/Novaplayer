@@ -115,6 +115,7 @@ export function NativeHome() {
           mediaId={feature.id}
           hasArtwork={feature.hasArtwork}
           className="cinema-feature-art"
+          priority
         />
         <div className="cinema-feature-shade" />
         <div className="cinema-feature-copy">

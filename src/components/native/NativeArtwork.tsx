@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { ImageOff } from "lucide-react";
-import { nativeApi } from "../../integrations/native";
+import { artworkImage } from "../../integrations/artworkCache";
 type ImageResult = { mediaId: string; image: string | null; failed: boolean };
 export function NativeArtwork({
   mediaId,
   hasArtwork,
   className = "",
+  priority = false,
 }: {
   mediaId: string;
   hasArtwork: boolean;
   className?: string;
+  priority?: boolean;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [visibleId, setVisibleId] = useState<string | null>(null);
@@ -25,29 +27,17 @@ export function NativeArtwork({
           observer.disconnect();
         }
       },
-      { rootMargin: "100px" },
+      { rootMargin: "300px" },
     );
     observer.observe(node);
     return () => observer.disconnect();
   }, [hasArtwork, mediaId]);
   useEffect(() => {
-    if (visibleId !== mediaId || !hasArtwork) return;
+    if ((!priority && visibleId !== mediaId) || !hasArtwork) return;
     let active = true;
-    nativeApi
-      .image(mediaId)
-      .then((data) => {
-        if (!active) return;
-        const allowed =
-          data &&
-          ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(
-            data.mime,
-          ) &&
-          data.base64.length <= 12_000_000;
-        setResult({
-          mediaId,
-          image: allowed ? `data:${data.mime};base64,${data.base64}` : null,
-          failed: !allowed,
-        });
+    artworkImage(mediaId)
+      .then((image) => {
+        if (active) setResult({ mediaId, image, failed: !image });
       })
       .catch(() => {
         if (active) setResult({ mediaId, image: null, failed: true });
@@ -55,7 +45,7 @@ export function NativeArtwork({
     return () => {
       active = false;
     };
-  }, [visibleId, hasArtwork, mediaId]);
+  }, [visibleId, hasArtwork, mediaId, priority]);
   const current = result?.mediaId === mediaId ? result : null;
   const image = current?.image;
   const failed = current?.failed ?? false;
@@ -71,7 +61,8 @@ export function NativeArtwork({
           width={500}
           height={680}
           decoding="async"
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
           onError={() => setResult({ mediaId, image: null, failed: true })}
         />
       ) : (

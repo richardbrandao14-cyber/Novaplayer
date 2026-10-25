@@ -21,6 +21,8 @@ export interface NativeCatalogItem {
   kind: CatalogKind;
   category: string | null;
   hasArtwork: boolean;
+  favorite?: boolean;
+  watchlist?: boolean;
   description: string | null;
   year: string | null;
   duration: string | null;

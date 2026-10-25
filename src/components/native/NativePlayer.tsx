@@ -565,6 +565,23 @@ export function NativePlayer({
                       ))}
                   </select>
                 </label>
+                <label className="video-compatibility">
+                  <span>Modo de compatibilidade de vídeo</span>
+                  <input
+                    type="checkbox"
+                    checked={!!status?.softwareVideo}
+                    onChange={(event) =>
+                      void control({
+                        kind: "videoCompatibility",
+                        value: event.target.checked,
+                      })
+                    }
+                  />
+                </label>
+                <p>
+                  Se houver áudio sem imagem, experimente este modo. A
+                  reprodução por software pode consumir mais CPU.
+                </p>
                 <p>
                   Espaço pausa · ← → avançam ou voltam · F alterna tela cheia ·
                   Esc volta.

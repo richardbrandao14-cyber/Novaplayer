@@ -1,0 +1,7 @@
+{
+  "scope": "Controlled local fixture; same normalization, synthetic fetch latency",
+  "images": 6, "synthetic_latency_ms": 120,
+  "parallel_ms": 262, "sequential_ms": 761, "peak_downloads": 4,
+  "real_provider_measured": false,
+  "deduplication_and_unblocked_cache_hit": "passed"
+}

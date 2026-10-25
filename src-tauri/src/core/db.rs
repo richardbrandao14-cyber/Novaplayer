@@ -34,9 +34,11 @@ fn item_row(row: &Row<'_>) -> rusqlite::Result<CatalogItem> {
         year: row.get(8)?,
         duration: row.get(9)?,
         rating: row.get(10)?,
+        favorite: row.get(11)?,
+        watchlist: row.get(12)?,
     })
 }
-const ITEM_COLUMNS:&str="id,source_id,external_id,name,kind,category,artwork IS NOT NULL,description,year,duration,rating";
+const ITEM_COLUMNS:&str="id,source_id,external_id,name,kind,category,artwork IS NOT NULL,description,year,duration,rating,COALESCE((SELECT favorite FROM library_state WHERE media_id=media_items.id),0),COALESCE((SELECT watchlist FROM library_state WHERE media_id=media_items.id),0)";
 impl Database {
     pub fn open(path: impl AsRef<Path>) -> CoreResult<Self> {
         let connection = Connection::open(path).map_err(db_error)?;
@@ -778,6 +780,61 @@ mod tests {
             Some(ep.as_str())
         );
         assert_eq!(db.resume_position(&id, Some(&ep)).unwrap(), 30.0);
+    }
+    #[test]
+    fn live_favorites_filter_is_typed_and_survives_catalog_refresh() {
+        let mut db = db();
+        let live = item("channel", "Canal");
+        let mut movie = item("movie", "Filme");
+        movie.kind = "movie".into();
+        db.replace_catalog(
+            "one",
+            &[live.clone(), movie.clone()],
+            &FixtureProtector,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        let all = db
+            .catalog(&CatalogQuery {
+                limit: 20,
+                ..Default::default()
+            })
+            .unwrap();
+        for record in &all.items {
+            db.set_library(&record.id, true, false).unwrap();
+        }
+        db.replace_catalog(
+            "one",
+            &[live, movie],
+            &FixtureProtector,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        let favorites = db
+            .catalog(&CatalogQuery {
+                kind: Some("live".into()),
+                collection: Some("favorites".into()),
+                limit: 20,
+                ..Default::default()
+            })
+            .unwrap();
+        assert_eq!(favorites.total, 1);
+        assert!(favorites.items[0].favorite);
+        assert!(!favorites.items[0].watchlist);
+        assert_eq!(favorites.items[0].name, "Canal");
+        db.set_library(&favorites.items[0].id, false, false)
+            .unwrap();
+        assert_eq!(
+            db.catalog(&CatalogQuery {
+                kind: Some("live".into()),
+                collection: Some("favorites".into()),
+                limit: 20,
+                ..Default::default()
+            })
+            .unwrap()
+            .total,
+            0
+        );
     }
     #[test]
     fn migration_pagination_identity_and_isolation() {

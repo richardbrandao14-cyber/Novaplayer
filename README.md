@@ -2,7 +2,11 @@
 
 Player desktop para **Windows 10/11 x64**. O usuário fornece suas fontes autorizadas; o app não oferece conteúdo ou assinatura.
 
-## Tela cheia — atualização aprovada
+## TV, controles e capas — revisão em validação
+
+Favoritos por canal com filtro próprio na TV, correção do mouse do HUD, controles com prazo de cinco segundos e modo de compatibilidade para experimentar em canais com áudio sem imagem. Capas agora usam carregamento paralelo limitado, cache compartilhado, derivados menores e prioridade para destaques. Ver pacote/evidências atuais no [checkpoint](docs/PLAYBACK_CHECKPOINT.md).
+
+## Tela cheia — marco anterior aprovado
 
 Voltar e controles agora desaparecem após cerca de três segundos sem interação e reaparecem com mouse/teclado. O vídeo ocupa toda a janela, com cabeçalho nativo sobre a imagem. **[Baixar ZIP Windows atualizado](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40198382897/artifacts/12601015641) — 82,5 MB.** [Gates web/core/Windows aprovados](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40198382897). Feche o app e extraia todo o ZIP, incluindo `nova-hud.lua`; copiar só o exe não atualiza o HUD. [Evidências e limites](docs/PLAYBACK_CHECKPOINT.md).
 

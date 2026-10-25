@@ -33,6 +33,8 @@ pub struct CatalogItem {
     pub kind: String,
     pub category: Option<String>,
     pub has_artwork: bool,
+    pub favorite: bool,
+    pub watchlist: bool,
     pub description: Option<String>,
     pub year: Option<String>,
     pub duration: Option<String>,

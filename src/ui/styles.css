@@ -3648,3 +3648,73 @@ body {
 .watch-fullscreen.watch-idle:not(.watch-native-chrome) .watch-toolbar { opacity:0;visibility:hidden;pointer-events:none; }
 .watch-fullscreen.watch-idle { cursor:none; }
 .watch-fullscreen .watch-panel { padding-top:88px; }
+.live-channel-entry {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.live-channel-entry .live-channel-row {
+  min-width: 0;
+  flex: 1;
+}
+.live-favorite {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 36px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #8f8295;
+  cursor: pointer;
+}
+.live-favorite:hover,
+.live-favorite.active {
+  color: #ff6377;
+  background: #e5233512;
+}
+.live-favorite:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+.live-library-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 16px;
+}
+.live-library-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #aaa0b0;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+.live-library-tabs button.active {
+  color: #ff6575;
+  background: #e523351c;
+}
+.watch-panel .video-compatibility {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.watch-panel .video-compatibility input {
+  accent-color: #e52335;
+}
+@media (max-width: 1200px) {
+  .live-library-tabs {
+    flex-direction: row;
+    margin-bottom: 6px;
+  }
+  .live-browse-categories {
+    min-width: 0;
+  }
+}

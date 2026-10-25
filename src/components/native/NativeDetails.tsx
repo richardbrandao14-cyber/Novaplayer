@@ -127,6 +127,7 @@ function DetailsPage({
           mediaId={item.id}
           hasArtwork={item.hasArtwork}
           className="detail-page-backdrop"
+          priority
         />
         <div className="detail-page-shade" />
         <div className="detail-page-copy">

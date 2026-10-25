@@ -1,3 +1,9 @@
+# Revisão atual — TV/HUD/capas
+
+37 testes frontend, 15 Playwright, 29 Rust headless e tipos/lint/Clippy/build web aprovados. Prova Windows ampliada: cliques reais de continuar/pausar e roda para baixar volume na janela mpv, troca de compatibilidade, ocultação em cinco segundos e despertar por tecla real. Gate/pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Fixtures web não substituem essa prova. Benchmark controlado de imagens documentado, sem promessa de velocidade em provedor real.
+
+---
+
 # Controles em tela cheia — revisão atual
 
 35 testes frontend e build/tipos/lint aprovados. Três testes novos verificam prazo de três segundos, reinício por interação, manutenção de acesso com painel aberto e ausência de ocultação fora da tela cheia. Playwright: 14 cenários, incluindo o fluxo temporizado com mouse/teclado e ajustes. A prova gráfica Windows verifica o HUD nativo visível, ocultação após inatividade mesmo pausado, OSC oculto e reativação por binding. [Gates Windows aprovados](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40198382897): quatro provas libmpv, fmt, Clippy, Rust/DPAPI e build Tauri. Pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Navegador usa IPC controlado e não comprova desenho do HWND; teste manual com provedor permanece necessário.

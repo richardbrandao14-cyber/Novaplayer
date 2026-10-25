@@ -96,7 +96,11 @@ async function fixture(page: import("@playwright/test").Page) {
                     : state(row.id).position > 5),
             );
             return {
-              items: rows.slice(0, query.limit || 60),
+              items: rows.slice(0, query.limit || 60).map((row) => ({
+                ...row,
+                favorite: state(row.id).favorite,
+                watchlist: state(row.id).watchlist,
+              })),
               total: rows.length,
               nextOffset: null,
             };
@@ -804,24 +808,87 @@ test("tela cheia oculta controles após inatividade, reativa com mouse/teclado e
   await page.mouse.move(350, 350);
   await expect(
     player.getByRole("button", { name: "Voltar", exact: true }),
-  ).toBeHidden({ timeout: 5000 });
+  ).toBeHidden({ timeout: 7000 });
   await page.mouse.move(400, 400);
   await expect(
     player.getByRole("button", { name: "Voltar", exact: true }),
   ).toBeVisible();
   await expect(
     player.getByRole("button", { name: "Voltar", exact: true }),
-  ).toBeHidden({ timeout: 5000 });
+  ).toBeHidden({ timeout: 7000 });
   await page.keyboard.press("x");
   await expect(
     player.getByRole("button", { name: "Voltar", exact: true }),
   ).toBeVisible();
   await player.getByRole("button", { name: "Ajustes", exact: true }).click();
-  await page.waitForTimeout(3300);
+  await page.waitForTimeout(5300);
   await expect(
     player.getByRole("combobox", { name: "Velocidade", exact: true }),
   ).toBeVisible();
   await expect(
     player.getByRole("button", { name: "Voltar", exact: true }),
+  ).toBeVisible();
+});
+
+test("TV salva favoritos sem iniciar canal e filtra a lista pessoal", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page
+    .getByRole("navigation", { name: "Navegação principal" })
+    .getByRole("button", { name: "TV ao Vivo", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Favoritar Canal de teste 1", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Remover dos favoritos Canal de teste 1",
+      exact: true,
+    }),
+  ).toHaveAttribute("aria-pressed", "true");
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as { novaFixtureCalls: { command: string }[] }
+        ).novaFixtureCalls.filter((c) => c.command === "play_media").length,
+    ),
+  ).toBe(0);
+  await page
+    .getByRole("button", { name: "Prévia de Canal de teste 1", exact: true })
+    .click();
+  await expect(
+    page.getByRole("main", { name: "Prévia de Canal de teste 1", exact: true }),
+  ).toBeVisible();
+  await page
+    .locator(".live-library-tabs")
+    .getByRole("button", { name: "Favoritos", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Ampliar Canal de teste 1",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: "Prévia de Canal de teste 2",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("button", {
+      name: "Remover dos favoritos Canal de teste 1",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByText(
+      "Nenhum favorito nesta categoria. Marque o coração ao lado de um canal.",
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("main", { name: "Prévia de Canal de teste 1", exact: true }),
   ).toBeVisible();
 });

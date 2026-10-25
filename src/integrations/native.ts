@@ -81,6 +81,7 @@ export interface PlaybackStatus {
   actionId?: number;
   uiAction?: string | null;
   hudReady?: boolean;
+  softwareVideo?: boolean;
   state: string;
   position: number;
   duration: number;
@@ -93,7 +94,10 @@ export interface PlaybackStatus {
   error: string | null;
 }
 export type PlayerControl =
-  | { kind: "pause" | "mute" | "fullscreen"; value: boolean }
+  | {
+      kind: "pause" | "mute" | "fullscreen" | "videoCompatibility";
+      value: boolean;
+    }
   | { kind: "volume" | "seek" | "speed" | "audio" | "subtitle"; value: number }
   | { kind: "chrome"; value: { fullscreen: boolean; episodes: boolean } }
   | { kind: "stop" | "wake" };
