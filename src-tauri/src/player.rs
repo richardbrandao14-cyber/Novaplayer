@@ -503,19 +503,14 @@ mod tests {
                                 .nth(1)
                                 .unwrap_or("")
                                 .trim_start_matches('/');
-                            if ![
-                                "index.m3u8",
-                                "segment0.m2ts",
-                                "segment1.m2ts",
-                                "segment2.m2ts",
-                            ]
-                            .contains(&path)
+                            if !["index.m3u8", "segment0.ts", "segment1.ts", "segment2.ts"]
+                                .contains(&path)
                             {
                                 continue;
                             }
                             let body = std::fs::read(
                                 Path::new(env!("CARGO_MANIFEST_DIR"))
-                                    .join("../tests/fixtures/player-hls")
+                                    .join("tests/fixtures/player-hls")
                                     .join(path),
                             )
                             .unwrap();
@@ -551,7 +546,7 @@ mod tests {
     #[ignore = "Exige DLL Windows verificada; executar explicitamente na PoC CI"]
     fn windows_mpv_decodes_local_video_and_pcm_audio() {
         let path = std::env::var("NOVA_MPV_DLL").expect("NOVA_MPV_DLL obrigatório na PoC");
-        let fixture = Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/fixtures/player-av.avi");
+        let fixture = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/player-av.avi");
         let mut engine = Engine::open(Path::new(&path), true).expect("Inicialização libmpv");
         engine
             .command(&["loadfile", fixture.to_str().unwrap(), "replace"])

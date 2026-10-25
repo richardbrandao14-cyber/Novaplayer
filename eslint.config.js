@@ -8,6 +8,7 @@ export default ts.config(
       "dist/**",
       "node_modules/**",
       "src-tauri/target/**",
+      "src-tauri/tests/fixtures/**", // .ts aqui é MPEG-TS binário, não TypeScript.
       "playwright-report/**",
       "test-results/**",
     ],
