@@ -1,4 +1,4 @@
-> **Marco atual:** correção Xtream e reprodução nativa Windows em validação. O pacote de teste passa a exigir `nova-player.exe` e `libmpv-2.dll` na mesma pasta. Extraia o ZIP inteiro. Janela de vídeo própria; áudio e controles nativos. Veja [checkpoint](docs/PLAYBACK_CHECKPOINT.md), [testes](TESTING.md) e [licenças](THIRD_PARTY_NOTICES.md). Testes no provedor real e som audível permanecem pendentes até execução manual.
+> **Teste Windows com player disponível:** [baixe o artefato NOVA-PLAYER-Windows-x64-test](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40161854232) (82 MB). Extraia **todo o ZIP**, mantenha `nova-player.exe` e `libmpv-2.dll` na mesma pasta e abra o novo executável. Em Minhas Listas, use a fonte real e Atualizar lista; abra o conteúdo e reproduza. Séries: selecione o episódio e use Reproduzir episódio. O vídeo abre em janela própria; os controles ficam no NOVA PLAYER. [Evidências e limites](docs/PLAYBACK_CHECKPOINT.md): importação/decodificação automatizadas aprovadas, reteste da fonte Horizon e áudio audível pendentes no PC do proprietário.
 
 # NOVA PLAYER
 

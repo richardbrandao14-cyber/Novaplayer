@@ -1,6 +1,8 @@
 # Roadmap e gates técnicos
 
-A solicitação explícita mais recente autoriza somente a Fase 3 e a preparação de teste Windows. O escopo da Fase 1 foi ampliado pelo proprietário para incluir oito telas demonstrativas; a Fase 2 as refina sobre a mesma base. Este plano não autoriza a Fase 3. Cada fase encerra com revisão técnica, evidências e riscos; obter autorização antes de iniciar a próxima.
+Autorização atual: Windows 10/11 x64, importação real e reprodução com áudio de TV, filmes e episódios. O proprietário confirmou que a mesma fonte Horizon funciona nos três módulos do Smarters; a mensagem antiga do NOVA era genérica e o reteste da versão corrigida está pendente. Prioridade é funcionamento completo desse fluxo; refinamentos visuais ficam para depois. GPL versão 3 ou posterior autorizada. Sem instalador, Release ou publicação.
+
+Fases 0–3 têm implementação e evidências descritas nos relatórios. O recorte de reprodução nativa da Fase 5 foi autorizado explicitamente; usa janela própria e testes Windows antes do build. Isso não encerra os gates manuais de áudio, GPU, estabilidade, provedores ou distribuição. Veja [checkpoint atual](docs/PLAYBACK_CHECKPOINT.md). Os registros históricos abaixo não substituem esta autorização.
 
 | Fase | Entrega | Gate de saída |
 | --- | --- | --- |

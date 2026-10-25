@@ -97,3 +97,15 @@ O proprietário autorizou libmpv, áudio e GPL em 25/10/2026. Implementação em
 A PoC Windows deve executar explicitamente o teste ignorado `windows_mpv_decodes_local_video_and_pcm_audio` com `NOVA_MPV_DLL` apontando para a DLL verificada. Usa AVI sintético local (padrão de teste + tom de 440 Hz, criado via FFmpeg), saída de vídeo e áudio nulas: verifica decodificação, avanço do relógio, pausa, volume, mudo e seek. Depois abre HLS sintético (MPEG-2/AAC) via HTTP local e verifica áudio/vídeo e avanço do relógio. **Não comprova áudio audível, renderização GPU, codecs de provedores, HLS de provedores, DPI, monitor, fullscreen ou drivers de áudio.** Esses itens precisam de teste Windows manual; não equivalem a build aprovado.
 
 Teste manual agrupado: extrair o ZIP inteiro, abrir aplicativo, cadastrar fonte real, importar e abrir canal/filme/episódio; confirmar imagem, ouvir áudio, testar volume/mudo, faixas disponíveis, pausa/seek apenas quando suportados, tela cheia, fechar/reabrir vídeo e encerrar aplicativo. Não enviar senhas nem URLs completas ao suporte.
+
+### Evidência do fluxo integrado
+
+Na revisão `7892e23`, o gate Windows executa explicitamente dois testes ignorados nas suítes comuns (`cargo test ... windows_mpv_ -- --ignored --nocapture`). Um cobre AVI local, controles de pausa/volume/mudo/seek, HLS por HTTP e bloqueio de referência a arquivo local em HLS remoto. O segundo autentica em um servidor Xtream sintético, importa TV/filme/série com SQLite e DPAPI reais, consulta episódio por ID interno e decodifica vídeo **e áudio** das três URLs recuperadas pelo backend. O filme/episódio usa MP4 H.264/AAC; a TV usa MPEG-TS MPEG-2/AAC. Todos são fixtures locais, sem credenciais reais.
+
+Amostra HLS inicialmente usou extensão incompatível com a lista de segmentos permitidos do FFmpeg. Após corrigir a amostra, o log Windows mostrou que `access-references=no` bloqueava os segmentos HTTP. A correção permite referências de rede com protocolos aninhados limitados e `load-unsafe-playlists=no`; o teste negativo serve uma playlist real que aponta a um segmento local válido e exige falha. Logs do decodificador são habilitados **somente** em testes com essas fixtures; a aplicação mantém logs do motor desligados.
+
+O proprietário confirmou que Horizon reproduz TV, filmes e séries no Smarters no mesmo PC. No NOVA antigo: 0 registros, 0 processados, erro genérico. Não há código de erro original nem acesso à fonte real no ambiente. As correções de endpoint Xtream e mensagens são comprovadas nos testes; o funcionamento da Horizon no NOVA continua pendente de reteste no computador do proprietário.
+
+### Resultado final do build de teste
+
+[CI Windows/web/core](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40161854232) aprovada em 25/10/2026 para `7892e23`. Dois testes de reprodução executados explicitamente e aprovados; demais gates e build passaram. Pacote portátil com executável, DLL verificada e avisos, 82 MB, artefato `12586348139`. Detalhes e digest em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Imagem visível, som audível e Horizon real ainda não validados manualmente.
