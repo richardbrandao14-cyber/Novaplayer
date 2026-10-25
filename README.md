@@ -11,7 +11,9 @@ Importação real M3U/Xtream, SQLite e reprodução com áudio via libmpv implem
 - Séries com página cinematográfica, temporadas e cartões de episódios com imagens da fonte ou frame real quando possível.
 - Menu recolhível com ícones/texto, rolagem sem barras e persistência de favoritos/progresso.
 
-**Revisão em validação Windows.** O último pacote aprovado está no [checkpoint de reprodução](docs/PLAYBACK_CHECKPOINT.md), junto às evidências e limites. Não foi criado instalador, Release ou publicação.
+**[Baixar pacote Windows de teste](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40193987175/artifacts/12599217378) — 82,5 MB.** [CI aprovada](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40193987175): web, núcleo e Windows, incluindo quatro provas explícitas de libmpv. Feche a versão anterior, extraia **todo o ZIP** e abra `nova-player.exe`; mantenha DLL e HUD na mesma pasta. Não foi criado instalador, Release ou publicação.
+
+[Evidências e limites](docs/PLAYBACK_CHECKPOINT.md). Os novos fluxos e imagens ainda precisam de teste manual com a Horizon no PC.
 
 [Captura da página de série](docs/screenshots/nova-series-page-fixture.png), com imagens e dados sintéticos identificados. A prévia web não comprova reprodução nativa.
 

@@ -1,4 +1,4 @@
-# NOVA Library — navegação contextual (revisão em validação)
+# NOVA Library — navegação contextual
 
 Pedido autorizado: catálogo cinematográfico em TV/filmes/séries, menu com ícones e texto quando expandido, rolagem funcional sem barras, detalhes próprios e episódios visuais. A composição integrada anterior foi aprovada visualmente pelo proprietário.
 
@@ -12,9 +12,11 @@ Pedido autorizado: catálogo cinematográfico em TV/filmes/séries, menu com íc
 
 ## Evidência da revisão
 
-Validação local: TypeScript, ESLint, 32 testes de componentes/unidade, build Vite e 26 testes Rust sem WebView aprovados. 11 cenários Playwright aprovados, incluindo os fluxos novos. Gate Windows será registrado após a execução. A captura `docs/screenshots/nova-series-page-fixture.png` é da interface real com fixture explicitamente sintética; não demonstra reprodução nativa.
+Validação local: TypeScript, ESLint, 32 testes de componentes/unidade, build Vite e 26 testes Rust sem WebView aprovados. 11 cenários Playwright aprovados, incluindo os fluxos novos. [CI Windows/web/core](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40193987175) aprovada em 25/10/2026 para o código `f33cd56b90f7ddbc684918d89ffd1af3c63ba271`. Os quatro testes explícitos libmpv (incluindo captura real sem áudio e início na posição solicitada), fmt, Clippy, suíte Rust/DPAPI e build Tauri passaram.
 
-Pendente nesta etapa: build/PoC Windows com captura real via libmpv e retomada; teste manual da Horizon, imagens de episódios, prévia lateral/retorno, áudio e DPI. Não interpretar teste Chromium com IPC controlado como transmissão real. Sem instalador ou Release.
+Artefato [NOVA-PLAYER-Windows-x64-test](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40193987175/artifacts/12599217378), ID `12599217378`, 82,5 MB, SHA-256 do ZIP `d489c1c8ca350fcaab3440a452f6a4a478c080d6897f3272abac48c741a9c831`. Inclui exe, DLL, HUD, avisos e distribuição original do motor. Commits posteriores somente de documentação não mudam o executável. A captura `docs/screenshots/nova-series-page-fixture.png` é da interface real com fixture explicitamente sintética; não demonstra reprodução nativa.
+
+Pendente: teste manual da Horizon com os novos fluxos, imagens de episódios, prévia lateral/retorno, áudio, DPI e retomada após fechar/reabrir o aplicativo. A prova de retomada cobre posição inicial do motor e persistência no núcleo separadamente; não é automação ponta a ponta do WebView Windows. Não interpretar teste Chromium com IPC controlado como transmissão real. Sem instalador ou Release.
 
 ---
 

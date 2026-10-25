@@ -1,3 +1,13 @@
+# Marco atual — NOVA Library
+
+O proprietário confirmou reprodução real da Horizon e autorizou o player integrado e as melhorias de TV/filmes/séries. A revisão atual acrescenta páginas próprias, temporadas/episódios visuais, prévia lateral de TV, favoritos/Minha Lista/retomada persistidos. Os limites anteriores de fase abaixo são históricos; a autoridade atual está em AGENTS.md.
+
+Gate web/núcleo aprovado; testes nativos Windows de decodificação, HWND/HUD, imagem real e posição de início aprovados nesta revisão. Conferir build/pacote final em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Próximo marco: validar no PC Horizon → TV prévia/fullscreen/retorno, filme → favoritos/retomada e série → imagens/temporada/episódio. Medir comportamento e corrigir problemas comprovados antes de novas funcionalidades. Não há autorização para instalador, Release, publicação, serviços pagos ou novos provedores de metadados.
+
+---
+
+## Histórico de planejamento
+
 > Atualização de escopo: proprietário confirmou Horizon funcionando e autorizou NOVA Cinema, vídeo na mesma janela, HUD, um clique e séries organizadas, com referências visuais de streaming. Concluir este marco primeiro. O estudo de melhorias adicionais de usabilidade foi pedido para depois, sem implementação automática. Registros anteriores abaixo são históricos. Evidência atual em docs/PLAYBACK_CHECKPOINT.md.
 
 # Roadmap e gates técnicos

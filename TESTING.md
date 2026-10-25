@@ -3,9 +3,9 @@
 A revisão atual introduz TV em prévia lateral, páginas de filme/série, episódios com imagens e biblioteca/progresso no SQLite v2. Ver [checkpoint](docs/PLAYBACK_CHECKPOINT.md).
 
 - `npm run check`: tipos, lint, 32 testes e build web aprovados localmente.
-- `NOVA_CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e`: cenários com IPC controlado, TV primeiro/segundo clique sem recarregar, retorno, rolagem invisível funcional, menu, ações da biblioteca e temporada preservada. Ver resultado final no checkpoint.
+- `NOVA_CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e`: cenários com IPC controlado, TV primeiro/segundo clique sem recarregar, retorno, rolagem invisível funcional, menu, ações da biblioteca e temporada preservada. 11 cenários aprovados localmente e no job web da CI.
 - `cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --locked`: 26 testes aprovados localmente, incluindo migração do esquema anterior, reabertura em disco, progresso/favoritos após refresh e isolamento de episódios. Clippy do núcleo aprovado.
-- Gate Windows: os três testes existentes de libmpv/integração/HWND são preservados; um quarto extrai PNG real limitado e verifica início na posição solicitada. Deve passar antes da entrega.
+- Gate Windows: os três testes existentes de libmpv/integração/HWND são preservados; um quarto extrai PNG real limitado e verifica início na posição solicitada. Os quatro passaram no Windows na [execução 40193987175](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40193987175), junto de Clippy, suíte Rust/DPAPI e build Tauri.
 
 Capturas com fixtures locais não validam decodificação. CI nativa não comprova som audível nem a Horizon. Validar manualmente: TV prévia → fullscreen → voltar, trocar canal/categoria; filme favorito/Minha Lista/assistir/retomar após fechar; série temporada/episódio/imagem e retorno; áudio/HUD/DPI.
 
