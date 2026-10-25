@@ -54,7 +54,10 @@ jobs:
           cargo test --manifest-path src-tauri/Cargo.toml --locked windows_mpv_ -- --ignored --nocapture 2>&1 | Tee-Object -FilePath windows-player-poc.log
           $stepExit = $LASTEXITCODE
           if ($stepExit -ne 0) {
-            $diagnostic = (Get-Content windows-player-poc.log -Tail 80) -join "`n"
+            Get-Content windows-player-poc.log | Where-Object { $_ -match '^HUD_IMAGE_PART_\d+:[A-Za-z0-9+/=]+$' } | ForEach-Object {
+              Write-Output "::notice title=HUD fixture image::$_"
+            }
+            $diagnostic = (Get-Content windows-player-poc.log -Tail 80 | Where-Object { $_ -notmatch '^HUD_IMAGE_PART_' }) -join "`n"
             $diagnostic = $diagnostic.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
             Write-Output "::error title=Windows libmpv PoC (fixtures locais)::$diagnostic"
             '### windows-player-poc — diagnóstico (somente fixtures locais)' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append

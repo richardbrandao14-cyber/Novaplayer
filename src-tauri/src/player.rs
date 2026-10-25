@@ -1166,7 +1166,10 @@ mod tests {
                 use base64::Engine as _;
                 let encoded = base64::engine::general_purpose::STANDARD.encode(jpeg);
                 for (index, chunk) in encoded.as_bytes().chunks(900).enumerate() {
-                    eprintln!("HUD_IMAGE_PART_{index}:{}", std::str::from_utf8(chunk).unwrap());
+                    eprintln!(
+                        "HUD_IMAGE_PART_{index}:{}",
+                        std::str::from_utf8(chunk).unwrap()
+                    );
                 }
                 eprintln!(
                     "HUD_CLICK mouse={:?} dimensions={:?} options={:?}",
