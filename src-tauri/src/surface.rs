@@ -84,7 +84,9 @@ impl VideoSurface {
                     0,
                     class.as_ptr(),
                     title.as_ptr(),
-                    0x40000000 | 0x04000000 | 0x02000000 | 4,
+                    // STATIC sem SS_NOTIFY retorna HTTRANSPARENT: vídeo aparece,
+                    // mas o Windows pode enviar o mouse à WebView atrás dele.
+                    0x40000000 | 0x04000000 | 0x02000000 | 0x00000100 | 4,
                     rect.x,
                     rect.y,
                     rect.width,

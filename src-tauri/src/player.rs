@@ -1018,7 +1018,7 @@ mod tests {
                 0,
                 name.as_ptr(),
                 title.as_ptr(),
-                WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                WS_OVERLAPPEDWINDOW | WS_VISIBLE | 0x100,
                 40,
                 40,
                 1000,
@@ -1115,7 +1115,14 @@ mod tests {
             let click = |x: i32, y: i32| unsafe {
                 let mut screen = windows_sys::Win32::Foundation::POINT { x, y };
                 windows_sys::Win32::Graphics::Gdi::ClientToScreen(video_hwnd, &mut screen);
-                SetCursorPos(screen.x, screen.y);
+                let moved = SetCursorPos(screen.x, screen.y);
+                std::thread::sleep(Duration::from_millis(120));
+                let hit = WindowFromPoint(screen);
+                eprintln!(
+                    "HUD_POINTER moved={moved} hit_video={} hit_descendant={}",
+                    hit == video_hwnd,
+                    IsChild(video_hwnd, hit)
+                );
                 SendMessageW(video_hwnd, WM_MOUSEMOVE, 0, point(x, y));
                 std::thread::sleep(Duration::from_millis(180));
                 SendMessageW(video_hwnd, WM_LBUTTONDOWN, 1, point(x, y));
