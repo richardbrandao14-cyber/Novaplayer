@@ -1,6 +1,6 @@
 # Revisão atual — TV/HUD/capas
 
-37 testes frontend, 15 Playwright, 29 Rust headless e tipos/lint/Clippy/build web aprovados. Prova Windows ampliada: cliques reais de continuar/pausar e roda para baixar volume na janela mpv, troca de compatibilidade, ocultação em cinco segundos e despertar por tecla real. Gate/pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Fixtures web não substituem essa prova. Benchmark controlado de imagens documentado, sem promessa de velocidade em provedor real.
+37 testes frontend, 15 Playwright, 29 Rust headless e tipos/lint/Clippy/build web aprovados. Prova Windows ampliada: entrada por coordenadas e pressionar/soltar para continuar/pausar no OSC, roda para baixar volume, troca de compatibilidade, ocultação em cinco segundos e despertar por tecla. O host é verificado por WM_NCHITTEST/WM_MOUSEMOVE; desktop bloqueado da CI usa a API pública de entrada do mpv para os botões. Não substitui clique manual na composição Tauri/WebView2. [CI Windows/web/core](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40243312208) aprovada para `b6a6140`: quatro provas libmpv, suíte Rust/DPAPI, fmt/Clippy e build Tauri. Pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Fixtures web não substituem essa prova. Benchmark controlado de imagens documentado, sem promessa de velocidade em provedor real.
 
 ---
 

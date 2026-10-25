@@ -2,17 +2,17 @@
 
 Player desktop para **Windows 10/11 x64**. O usuário fornece suas fontes autorizadas; o app não oferece conteúdo ou assinatura.
 
-## TV, controles e capas — revisão em validação
+## TV, controles e capas — pacote atual
 
-Favoritos por canal com filtro próprio na TV, correção do mouse do HUD, controles com prazo de cinco segundos e modo de compatibilidade para experimentar em canais com áudio sem imagem. Capas agora usam carregamento paralelo limitado, cache compartilhado, derivados menores e prioridade para destaques. Ver pacote/evidências atuais no [checkpoint](docs/PLAYBACK_CHECKPOINT.md).
+Favoritos por canal com filtro próprio na TV, correção do mouse do HUD, controles com prazo de cinco segundos e modo de compatibilidade para experimentar em canais com áudio sem imagem. Capas agora usam carregamento paralelo limitado, cache compartilhado, derivados menores e prioridade para destaques. **[Baixar ZIP Windows atualizado](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40243312208/artifacts/12618225781) — 82,6 MB.** [Validação web/core/Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40243312208): testes, quatro provas libmpv e build Tauri aprovados. Feche o app e extraia **todo o ZIP**, incluindo DLL e `nova-hud.lua`, antes de abrir `nova-player.exe`. [Evidências e limites](docs/PLAYBACK_CHECKPOINT.md).
 
 ## Tela cheia — marco anterior aprovado
 
-Voltar e controles agora desaparecem após cerca de três segundos sem interação e reaparecem com mouse/teclado. O vídeo ocupa toda a janela, com cabeçalho nativo sobre a imagem. **[Baixar ZIP Windows atualizado](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40198382897/artifacts/12601015641) — 82,5 MB.** [Gates web/core/Windows aprovados](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40198382897). Feche o app e extraia todo o ZIP, incluindo `nova-hud.lua`; copiar só o exe não atualiza o HUD. [Evidências e limites](docs/PLAYBACK_CHECKPOINT.md).
+Voltar e controles agora desaparecem após cerca de três segundos sem interação e reaparecem com mouse/teclado. O vídeo ocupa toda a janela, com cabeçalho nativo sobre a imagem. **[ZIP Windows deste marco](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40198382897/artifacts/12601015641) — 82,5 MB.** [Gates web/core/Windows aprovados](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40198382897). Feche o app e extraia todo o ZIP, incluindo `nova-hud.lua`; copiar só o exe não atualiza o HUD. [Evidências e limites](docs/PLAYBACK_CHECKPOINT.md).
 
 ## Menu e busca — marco anterior aprovado
 
-Filmes/Séries agora abrem suas categorias no mesmo menu lateral, com retorno ao menu principal, Início direto e filtro de categorias. Busca global maior no topo; abrir/fechar durante prévia preserva o stream. [Captura identificada com dados de teste](docs/screenshots/nova-category-menu-fixture.png). **[Baixar ZIP Windows atualizado](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312/artifacts/12599836666) — 82,5 MB.** [CI aprovada](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312), com 32 testes frontend, 13 cenários de navegação, quatro provas libmpv e build Tauri. Feche a versão anterior e extraia todo o ZIP. Novos fluxos ainda precisam de confirmação manual com Horizon. [Evidências](docs/PLAYBACK_CHECKPOINT.md).
+Filmes/Séries agora abrem suas categorias no mesmo menu lateral, com retorno ao menu principal, Início direto e filtro de categorias. Busca global maior no topo; abrir/fechar durante prévia preserva o stream. [Captura identificada com dados de teste](docs/screenshots/nova-category-menu-fixture.png). **[ZIP Windows deste marco](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312/artifacts/12599836666) — 82,5 MB.** [CI aprovada](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312), com 32 testes frontend, 13 cenários de navegação, quatro provas libmpv e build Tauri. Feche a versão anterior e extraia todo o ZIP. Novos fluxos ainda precisam de confirmação manual com Horizon. [Evidências](docs/PLAYBACK_CHECKPOINT.md).
 
 ## Estado anterior aprovado
 
