@@ -1142,6 +1142,13 @@ mod tests {
                 SendMessageW(video_hwnd, WM_LBUTTONDOWN, 1, point(x, y));
                 std::thread::sleep(Duration::from_millis(60));
                 SendMessageW(video_hwnd, WM_LBUTTONUP, 0, point(x, y));
+                // O runner não possui cursor no desktop da janela (WindowFromPoint
+                // acima). Injetar um evento completo pela API pública de entrada,
+                // conservando resolução de seção, coordenadas e hit-testing do OSC.
+                // Não chamar script-binding nem atribuir pause para provar o clique.
+                engine
+                    .command(&["mouse", &x.to_string(), &y.to_string(), "0", "single"])
+                    .unwrap();
             };
             click(&mut engine, 400, 396);
             let deadline = std::time::Instant::now() + Duration::from_secs(2);
@@ -1158,9 +1165,10 @@ mod tests {
                 let shot = image::open(&diagnostic)
                     .unwrap()
                     .thumbnail(320, 180)
-                    .to_rgb8();
+                    .grayscale()
+                    .to_luma8();
                 let mut jpeg = Vec::new();
-                image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, 45)
+                image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, 30)
                     .encode_image(&shot)
                     .unwrap();
                 use base64::Engine as _;
