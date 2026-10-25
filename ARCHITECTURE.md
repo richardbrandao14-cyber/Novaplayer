@@ -1,3 +1,5 @@
+> Estado atual de reprodução e composição: [NOVA Cinema](docs/PLAYBACK_CHECKPOINT.md). O primeiro player em janela própria foi confirmado pelo proprietário com Horizon. A nova superfície é HWND filho da janela principal com HUD nativo OSC e script NOVA controlado; cabeçalho/painéis React não se sobrepõem à superfície. Gate gráfico Windows específico e reteste Tauri manual são distintos.
+
 # Arquitetura técnica
 
 Estado atual: interface demonstrativa, catálogo real M3U/Xtream e SQLite implementados. Player libmpv autorizado pelo proprietário e em validação Windows; decisão e evidências atuais em docs/PLAYBACK_CHECKPOINT.md e TESTING.md. As seções originais abaixo registram o planejamento e os critérios de validação. Único alvo do produto no escopo atual: Windows 10/11 x64. Linux e macOS não terão builds desktop ou compromissos de compatibilidade. Arquitetura selecionada: Tauri 2 + React/TypeScript/Vite, serviços Rust/Tokio, SQLite e libmpv condicionado à PoC.

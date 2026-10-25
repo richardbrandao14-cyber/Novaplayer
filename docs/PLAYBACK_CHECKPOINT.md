@@ -1,6 +1,31 @@
-> Novo marco em desenvolvimento: usuário confirmou a versão anterior funcionando com Horizon. Autorizou vídeo na mesma janela, HUD durante reprodução, acesso com um clique e visual inspirado nas referências de streaming. Superfície HWND filha do aplicativo + OSC embutido e script NOVA HUD controlado, sem WebView sobreposto ao vídeo. Gate gráfico Windows novo exige reprodução no HWND filho, script carregado, OSC ativo e captura da superfície. Resultado ainda pendente nesta revisão.
+# NOVA Cinema — player na mesma janela
 
-# Player Windows — checkpoint de desenvolvimento
+Marco autorizado pelo proprietário após confirmar reprodução da Horizon na versão anterior. Referências visuais fornecidas pelo proprietário orientam hierarquia, destaque e fileiras; a identidade permanece NOVA.
+
+## Experiência implementada
+
+- Biblioteca real com destaque amplo, pôsteres em fileiras, navegação compacta e ações Assistir/Mais informações. Metadados e imagens somente da fonte; a captura em docs/screenshots/nova-cinema-fixture.png está identificada como dados sintéticos.
+- Clique no canal ou filme inicia a reprodução; séries abrem temporadas e episódios, e clicar no episódio inicia. Voltar restaura a série e a temporada selecionada. Busca real também oferece o acesso direto.
+- Vídeo em HWND filho do aplicativo. React mantém cabeçalho, ajustes e painel de episódios fora da superfície; o HUD é desenhado pelo OSC no próprio vídeo, evitando disputa de sobreposição com WebView2.
+- Script local `nova-hud.lua` fornece menus de velocidade/áudio/legendas e atalhos fixos. Ele é incluído no pacote e carregado de caminho controlado; configuração, scripts automáticos e logs externos continuam desativados. O nome interno normalizado pelo mpv é `nova_hud`.
+- HUD com progresso, play/pause, volume, seek quando suportado, ajustes, velocidade e ação de tela cheia na janela Tauri. Controles acessíveis React ficam disponíveis por teclado; HUD desaparece automaticamente em reprodução e permanece quando pausado. Esc, espaço, setas, M e F têm comportamento próprio para foco no vídeo ou na interface.
+- ResizeObserver e coordenadas físicas ajustam a superfície; criação/reposicionamento HWND ocorrem na thread da janela. Montagem, troca e fechamento são serializados para evitar dupla abertura no StrictMode e corridas entre episódios. Nenhum fallback silencioso para janela externa.
+
+## Evidências desta revisão
+
+Código funcional: `94bd633003c50b4e98b556bff0ce2e259da13840`.
+[CI final Windows/web/core](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40165447010) aprovada em 25/10/2026. Os três testes explícitos de reprodução, fmt, Clippy, Rust Windows/DPAPI, TypeScript, ESLint, 32 testes frontend, 8 cenários de navegação e build Tauri passaram. Artefato `NOVA-PLAYER-Windows-x64-test`, ID `12588251735`, 82,4 MB; SHA-256 do ZIP `b5800333e59516b021610d825a3e2cf6b231090ef6010b0dc2905bc1f5b30daa`. Pacote inclui exe, DLL, script HUD, captura gráfica de teste e avisos. Commits posteriores de documentação não alteram esse executável.
+
+A última falha de conexão foi isolada no servidor de fixtures: leitura parcial dos headers TCP e necessidade de definir explicitamente modo bloqueante nos sockets aceitos no Windows. O servidor foi corrigido sem remover testes ou repetir automaticamente uma asserção que falhou. Fixtures de decodificação usam software, enquanto a prova gráfica mantém renderer real; configuração de hardware da aplicação permanece `auto-safe`.
+
+Local: TypeScript, ESLint, 32 testes frontend e build Vite aprovados; 8 cenários Playwright aprovados, incluindo biblioteca com fixtures, um clique, pausa por espaço, retorno à temporada e ausência de tráfego remoto na prévia. Os 24 testes do núcleo Rust passam no Linux sem WebView.
+
+A prova Windows possui três testes explícitos: decodificação/controles/HLS e bloqueio de arquivo local; Xtream → SQLite/DPAPI → canal/filme/episódio → decodificação; e HWND filho com saída gráfica real, Lua/OSC ativo, resize, ação de teclado encaminhada ao aplicativo e captura PNG com diversidade de pixels de vídeo. A prova gráfica usa janela de teste nativa; não equivale a teste manual da janela Tauri no computador do proprietário. Áudio da prova gráfica é desativado; decodificação de áudio permanece coberta pelos outros gates.
+
+Ainda requer teste no PC: composição WebView/vídeo com a Horizon real, áudio audível na nova composição, foco/mouse do HUD, menus, tela cheia, DPI 100/150/200%, troca de monitores e ciclos de abrir/voltar. Não há promessa de compatibilidade universal.
+
+## Histórico do primeiro marco de reprodução
+
 
 Autorizado pelo proprietário: reprodução nativa e áudio; licença GPL versão 3 ou posterior. Não inclui instalador, publicação ou Release.
 

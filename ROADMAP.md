@@ -1,3 +1,5 @@
+> Atualização de escopo: proprietário confirmou Horizon funcionando e autorizou NOVA Cinema, vídeo na mesma janela, HUD, um clique e séries organizadas, com referências visuais de streaming. Concluir este marco primeiro. O estudo de melhorias adicionais de usabilidade foi pedido para depois, sem implementação automática. Registros anteriores abaixo são históricos. Evidência atual em docs/PLAYBACK_CHECKPOINT.md.
+
 # Roadmap e gates técnicos
 
 Autorização atual: Windows 10/11 x64, importação real e reprodução com áudio de TV, filmes e episódios. O proprietário confirmou que a mesma fonte Horizon funciona nos três módulos do Smarters; a mensagem antiga do NOVA era genérica e o reteste da versão corrigida está pendente. Prioridade é funcionamento completo desse fluxo; refinamentos visuais ficam para depois. GPL versão 3 ou posterior autorizada. Sem instalador, Release ou publicação.

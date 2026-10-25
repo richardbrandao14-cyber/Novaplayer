@@ -46,3 +46,9 @@ A área de vídeo e o EPG são estruturas ilustrativas, sempre rotuladas. O bot�
 ## NOVA Crimson — refinamento aprovado em 24/10/2026
 
 A pedido do proprietário, o acento passa a vermelho NOVA (#E52335), com foco claro (#F76775), texto branco nas ações principais, grafite mais profundo e hero de maior escala. Cartões e trilhos ganham presença sem alterar a identidade/estrutura, copiar logotipos ou integrar serviços de streaming. Imagens demonstrativas permanecem locais e identificadas. Estados reduzidos de movimento e foco são preservados.
+
+## NOVA Cinema — biblioteca real
+
+Referências de streaming fornecidas pelo proprietário: destaque amplo, hierarquia centrada na obra, navegação compacta, fileiras de pôsteres e preto predominante. Manter identidade NOVA e vermelho como acento; não reproduzir logotipos nem inventar metadados, recomendações pessoais ou histórico. Hero e capas usam apenas imagens da fonte, com placeholders honestos.
+
+Séries: temporada explícita, cartões de episódio com número, título, descrição/duração quando fornecidas, clique direto e retorno com contexto preservado. Player: fundo preto, cabeçalho discreto e HUD nativo sobre o vídeo; painéis React ficam em área separada para respeitar a composição Windows. OSC usa fade zero e controles sem animações pesadas; o restante respeita movimento reduzido.

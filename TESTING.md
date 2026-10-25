@@ -109,3 +109,15 @@ O proprietário confirmou que Horizon reproduz TV, filmes e séries no Smarters 
 ### Resultado final do build de teste
 
 [CI Windows/web/core](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40161854232) aprovada em 25/10/2026 para `7892e23`. Dois testes de reprodução executados explicitamente e aprovados; demais gates e build passaram. Pacote portátil com executável, DLL verificada e avisos, 82 MB, artefato `12586348139`. Detalhes e digest em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Imagem visível, som audível e Horizon real ainda não validados manualmente.
+
+## NOVA Cinema — validação de usabilidade e composição nativa
+
+O proprietário confirmou que a versão anterior funcionou com a Horizon, relatando canal/filme/série abrindo e reproduzindo em janela separada. A revisão atual muda a superfície e o fluxo; a confirmação anterior não substitui o reteste desta composição.
+
+32 testes frontend e 8 Playwright aprovados localmente: um clique para filme/episódio, criação da superfície antes do load, montagem StrictMode sem dupla abertura, pausa por espaço, volume/mudo/velocidade, fechamento da superfície, retorno à temporada, navegação existente e prévia sem rede externa. A prévia usa dados e artes sintéticos, convertidos localmente para PNG somente pelo adaptador de teste. Não há mock de importação ou playback na aplicação distribuída.
+
+Novo gate Windows explícito: janela de teste + HWND filho + renderer gráfico real + script NOVA/OSC + resize para 800 pixels + ação Lua encaminhada + screenshot com pixels de vídeo. A prova não usa WebView e mantém áudio desativado nessa janela; os outros dois gates preservam testes de áudio e integração Xtream/DPAPI. Ver resultado final e limites em docs/PLAYBACK_CHECKPOINT.md.
+
+Teste manual agrupado: extrair ZIP completo; conferir `nova-player.exe`, `libmpv-2.dll` e `nova-hud.lua` juntos; abrir Horizon existente; testar um clique em canal/filme/episódio, HUD, áudio/legendas/velocidade, espaço/setas/M/F/Esc, voltar à mesma temporada, trocar conteúdo, redimensionar, tela cheia e fechar. Não gerar instalador nem Release.
+
+Resultado final NOVA Cinema: [CI](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40165447010) aprovada para `94bd633003c50b4e98b556bff0ce2e259da13840`; três provas de reprodução Windows, suites e build passaram. Artefato `12588251735` (82,4 MB). A correção do servidor de fixtures trata headers TCP completos e herança do modo não bloqueante no Windows. Nenhum teste removido/ignorado para liberar build; os testes marcados como ignorados nas suites comuns são executados explicitamente no gate.
