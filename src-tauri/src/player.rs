@@ -330,6 +330,7 @@ impl Engine {
             }
             engine.option("vo", "null")?;
             engine.option("ao", "null")?;
+            engine.option("hwdec", "no")?; // Fixtures de decodificação não devem disputar GPU com a PoC gráfica.
         } else {
             let target = target.ok_or_else(|| {
                 ServiceError::new("player_surface", "Superfície de vídeo não preparada.")
@@ -576,11 +577,20 @@ mod tests {
                 while !flag.load(Ordering::Relaxed) {
                     match listener.accept() {
                         Ok((mut socket, _)) => {
-                            let _ = socket.set_read_timeout(Some(Duration::from_secs(2)));
-                            let _ = socket.set_write_timeout(Some(Duration::from_secs(2)));
-                            let mut buffer = [0; 4096];
-                            let n = socket.read(&mut buffer).unwrap_or(0);
-                            let request = String::from_utf8_lossy(&buffer[..n]);
+                            let _ = socket.set_read_timeout(Some(Duration::from_secs(5)));
+                            let _ = socket.set_write_timeout(Some(Duration::from_secs(5)));
+                            // TCP é um fluxo: uma leitura pode retornar só parte da linha/headers.
+                            let mut buffer = Vec::new();
+                            let mut chunk = [0; 2048];
+                            while buffer.len() < 16384
+                                && !buffer.windows(4).any(|w| w == b"\r\n\r\n")
+                            {
+                                match socket.read(&mut chunk) {
+                                    Ok(0) | Err(_) => break,
+                                    Ok(n) => buffer.extend_from_slice(&chunk[..n]),
+                                }
+                            }
+                            let request = String::from_utf8_lossy(&buffer);
                             let path = request
                                 .split_whitespace()
                                 .nth(1)
@@ -653,6 +663,7 @@ mod tests {
                                     },
                                 )
                             } else {
+                                let _=socket.write_all(b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
                                 continue;
                             };
                             let headers=format!("HTTP/1.1 200 OK\r\nContent-Type: {mime}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",body.len());
