@@ -462,6 +462,12 @@ impl Engine {
             ))?;
             // libmpv pode usar saída de embedding por padrão. Selecionar explicitamente
             // uma saída que cria janela Windows e o dispositivo de áudio do sistema.
+            #[cfg(test)]
+            {
+                // Somente PoC com fixtures locais; nunca habilitar logs de streams reais.
+                engine.option("terminal", "yes")?;
+                engine.option("msg-level", "all=warn,input=trace,osc=debug,cplayer=debug")?;
+            }
             engine.option("vo", "gpu-next,gpu")?;
             engine.option("ao", "wasapi")?;
             engine.option("force-window", "yes")?;
