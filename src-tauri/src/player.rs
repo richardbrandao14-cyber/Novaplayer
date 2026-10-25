@@ -1245,6 +1245,9 @@ mod tests {
             }
             std::thread::sleep(Duration::from_millis(150));
             engine.command(&["keypress", "MOUSE_ENTER"]).unwrap();
+            engine.command(&["mouse", "582", "396"]).unwrap();
+            std::thread::sleep(Duration::from_millis(60));
+            engine.command(&["mouse", "583", "396"]).unwrap();
             std::thread::sleep(Duration::from_millis(60));
             unsafe {
                 SendMessageW(
