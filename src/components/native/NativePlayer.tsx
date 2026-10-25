@@ -9,7 +9,7 @@ function clock(value: number) {
 }
 export function NativePlayer({ session, onClose }: { session: PlaybackSession; onClose: () => void }) {
   const canvas = useRef<HTMLDivElement>(null);
-  const back = useRef<HTMLButtonElement>(null);
+  const screen = useRef<HTMLElement>(null);
   const [status, setStatus] = useState<PlaybackStatus | null>(null);
   const [error, setError] = useState("");
   const [settings, setSettings] = useState(false);
@@ -32,7 +32,7 @@ export function NativePlayer({ session, onClose }: { session: PlaybackSession; o
   }
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    back.current?.focus();
+    screen.current?.focus();
     return () => { previous?.focus(); };
   }, []);
   useEffect(() => {
@@ -91,9 +91,17 @@ export function NativePlayer({ session, onClose }: { session: PlaybackSession; o
   useEffect(() => () => { void nativeApi.playerControl({ kind: "fullscreen", value: false }).catch(() => {}); }, []);
   const failure = error || status?.error;
   const total = status?.duration ?? 0;
-  return <main className="watch-screen" aria-label={`Assistindo ${title}`}>
+  return <main ref={screen} tabIndex={-1} className="watch-screen" aria-label={`Assistindo ${title}`} onKeyDown={(event) => {
+    const target = event.target;
+    if (event.ctrlKey || event.metaKey || event.altKey || target instanceof HTMLInputElement || target instanceof HTMLSelectElement || target instanceof HTMLTextAreaElement) return;
+    if (event.key === " " && !(target instanceof HTMLButtonElement)) { event.preventDefault(); void control({ kind: "pause", value: !status?.paused }); }
+    else if (event.key === "Escape") { event.preventDefault(); if (settings || episodes) { setSettings(false); setEpisodes(false); } else if (fullscreen) void toggleFullscreen(); else onClose(); }
+    else if (event.key.toLowerCase() === "f") { event.preventDefault(); void toggleFullscreen(); }
+    else if (event.key.toLowerCase() === "m") { event.preventDefault(); void control({ kind: "mute", value: !status?.muted }); }
+    else if ((event.key === "ArrowLeft" || event.key === "ArrowRight") && status?.seekable) { event.preventDefault(); void control({ kind: "seek", value: Math.max(0, Math.min(total || Infinity, status.position + (event.key === "ArrowLeft" ? -10 : 10))) }); }
+  }}>
     <header className="watch-header">
-      <button ref={back} className="watch-back" onClick={onClose}><ArrowLeft size={21} /> Voltar</button>
+      <button className="watch-back" onClick={onClose}><ArrowLeft size={21} /> Voltar</button>
       <div className="watch-title"><span>{item.kind === "live" ? "AO VIVO" : item.kind === "series" ? item.name : "NOVA PLAYER"}</span><h1>{title}</h1></div>
       {session.seasons && <button className="watch-action" onClick={() => { setEpisodes(!episodes); setSettings(false); }} aria-expanded={episodes}><ListVideo size={19} /> Episódios</button>}
       <button className="watch-action" onClick={() => { setSettings(!settings); setEpisodes(false); }} aria-expanded={settings}><Settings2 size={19} /> Ajustes</button>

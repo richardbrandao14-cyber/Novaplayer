@@ -7,7 +7,8 @@ import {
 } from "../../integrations/native";
 import { Modal } from "../../ui/Dialog";
 import type { NativeCatalogItem } from "../../domain/native/types";
-import { useAppStore } from "../../state/useAppStore";
+import { usePlaybackStore } from "../../state/usePlaybackStore";
+import { NativeDetails } from "./NativeDetails";
 import { NativeArtwork } from "./NativeArtwork";
 export function NativeGlobalSearch() {
   const [open, setOpen] = useState(false);
@@ -22,10 +23,11 @@ export function NativeGlobalSearch() {
     message: string;
   } | null>(null);
   const list = useRef<HTMLDivElement>(null);
-  const navigate = useAppStore((s) => s.navigate);
-  const setSearch = useAppStore((s) => s.setSearch);
+  const start = usePlaybackStore((s) => s.start);
+  const [selected, setSelected] = useState<NativeCatalogItem | null>(null);
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
+      if (usePlaybackStore.getState().session) return;
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setOpen((value) => !value);
@@ -59,16 +61,8 @@ export function NativeGlobalSearch() {
   const items = result?.query === query ? result.items : [];
   const error = failure?.query === query ? failure.message : "";
   function choose(item: NativeCatalogItem) {
-    navigate(
-      item.kind === "series"
-        ? "series"
-        : item.kind === "movie"
-          ? "movies"
-          : item.kind === "live"
-            ? "live"
-            : "home",
-    );
-    setSearch(item.name ?? "");
+    if (item.kind === "series") setSelected(item);
+    else start({ item });
     setOpen(false);
     setQuery("");
   }
@@ -200,6 +194,7 @@ export function NativeGlobalSearch() {
           </>
         )}
       </Modal>
+      <NativeDetails item={selected} onClose={() => setSelected(null)} />
     </>
   );
 }

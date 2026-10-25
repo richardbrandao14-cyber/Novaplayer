@@ -45,12 +45,12 @@ export default function Settings() {
       <section className="settings-section">
         <h2>Reprodução</h2>
         <p className="muted">
-          No aplicativo Windows, abra os detalhes de um conteúdo importado para
-          reproduzir. Volume, áudio e legendas ficam nos controles do player.
+          No Windows, clique no canal, filme ou episódio para assistir nesta
+          janela. Volume, áudio e legendas ficam nos controles sobre o vídeo.
           Preferências permanentes e ajustes de buffer ainda estão em desenvolvimento.
         </p>
         <button className="nova-button button-secondary" disabled>
-          Configuração de reprodução indisponível
+          Preferências permanentes em breve
         </button>
       </section>
       <section className="settings-section">

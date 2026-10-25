@@ -19,6 +19,7 @@ import { NativeCatalogBrowser } from "../src/components/native/NativeCatalogBrow
 import { NativeDetails } from "../src/components/native/NativeDetails";
 import { NativeArtwork } from "../src/components/native/NativeArtwork";
 import { NativeGlobalSearch } from "../src/components/native/NativeGlobalSearch";
+import { usePlaybackStore } from "../src/state/usePlaybackStore";
 import { useAppStore } from "../src/state/useAppStore";
 import { useNativeJobs } from "../src/state/useNativeJobs";
 const source = {
@@ -42,6 +43,7 @@ const item = {
   rating: null,
 };
 beforeEach(() => {
+  usePlaybackStore.setState({ session: null });
   ipc.available = false;
   ipc.invoke.mockReset();
   localStorage.clear();
@@ -362,5 +364,7 @@ describe("fronteira nativa da Fase 3", () => {
       query: { search: "Título", offset: 0, limit: 24 },
     });
     expect(screen.queryByText("Além da Aurora")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Abrir Título fornecido" }));
+    expect(usePlaybackStore.getState().session?.item.id).toBe(item.id);
   });
 });

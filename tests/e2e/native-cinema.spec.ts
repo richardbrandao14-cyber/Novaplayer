@@ -41,6 +41,8 @@ test("biblioteca cinematográfica e acesso a filme e episódio com um clique", a
   await page.getByRole("button", { name: "Reproduzir Além da Aurora", exact: true }).first().click();
   await expect(page.getByRole("main", { name: "Assistindo Além da Aurora" })).toBeVisible();
   await expect.poll(() => page.evaluate(() => (window as unknown as { novaFixtureCalls: { command: string }[] }).novaFixtureCalls.filter((c) => c.command === "play_media").length)).toBe(1);
+  await page.keyboard.press("Space");
+  await expect.poll(() => page.evaluate(() => (window as unknown as { novaFixtureCalls: { command: string; args: { control?: { kind: string; value: unknown } } }[] }).novaFixtureCalls.some((c) => c.command === "player_control" && c.args.control?.kind === "pause" && c.args.control.value === true))).toBe(true);
   await page.getByRole("button", { name: "Voltar", exact: true }).click();
   await expect(page.getByRole("main", { name: "Assistindo Além da Aurora" })).not.toBeVisible();
   await page.getByRole("button", { name: "Ver episódios de Atlas", exact: true }).click();

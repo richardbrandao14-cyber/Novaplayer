@@ -20,9 +20,9 @@ NOVA PLAYER — teste Windows x64
 Extraia TODOS os arquivos antes de abrir nova-player.exe.
 A DLL libmpv-2.dll deve permanecer na mesma pasta do executável.
 Desative os dados demonstrativos / use Adicionar minha lista real.
-Depois da importação, abra um conteúdo e pressione Reproduzir agora.
+Depois da importação, clique no canal, filme ou episódio para assistir.
 O vídeo e os controles abrem na mesma janela do NOVA PLAYER.
-Tela cheia: F na janela de vídeo; sair: Esc. Espaço: pausa.
+Tela cheia: F; sair: Esc. Espaço: pausa. Ajustes no HUD ou no cabeçalho.
 Não há garantia de compatibilidade com todo provedor, codec ou formato.
 '@ | Set-Content -Encoding utf8 (Join-Path $destination 'LEIA-ME.txt')
 Write-Output "Motor verificado em $dll"

@@ -122,7 +122,7 @@ export function NativeCatalogBrowser({
       <PageHeading
         title={title}
         eyebrow="CATÁLOGO REAL"
-        description="Seu conteúdo, pronto para explorar. Abra os detalhes para reproduzir no Windows."
+        description="Escolha um conteúdo para assistir. Nas séries, escolha a temporada e o episódio."
       />
       <div className="library-tools native-library-tools">
         <label className="local-search">
