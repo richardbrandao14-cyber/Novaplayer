@@ -39,6 +39,7 @@ export interface NativeCatalogQuery {
   offset: number;
   limit: number;
   sort?: string;
+  collection?: "favorites" | "watchlist" | "continue";
 }
 export interface NativeJob {
   id: string;
@@ -72,3 +73,11 @@ export interface NativeSeason {
   episodes: NativeEpisode[];
 }
 export type NativeSeriesDetails = NativeSeason[];
+
+export interface NativeLibraryState {
+  favorite: boolean;
+  watchlist: boolean;
+  position: number;
+  duration: number;
+  episodeId: string | null;
+}

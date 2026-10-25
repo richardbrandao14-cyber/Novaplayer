@@ -17,6 +17,8 @@ fn error() -> ServiceError {
 #[derive(Clone, Default, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PlaybackStatus {
+    pub media_id: Option<String>,
+    pub episode_id: Option<String>,
     pub state: String,
     pub hud_ready: bool,
     pub action_id: u64,
@@ -57,7 +59,12 @@ pub enum Control {
     Stop,
 }
 enum Request {
-    Load(String),
+    Load {
+        url: String,
+        media_id: String,
+        episode_id: Option<String>,
+        position: f64,
+    },
     Control(Control),
     Shutdown,
 }
@@ -106,11 +113,26 @@ impl Player {
                             }
                             let e = engine.as_mut().ok_or_else(error)?;
                             match message.request {
-                                Request::Load(url) => {
+                                Request::Load {
+                                    url,
+                                    media_id,
+                                    episode_id,
+                                    position,
+                                } => {
                                     e.command(&["stop"])?;
                                     e.set("pause", "no")?;
-                                    e.command(&["loadfile", &url, "replace"])?;
+                                    e.command(&[
+                                        "loadfile",
+                                        &url,
+                                        "replace",
+                                        "-1",
+                                        &format!("start={position}"),
+                                    ])?;
                                     if let Ok(mut s) = state.lock() {
+                                        s.media_id = Some(media_id);
+                                        s.episode_id = episode_id;
+                                        s.position = 0.0;
+                                        s.duration = 0.0;
                                         s.state = "loading".into();
                                         s.error = None;
                                         s.ui_action = None;
@@ -151,8 +173,20 @@ impl Player {
             .map_err(|_| ServiceError::new("busy", "O player está ocupado."))?;
         rx.await.map_err(|_| error())?
     }
-    pub async fn load(&self, url: String) -> Result<()> {
-        self.send(Request::Load(url)).await
+    pub async fn load(
+        &self,
+        url: String,
+        media_id: String,
+        episode_id: Option<String>,
+        position: f64,
+    ) -> Result<()> {
+        self.send(Request::Load {
+            url,
+            media_id,
+            episode_id,
+            position,
+        })
+        .await
     }
     pub async fn control(&self, value: Control) -> Result<()> {
         self.send(Request::Control(value)).await
@@ -179,6 +213,51 @@ impl Drop for Player {
         self.shutdown();
     }
 }
+/// Extração real, sem janela/áudio, com prazo e cancelamento. URL nunca sai do Rust.
+pub(crate) fn extract_frame(
+    dll: &Path,
+    url: &str,
+    directory: &Path,
+    cancel: Arc<AtomicBool>,
+    position: f64,
+) -> Result<Vec<u8>> {
+    if cancel.load(Ordering::Relaxed) {
+        return Err(error());
+    }
+    let mut engine = Engine::open_mode(dll, true, None, Some(directory))?;
+    engine.command(&[
+        "loadfile",
+        url,
+        "replace",
+        "-1",
+        &format!("start={position}"),
+    ])?;
+    let deadline = std::time::Instant::now() + Duration::from_secs(12);
+    while std::time::Instant::now() < deadline && !cancel.load(Ordering::Relaxed) {
+        if let Ok(entries) = std::fs::read_dir(directory) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().is_some_and(|v| v == "png")
+                    && path
+                        .metadata()
+                        .is_ok_and(|m| m.len() > 0 && m.len() <= 5 * 1024 * 1024)
+                {
+                    engine.command(&["stop"])?;
+                    drop(engine);
+                    let bytes = std::fs::read(path).map_err(|_| error())?;
+                    if image::load_from_memory(&bytes).is_err() {
+                        return Err(error());
+                    }
+                    return Ok(bytes);
+                }
+            }
+        }
+        std::thread::sleep(Duration::from_millis(40));
+    }
+    let _ = engine.command(&["stop"]);
+    Err(error())
+}
+
 #[repr(C)]
 struct Event {
     id: c_int,
@@ -233,6 +312,14 @@ impl Engine {
         Self::open_target(path, headless, None)
     }
     fn open_target(path: &Path, headless: bool, target: Option<isize>) -> Result<Self> {
+        Self::open_mode(path, headless, target, None)
+    }
+    fn open_mode(
+        path: &Path,
+        headless: bool,
+        target: Option<isize>,
+        frame: Option<&Path>,
+    ) -> Result<Self> {
         use std::os::windows::ffi::OsStrExt;
         if !path.is_absolute() || !path.is_file() {
             return Err(ServiceError::new(
@@ -369,6 +456,19 @@ impl Engine {
             engine.option("vo", "gpu-next,gpu")?;
             engine.option("ao", "wasapi")?;
             engine.option("force-window", "yes")?;
+        }
+        if let Some(directory) = frame {
+            engine.option("vo", "image")?;
+            engine.option("vo-image-format", "png")?;
+            engine.option("vo-image-outdir", directory.to_str().ok_or_else(error)?)?;
+            engine.option("vo-image-png-compression", "3")?;
+            engine.option("frames", "1")?;
+            engine.option("audio", "no")?;
+            engine.option("network-timeout", "3")?;
+            engine.option(
+                "vf",
+                "lavfi=[scale=640:360:force_original_aspect_ratio=decrease]",
+            )?;
         }
         if unsafe { initialize(handle) } < 0 {
             return Err(error());
@@ -1032,5 +1132,55 @@ mod tests {
         let result = worker.join();
         unsafe { DestroyWindow(parent) };
         result.unwrap();
+    }
+    #[test]
+    #[ignore = "Exige DLL Windows verificada: frame real sem áudio e retomada"]
+    fn windows_mpv_frame_preview_and_resume() {
+        let dll = PathBuf::from(std::env::var("NOVA_MPV_DLL").unwrap());
+        let directory =
+            std::env::temp_dir().join(format!("nova-frame-test-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&directory).unwrap();
+        let media = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/player-av.mp4");
+        let bytes = extract_frame(
+            &dll,
+            media.to_str().unwrap(),
+            &directory,
+            Arc::new(AtomicBool::new(false)),
+            1.0,
+        )
+        .unwrap();
+        let image = image::load_from_memory(&bytes).unwrap();
+        assert!(
+            image.width() > 0
+                && image.width() <= 640
+                && image.height() > 0
+                && image.height() <= 360,
+            "Frame deve ser real e limitado"
+        );
+        let mut engine = Engine::open(&dll, true).unwrap();
+        engine
+            .command(&[
+                "loadfile",
+                media.to_str().unwrap(),
+                "replace",
+                "-1",
+                "start=1",
+            ])
+            .unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(10);
+        let mut state = PlaybackStatus::default();
+        while std::time::Instant::now() < deadline {
+            engine.poll(&mut state);
+            if state.position >= 1.0 {
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        assert!(
+            state.position >= 1.0,
+            "Retomada deve respeitar posição solicitada"
+        );
+        drop(engine);
+        std::fs::remove_dir_all(directory).unwrap();
     }
 }

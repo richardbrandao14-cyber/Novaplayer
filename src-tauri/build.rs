@@ -18,6 +18,10 @@ fn main() {
             "player_control",
             "player_status",
             "player_surface",
+            "thumbnail_for",
+            "save_progress",
+            "set_library",
+            "library_state",
         ]),
     ))
     .expect("Não foi possível preparar as permissões do aplicativo");

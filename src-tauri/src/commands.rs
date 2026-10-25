@@ -121,25 +121,51 @@ mod tests {
 pub async fn play_media(
     media_id: String,
     episode_id: Option<String>,
+    resume: Option<bool>,
     backend: State<'_, Arc<Backend>>,
     player: State<'_, crate::player::Player>,
+    previews: State<'_, crate::previews::Previews>,
 ) -> Result<()> {
-    let backend = backend.inner().clone();
-    let url = blocking(move || backend.playback_url(&media_id, episode_id.as_deref())).await?;
-    player.load(url).await
+    let data = backend.inner().clone();
+    let id = media_id.clone();
+    let ep = episode_id.clone();
+    let (url, position) = blocking(move || {
+        Ok((
+            data.playback_url(&id, ep.as_deref())?,
+            if resume.unwrap_or(false) {
+                data.resume_position(&id, ep.as_deref())?
+            } else {
+                0.0
+            },
+        ))
+    })
+    .await?;
+    previews.suspend().await;
+    let result = player.load(url, media_id, episode_id, position).await;
+    if result.is_err() {
+        previews.allow();
+    }
+    result
 }
+
 #[tauri::command]
 pub async fn player_control(
     control: crate::player::Control,
     player: State<'_, crate::player::Player>,
     window: tauri::WebviewWindow,
+    previews: State<'_, crate::previews::Previews>,
 ) -> Result<()> {
     if let crate::player::Control::Fullscreen(value) = control {
         return window
             .set_fullscreen(value)
             .map_err(|_| ServiceError::new("playback", "Não foi possível alterar a tela cheia."));
     }
-    player.control(control).await
+    let stopping = matches!(control, crate::player::Control::Stop);
+    let result = player.control(control).await;
+    if stopping {
+        previews.allow();
+    }
+    result
 }
 #[tauri::command]
 pub fn player_status(
@@ -167,4 +193,61 @@ pub async fn player_surface(
         .map_err(|_| ServiceError::new("player_surface", "Área de vídeo indisponível."))?;
     rx.await
         .map_err(|_| ServiceError::new("player_surface", "Área de vídeo indisponível."))?
+}
+
+#[tauri::command]
+pub async fn library_state(
+    media_id: String,
+    backend: State<'_, Arc<Backend>>,
+) -> Result<crate::core::models::LibraryState> {
+    let backend = backend.inner().clone();
+    blocking(move || backend.library(&media_id)).await
+}
+#[tauri::command]
+pub async fn set_library(
+    media_id: String,
+    favorite: bool,
+    watchlist: bool,
+    backend: State<'_, Arc<Backend>>,
+) -> Result<crate::core::models::LibraryState> {
+    let backend = backend.inner().clone();
+    blocking(move || backend.set_library(&media_id, favorite, watchlist)).await
+}
+#[tauri::command]
+pub async fn save_progress(
+    media_id: String,
+    episode_id: Option<String>,
+    position: f64,
+    duration: f64,
+    backend: State<'_, Arc<Backend>>,
+) -> Result<()> {
+    let backend = backend.inner().clone();
+    blocking(move || backend.save_progress(&media_id, episode_id.as_deref(), position, duration))
+        .await
+}
+#[tauri::command]
+pub async fn thumbnail_for(
+    media_id: String,
+    episode_id: Option<String>,
+    backend: State<'_, Arc<Backend>>,
+    player: State<'_, crate::player::Player>,
+    previews: State<'_, crate::previews::Previews>,
+) -> Result<Option<ImageDto>> {
+    let supplied = if let Some(episode) = episode_id.as_deref() {
+        backend.episode_image(&media_id, episode).await
+    } else {
+        backend.image(&media_id).await
+    };
+    if let Ok(Some(image)) = supplied {
+        return Ok(Some(image));
+    }
+    let data = backend.inner().clone();
+    let id = media_id.clone();
+    let ep = episode_id.clone();
+    let url = blocking(move || data.playback_url(&id, ep.as_deref())).await?;
+    let active = player.status()?.state;
+    let key = format!("{media_id}:{}", episode_id.unwrap_or_default());
+    previews
+        .frame(&key, url, matches!(active.as_str(), "playing" | "loading"))
+        .await
 }

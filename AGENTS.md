@@ -2,6 +2,7 @@
 
 ## Autoridade e escopo
 
+- Escopo atual autorizado: páginas cinematográficas de TV/filmes/séries, menu recolhível, rolagem sem barras, TV primeiro clique em prévia lateral e segundo em fullscreen sem recarregar, filme com detalhes/favoritos/Minha Lista/retomada, série em página própria com temporadas e imagens reais dos episódios. Favoritos/progresso persistem no SQLite v2. Imagens fornecidas têm preferência; extração nativa usa um decoder sem áudio, cache limitado e cancelamento prioritário ao reproduzir. Testar no Windows antes de entregar.
 - Marco manual: proprietário confirmou que Horizon funcionou com vídeo/áudio no Windows na versão anterior. Novo pedido autorizado: player na mesma janela, HUD sobre o vídeo, um clique para canal/filme/episódio e biblioteca cinematográfica conforme referências. Validar nova composição HWND/HUD no Windows antes de entregar; não presumir que o marco anterior aprova essa mudança.
 - Atualização de escopo: o proprietário autorizou explicitamente corrigir Xtream e implementar reprodução nativa com áudio. Executar primeiro a PoC Windows isolada de libmpv; só habilitar a integração após esse gate automatizado. Sem instalador, Release ou publicação.
 - M3U/Xtream/SQLite e catálogo real já implementados. Registro de reprodução em docs/PLAYBACK_CHECKPOINT.md; não declarar som audível ou provedor real validados por testes com saídas nulas.

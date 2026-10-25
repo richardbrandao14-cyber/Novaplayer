@@ -1,3 +1,18 @@
+# Validação atual — NOVA Library
+
+A revisão atual introduz TV em prévia lateral, páginas de filme/série, episódios com imagens e biblioteca/progresso no SQLite v2. Ver [checkpoint](docs/PLAYBACK_CHECKPOINT.md).
+
+- `npm run check`: tipos, lint, 32 testes e build web aprovados localmente.
+- `NOVA_CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e`: cenários com IPC controlado, TV primeiro/segundo clique sem recarregar, retorno, rolagem invisível funcional, menu, ações da biblioteca e temporada preservada. Ver resultado final no checkpoint.
+- `cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --locked`: 26 testes aprovados localmente, incluindo migração do esquema anterior, reabertura em disco, progresso/favoritos após refresh e isolamento de episódios. Clippy do núcleo aprovado.
+- Gate Windows: os três testes existentes de libmpv/integração/HWND são preservados; um quarto extrai PNG real limitado e verifica início na posição solicitada. Deve passar antes da entrega.
+
+Capturas com fixtures locais não validam decodificação. CI nativa não comprova som audível nem a Horizon. Validar manualmente: TV prévia → fullscreen → voltar, trocar canal/categoria; filme favorito/Minha Lista/assistir/retomar após fechar; série temporada/episódio/imagem e retorno; áudio/HUD/DPI.
+
+Os resultados abaixo são históricos e não substituem o checkpoint atual.
+
+---
+
 # Estratégia de validação
 
 ## Evidência atual

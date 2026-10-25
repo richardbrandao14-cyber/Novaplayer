@@ -19,6 +19,7 @@ import { NativeCatalogBrowser } from "../src/components/native/NativeCatalogBrow
 import { NativeDetails } from "../src/components/native/NativeDetails";
 import { NativeArtwork } from "../src/components/native/NativeArtwork";
 import { NativeGlobalSearch } from "../src/components/native/NativeGlobalSearch";
+import { useMediaNavigation } from "../src/state/useMediaNavigation";
 import { usePlaybackStore } from "../src/state/usePlaybackStore";
 import { useAppStore } from "../src/state/useAppStore";
 import { useNativeJobs } from "../src/state/useNativeJobs";
@@ -44,6 +45,7 @@ const item = {
 };
 beforeEach(() => {
   usePlaybackStore.setState({ session: null });
+  useMediaNavigation.getState().close();
   ipc.available = false;
   ipc.invoke.mockReset();
   localStorage.clear();
@@ -236,7 +238,7 @@ describe("fronteira nativa da Fase 3", () => {
     render(<NativeCatalogBrowser title="Início" />);
     expect(
       await screen.findByRole("button", {
-        name: "Reproduzir Título fornecido",
+        name: "Ver detalhes de Título fornecido",
       }),
     ).toBeInTheDocument();
     expect(
@@ -364,7 +366,10 @@ describe("fronteira nativa da Fase 3", () => {
       query: { search: "Título", offset: 0, limit: 24 },
     });
     expect(screen.queryByText("Além da Aurora")).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Abrir Título fornecido" }));
-    expect(usePlaybackStore.getState().session?.item.id).toBe(item.id);
+    await user.click(
+      screen.getByRole("button", { name: "Abrir Título fornecido" }),
+    );
+    expect(useMediaNavigation.getState().selected?.id).toBe(item.id);
+    expect(usePlaybackStore.getState().session).toBeNull();
   });
 });

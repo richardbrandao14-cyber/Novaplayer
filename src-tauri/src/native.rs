@@ -18,6 +18,10 @@ pub fn run() {
                 .ok_or("Diretório do aplicativo indisponível")?
                 .join("libmpv-2.dll");
             let surface = Arc::new(crate::surface::VideoSurface::new());
+            app.manage(crate::previews::Previews::new(
+                app.path().app_cache_dir()?.join("previews"),
+                dll.clone(),
+            ));
             app.manage(crate::player::Player::new(dll, surface.clone()));
             app.manage(surface);
             Ok(())
@@ -35,6 +39,10 @@ pub fn run() {
             commands::list_categories,
             commands::series_details,
             commands::player_surface,
+            commands::thumbnail_for,
+            commands::save_progress,
+            commands::set_library,
+            commands::library_state,
             commands::play_media,
             commands::player_control,
             commands::player_status,

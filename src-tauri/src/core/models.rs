@@ -48,6 +48,7 @@ pub struct CatalogQuery {
     pub offset: u32,
     pub limit: u32,
     pub sort: Option<String>,
+    pub collection: Option<String>,
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -75,4 +76,14 @@ pub struct NormalizedEpisode {
     pub duration: Option<String>,
     pub stream_url: Option<String>,
     pub artwork_url: Option<String>,
+}
+
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LibraryState {
+    pub favorite: bool,
+    pub watchlist: bool,
+    pub position: f64,
+    pub duration: f64,
+    pub episode_id: Option<String>,
 }

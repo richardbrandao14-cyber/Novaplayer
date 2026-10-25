@@ -1,3 +1,25 @@
+# NOVA Library — navegação contextual (revisão em validação)
+
+Pedido autorizado: catálogo cinematográfico em TV/filmes/séries, menu com ícones e texto quando expandido, rolagem funcional sem barras, detalhes próprios e episódios visuais. A composição integrada anterior foi aprovada visualmente pelo proprietário.
+
+## Implementado nesta revisão
+
+- TV: categorias, lista de canais e vídeo lado a lado. Primeiro clique reproduz na prévia; segundo clique no mesmo canal amplia a mesma sessão, sem novo `play_media`. Voltar restaura a prévia. Escolher outro canal substitui o stream; sair da TV encerra a prévia. Não abre streams paralelos para preencher cartões.
+- Filmes: página de detalhes com metadados disponíveis, favoritar, Minha Lista, assistir, continuar ou começar do início.
+- Séries: página completa com destaque, sinopse, seletor de temporada, cartões 16:9, título/duração/sinopse fornecidos. Clicar no episódio reproduz; voltar preserva a temporada. Imagem da fonte tem preferência; na ausência, captura real de um frame sem áudio, em fila limitada e com cancelamento prioritário para a reprodução. Placeholder explícito quando indisponível.
+- Favoritos, Minha Lista e progresso persistidos no SQLite. Migração 002 transacional conserva o catálogo; testes exercitam reabertura, atualização de fonte e limpeza na remoção. TV ao vivo não recebe retomada.
+- Nenhuma dependência nova; URLs/credenciais permanecem no Rust. Cache de frames: 64 MiB/sete dias. Barra lateral funciona recolhida/expandida; scroll e teclado continuam disponíveis.
+
+## Evidência da revisão
+
+Validação local: TypeScript, ESLint, 32 testes de componentes/unidade, build Vite e 26 testes Rust sem WebView aprovados. 11 cenários Playwright aprovados, incluindo os fluxos novos. Gate Windows será registrado após a execução. A captura `docs/screenshots/nova-series-page-fixture.png` é da interface real com fixture explicitamente sintética; não demonstra reprodução nativa.
+
+Pendente nesta etapa: build/PoC Windows com captura real via libmpv e retomada; teste manual da Horizon, imagens de episódios, prévia lateral/retorno, áudio e DPI. Não interpretar teste Chromium com IPC controlado como transmissão real. Sem instalador ou Release.
+
+---
+
+## Marco anterior — histórico
+
 # NOVA Cinema — player na mesma janela
 
 Marco autorizado pelo proprietário após confirmar reprodução da Horizon na versão anterior. Referências visuais fornecidas pelo proprietário orientam hierarquia, destaque e fileiras; a identidade permanece NOVA.

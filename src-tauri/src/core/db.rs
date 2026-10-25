@@ -55,7 +55,7 @@ impl Database {
         let version: u32 = connection
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .map_err(db_error)?;
-        if version > 1 {
+        if version > 2 {
             return Err(CoreError::new(
                 "database_version",
                 "O banco foi criado por uma versão mais recente do aplicativo.",
@@ -64,6 +64,12 @@ impl Database {
         if version < 1 {
             let tx = connection.transaction().map_err(db_error)?;
             tx.execute_batch(include_str!("../../migrations/001_catalog.sql"))
+                .map_err(db_error)?;
+            tx.commit().map_err(db_error)?;
+        }
+        if version < 2 {
+            let tx = connection.transaction().map_err(db_error)?;
+            tx.execute_batch(include_str!("../../migrations/002_library.sql"))
                 .map_err(db_error)?;
             tx.commit().map_err(db_error)?;
         }
@@ -313,7 +319,13 @@ impl Database {
             .replace('%', "\\%")
             .replace('_', "\\_");
         let pattern = format!("%{escaped}%");
-        let filter="(?1 IS NULL OR source_id=?1) AND (?2 IS NULL OR kind=?2) AND (?3 IS NULL OR category=?3) AND normalized_name LIKE ?4 ESCAPE '\\'";
+        let collection=match query.collection.as_deref() {
+            Some("favorites")=>" AND EXISTS(SELECT 1 FROM library_state l WHERE l.media_id=media_items.id AND l.favorite=1)",
+            Some("watchlist")=>" AND EXISTS(SELECT 1 FROM library_state l WHERE l.media_id=media_items.id AND l.watchlist=1)",
+            Some("continue")=>" AND EXISTS(SELECT 1 FROM playback_progress p WHERE p.media_id=media_items.id AND p.position>=5 AND p.duration-p.position>15)",
+            None=>"",_=>return Err(CoreError::new("query_invalid","Coleção inválida.")),
+        };
+        let filter=format!("{}{collection}","(?1 IS NULL OR source_id=?1) AND (?2 IS NULL OR kind=?2) AND (?3 IS NULL OR category=?3) AND normalized_name LIKE ?4 ESCAPE '\\'");
         let total: i64 = self
             .connection
             .query_row(
@@ -411,6 +423,92 @@ impl Database {
         let data =
             data.ok_or_else(|| CoreError::new("playback", "Mídia sem endereço de reprodução."))?;
         protector.decrypt(&data)
+    }
+    pub fn library_state(&self, id: &str) -> CoreResult<LibraryState> {
+        self.media(id)?;
+        let (favorite, watchlist) = self
+            .connection
+            .query_row(
+                "SELECT favorite,watchlist FROM library_state WHERE media_id=?1",
+                [id],
+                |r| Ok((r.get::<_, bool>(0)?, r.get::<_, bool>(1)?)),
+            )
+            .optional()
+            .map_err(db_error)?
+            .unwrap_or_default();
+        let progress=self.connection.query_row("SELECT position,duration,episode_id FROM playback_progress WHERE media_id=?1 ORDER BY updated_at DESC,rowid DESC LIMIT 1",[id],|r|Ok((r.get::<_,f64>(0)?,r.get::<_,f64>(1)?,r.get::<_,String>(2)?))).optional().map_err(db_error)?;
+        let (position, duration, episode) = progress.unwrap_or_default();
+        Ok(LibraryState {
+            favorite,
+            watchlist,
+            position,
+            duration,
+            episode_id: if episode.is_empty() {
+                None
+            } else {
+                Some(episode)
+            },
+        })
+    }
+    pub fn set_library(
+        &self,
+        id: &str,
+        favorite: bool,
+        watchlist: bool,
+    ) -> CoreResult<LibraryState> {
+        self.media(id)?;
+        self.connection.execute("INSERT INTO library_state(media_id,favorite,watchlist)VALUES(?1,?2,?3)ON CONFLICT(media_id)DO UPDATE SET favorite=excluded.favorite,watchlist=excluded.watchlist",params![id,favorite,watchlist]).map_err(db_error)?;
+        self.library_state(id)
+    }
+    pub fn save_progress(
+        &self,
+        id: &str,
+        episode: Option<&str>,
+        position: f64,
+        duration: f64,
+    ) -> CoreResult<()> {
+        let media = self.media(id)?;
+        if media.kind == "live" {
+            return Ok(());
+        }
+        if !position.is_finite()
+            || !duration.is_finite()
+            || duration <= 0.0
+            || position < 0.0
+            || position > duration + 10.0
+            || duration > 7.0 * 86400.0
+        {
+            return Err(CoreError::new("query_invalid", "Progresso inválido."));
+        }
+        if let Some(episode) = episode {
+            let valid:bool=self.connection.query_row("SELECT EXISTS(SELECT 1 FROM episodes e JOIN seasons s ON s.id=e.season_id WHERE s.series_id=?1 AND e.id=?2)",params![id,episode],|r|r.get(0)).map_err(db_error)?;
+            if !valid {
+                return Err(CoreError::new(
+                    "not_found",
+                    "Episódio não pertence à série.",
+                ));
+            }
+        } else if media.kind == "series" {
+            return Err(CoreError::new("query_invalid", "Informe o episódio."));
+        }
+        self.connection.execute("INSERT INTO playback_progress(media_id,episode_id,position,duration)VALUES(?1,?2,?3,?4)ON CONFLICT(media_id,episode_id)DO UPDATE SET position=excluded.position,duration=excluded.duration,updated_at=unixepoch()",params![id,episode.unwrap_or(""),position.min(duration),duration]).map_err(db_error)?;
+        Ok(())
+    }
+    pub fn resume_position(&self, id: &str, episode: Option<&str>) -> CoreResult<f64> {
+        let value=self.connection.query_row("SELECT position,duration FROM playback_progress WHERE media_id=?1 AND episode_id=?2",params![id,episode.unwrap_or("")],|r|Ok((r.get::<_,f64>(0)?,r.get::<_,f64>(1)?))).optional().map_err(db_error)?;
+        Ok(value
+            .filter(|(p, d)| *p >= 5.0 && *d - *p > 15.0)
+            .map(|(p, _)| p)
+            .unwrap_or(0.0))
+    }
+    pub fn episode_artwork(
+        &self,
+        id: &str,
+        episode: &str,
+        protector: &dyn Protector,
+    ) -> CoreResult<Option<String>> {
+        let data:Option<Vec<u8>>=self.connection.query_row("SELECT e.artwork FROM episodes e JOIN seasons s ON s.id=e.season_id WHERE s.series_id=?1 AND e.id=?2",params![id,episode],|r|r.get(0)).optional().map_err(db_error)?.flatten();
+        data.as_deref().map(|v| protector.decrypt(v)).transpose()
     }
     pub fn artwork_url(&self, id: &str, protector: &dyn Protector) -> CoreResult<Option<String>> {
         let data: Option<Vec<u8>> = self
@@ -543,6 +641,143 @@ mod tests {
         db.save_source("two", "Origem dois", "xtream", b"fixture-sealed")
             .unwrap();
         db
+    }
+    #[test]
+    fn library_migrates_existing_database_and_survives_refresh_and_reopen() {
+        let path =
+            std::env::temp_dir().join(format!("nova-library-{}.sqlite", uuid::Uuid::new_v4()));
+        // Simula exatamente o esquema da versão anterior, antes da migração 002.
+        {
+            let connection = Connection::open(&path).unwrap();
+            connection
+                .execute_batch(include_str!("../../migrations/001_catalog.sql"))
+                .unwrap();
+        }
+        let id;
+        {
+            let mut db = Database::open(&path).unwrap();
+            db.save_source("one", "Origem", "xtream", b"sealed-fixture")
+                .unwrap();
+            let mut movie = item("film", "Filme de teste");
+            movie.kind = "movie".into();
+            db.replace_catalog(
+                "one",
+                &[movie.clone()],
+                &FixtureProtector,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            id = db
+                .catalog(&CatalogQuery {
+                    limit: 1,
+                    ..Default::default()
+                })
+                .unwrap()
+                .items[0]
+                .id
+                .clone();
+            db.set_library(&id, true, true).unwrap();
+            db.save_progress(&id, None, 125.5, 7200.0).unwrap();
+            // Atualizar a fonte deve conservar favoritos e progresso por identidade estável.
+            db.replace_catalog("one", &[movie], &FixtureProtector, &AtomicBool::new(false))
+                .unwrap();
+        }
+        {
+            let mut db = Database::open(&path).unwrap();
+            let library = db.library_state(&id).unwrap();
+            assert!(library.favorite && library.watchlist);
+            assert_eq!(library.position, 125.5);
+            assert_eq!(db.resume_position(&id, None).unwrap(), 125.5);
+            for collection in ["favorites", "watchlist", "continue"] {
+                assert_eq!(
+                    db.catalog(&CatalogQuery {
+                        collection: Some(collection.into()),
+                        limit: 10,
+                        ..Default::default()
+                    })
+                    .unwrap()
+                    .total,
+                    1
+                );
+            }
+            db.set_library(&id, false, false).unwrap();
+            assert_eq!(
+                db.catalog(&CatalogQuery {
+                    collection: Some("favorites".into()),
+                    limit: 10,
+                    ..Default::default()
+                })
+                .unwrap()
+                .total,
+                0
+            );
+            assert!(db.save_progress(&id, None, f64::NAN, 7200.0).is_err());
+            assert!(db.save_progress(&id, None, 8000.0, 7200.0).is_err());
+            db.save_progress(&id, None, 7190.0, 7200.0).unwrap();
+            assert_eq!(db.resume_position(&id, None).unwrap(), 0.0);
+            assert_eq!(
+                db.catalog(&CatalogQuery {
+                    collection: Some("continue".into()),
+                    limit: 10,
+                    ..Default::default()
+                })
+                .unwrap()
+                .total,
+                0
+            );
+            db.remove_source("one").unwrap();
+            for table in ["library_state", "playback_progress"] {
+                assert_eq!(
+                    db.connection
+                        .query_row(&format!("SELECT count(*) FROM {table}"), [], |r| r
+                            .get::<_, i64>(0))
+                        .unwrap(),
+                    0
+                );
+            }
+        }
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn episode_progress_is_scoped_and_survives_season_refresh() {
+        let mut db = db();
+        let mut series = item("series", "Série");
+        series.kind = "series".into();
+        db.replace_catalog("one", &[series], &FixtureProtector, &AtomicBool::new(false))
+            .unwrap();
+        let id = db
+            .catalog(&CatalogQuery {
+                kind: Some("series".into()),
+                limit: 1,
+                ..Default::default()
+            })
+            .unwrap()
+            .items[0]
+            .id
+            .clone();
+        let episode = NormalizedEpisode {
+            external_id: "ep1".into(),
+            season: 1,
+            name: "Começo".into(),
+            stream_url: Some("https://example.org/test".into()),
+            ..Default::default()
+        };
+        db.replace_series_details(&id, std::slice::from_ref(&episode), &FixtureProtector)
+            .unwrap();
+        let ep = format!("{id}:1:ep1:1");
+        assert!(db.save_progress(&id, None, 30.0, 100.0).is_err());
+        assert!(db
+            .save_progress(&id, Some("another-series-episode"), 30.0, 100.0)
+            .is_err());
+        db.save_progress(&id, Some(&ep), 30.0, 100.0).unwrap();
+        db.replace_series_details(&id, &[episode], &FixtureProtector)
+            .unwrap();
+        assert_eq!(
+            db.library_state(&id).unwrap().episode_id.as_deref(),
+            Some(ep.as_str())
+        );
+        assert_eq!(db.resume_position(&id, Some(&ep)).unwrap(), 30.0);
     }
     #[test]
     fn migration_pagination_identity_and_isolation() {

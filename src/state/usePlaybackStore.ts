@@ -1,13 +1,28 @@
 import { create } from "zustand";
-import type { NativeCatalogItem, NativeSeriesDetails } from "../domain/native/types";
+import type {
+  NativeCatalogItem,
+  NativeSeriesDetails,
+} from "../domain/native/types";
 export interface PlaybackSession {
   item: NativeCatalogItem;
   episodeId?: string;
   episodeTitle?: string;
   seasons?: NativeSeriesDetails;
+  mode?: "docked" | "theater";
+  resume?: boolean;
+  fullscreen?: boolean;
 }
 export const usePlaybackStore = create<{
   session: PlaybackSession | null;
   start: (session: PlaybackSession) => void;
   close: () => void;
-}>((set) => ({ session: null, start: (session) => set({ session }), close: () => set({ session: null }) }));
+  setMode: (mode: "docked" | "theater", fullscreen?: boolean) => void;
+}>((set) => ({
+  session: null,
+  start: (session) => set({ session }),
+  close: () => set({ session: null }),
+  setMode: (mode, fullscreen = false) =>
+    set((s) => ({
+      session: s.session ? { ...s.session, mode, fullscreen } : null,
+    })),
+}));

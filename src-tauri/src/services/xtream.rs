@@ -266,6 +266,8 @@ impl XtreamClient {
                     title,
                     description: field(info, "plot").unwrap_or_default(),
                     artwork: String::new(),
+                    has_artwork: field(info, "movie_image")
+                        .is_some_and(|v| HttpClient::validate_url(&v).is_ok()),
                     duration: field(info, "duration").unwrap_or_default(),
                 });
             }
@@ -289,6 +291,8 @@ pub fn field(value: &Value, key: &str) -> Option<String> {
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EpisodeDto {
+    #[serde(default)]
+    pub has_artwork: bool,
     pub id: String,
     pub title: String,
     pub description: String,

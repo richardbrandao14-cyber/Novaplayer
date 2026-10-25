@@ -222,6 +222,68 @@ impl Backend {
         HttpClient::validate_url(&value)?;
         Ok(value)
     }
+    pub fn library(&self, id: &str) -> Result<crate::core::models::LibraryState> {
+        self.db
+            .lock()
+            .map_err(|_| ServiceError::storage())?
+            .library_state(id)
+            .map_err(core_error)
+    }
+    pub fn set_library(
+        &self,
+        id: &str,
+        favorite: bool,
+        watchlist: bool,
+    ) -> Result<crate::core::models::LibraryState> {
+        self.db
+            .lock()
+            .map_err(|_| ServiceError::storage())?
+            .set_library(id, favorite, watchlist)
+            .map_err(core_error)
+    }
+    pub fn save_progress(
+        &self,
+        id: &str,
+        episode: Option<&str>,
+        position: f64,
+        duration: f64,
+    ) -> Result<()> {
+        self.db
+            .lock()
+            .map_err(|_| ServiceError::storage())?
+            .save_progress(id, episode, position, duration)
+            .map_err(core_error)
+    }
+    pub fn resume_position(&self, id: &str, episode: Option<&str>) -> Result<f64> {
+        self.db
+            .lock()
+            .map_err(|_| ServiceError::storage())?
+            .resume_position(id, episode)
+            .map_err(core_error)
+    }
+    pub async fn episode_image(
+        self: &Arc<Self>,
+        id: &str,
+        episode: &str,
+    ) -> Result<Option<ImageDto>> {
+        let backend = self.clone();
+        let id_owned = id.to_owned();
+        let ep = episode.to_owned();
+        let value = tokio::task::spawn_blocking(move || {
+            backend
+                .db
+                .lock()
+                .map_err(|_| ServiceError::storage())?
+                .episode_artwork(&id_owned, &ep, backend.protector.as_ref())
+                .map_err(core_error)
+        })
+        .await
+        .map_err(|_| ServiceError::storage())??;
+        match value {
+            Some(url) => self.cache.image(episode, &url).await.map(Some),
+            None => Ok(None),
+        }
+    }
     pub fn query(&self, query: &CatalogQuery) -> Result<CatalogPage> {
         self.db
             .lock()
@@ -534,7 +596,7 @@ impl Backend {
             let external = media.external_id.ok_or_else(|| {
                 ServiceError::new("provider", "A fonte não forneceu o identificador da série.")
             })?;
-            let key = format!("series:v2:{media_id}");
+            let key = format!("series:v3:{media_id}");
             let cached = backend
                 .db
                 .lock()

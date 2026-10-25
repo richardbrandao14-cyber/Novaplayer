@@ -1,10 +1,11 @@
+import { NativeCatalogBrowser } from "../components/native/NativeCatalogBrowser";
 import { useCatalog } from "../services/useCatalog";
 import { useAppStore } from "../state/useAppStore";
 import { PageHeading } from "../components/PageHeading";
 import { CatalogView } from "../components/CatalogView";
 import { EmptyState } from "../components/EmptyState";
 import { LoadState } from "../components/LoadState";
-export default function Favorites() {
+function DemoFavorites() {
   const { items, status } = useCatalog();
   const { favorites, search } = useAppStore();
   const selected = items.filter(
@@ -31,5 +32,14 @@ export default function Favorites() {
         />
       )}
     </div>
+  );
+}
+
+export default function Favorites() {
+  const demo = useAppStore((s) => s.demo);
+  return demo ? (
+    <DemoFavorites />
+  ) : (
+    <NativeCatalogBrowser title="Favoritos" collection="favorites" />
   );
 }

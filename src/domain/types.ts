@@ -4,6 +4,7 @@ export const destinations = [
   "movies",
   "series",
   "favorites",
+  "watchlist",
   "history",
   "sources",
   "settings",

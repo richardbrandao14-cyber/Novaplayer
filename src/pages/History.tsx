@@ -1,3 +1,4 @@
+import { NativeCatalogBrowser } from "../components/native/NativeCatalogBrowser";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { useCatalog } from "../services/useCatalog";
@@ -8,7 +9,7 @@ import { EmptyState } from "../components/EmptyState";
 import { LoadState } from "../components/LoadState";
 import { Modal } from "../ui/Dialog";
 import { Button } from "../ui/Button";
-export default function History() {
+function DemoHistory() {
   const { items, status } = useCatalog();
   const { historyIds, clearHistory } = useAppStore();
   const [confirm, setConfirm] = useState(false);
@@ -63,5 +64,14 @@ export default function History() {
         </div>
       </Modal>
     </div>
+  );
+}
+
+export default function History() {
+  const demo = useAppStore((s) => s.demo);
+  return demo ? (
+    <DemoHistory />
+  ) : (
+    <NativeCatalogBrowser title="Continuar assistindo" collection="continue" />
   );
 }

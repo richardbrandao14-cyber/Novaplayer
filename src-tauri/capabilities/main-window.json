@@ -24,6 +24,10 @@
     "allow-play-media",
     "allow-player-control",
     "allow-player-status",
-    "allow-player-surface"
+    "allow-player-surface",
+    "allow-thumbnail-for",
+    "allow-save-progress",
+    "allow-set-library",
+    "allow-library-state"
   ]
 }

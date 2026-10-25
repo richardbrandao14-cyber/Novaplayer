@@ -5,6 +5,8 @@ pub mod core;
 mod native;
 #[cfg(all(feature = "desktop", windows))]
 mod player;
+#[cfg(all(feature = "desktop", windows))]
+mod previews;
 pub mod services;
 #[cfg(all(feature = "desktop", windows))]
 mod surface;

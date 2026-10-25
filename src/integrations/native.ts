@@ -6,6 +6,7 @@ import type {
   NativeSeriesDetails,
   NativeSource,
   NativeSourceInput,
+  NativeLibraryState,
 } from "../domain/native/types";
 export function nativeAvailable() {
   return isTauri();
@@ -19,17 +20,25 @@ export function nativeError(error: unknown): string {
   if (error && typeof error === "object" && "code" in error) {
     const code = String(error.code).toUpperCase();
     const known: Record<string, string> = {
-      NOT_FOUND: "O endereço solicitado não foi encontrado. Confira a URL do servidor ou atualize o catálogo.",
-      PROCESSING: "Não foi possível processar a resposta da fonte. Tente atualizar a lista.",
+      NOT_FOUND:
+        "O endereço solicitado não foi encontrado. Confira a URL do servidor ou atualize o catálogo.",
+      PROCESSING:
+        "Não foi possível processar a resposta da fonte. Tente atualizar a lista.",
       ENCODING: "Não foi possível ler a codificação desta playlist.",
       FILE: "Não foi possível acessar o arquivo local. Selecione o arquivo novamente.",
-      PROVIDER: "O servidor não retornou uma resposta Xtream válida. Confira o endereço e o acesso à conta.",
-      REDIRECT: "O servidor redirecionou para outro endereço. Cadastre o endereço final fornecido pelo serviço.",
+      PROVIDER:
+        "O servidor não retornou uma resposta Xtream válida. Confira o endereço e o acesso à conta.",
+      REDIRECT:
+        "O servidor redirecionou para outro endereço. Cadastre o endereço final fornecido pelo serviço.",
       BUSY: "Já existem importações em andamento. Aguarde e tente novamente.",
-      INTERRUPTED: "A importação foi interrompida. Atualize a lista para tentar novamente.",
-      PLAYBACK: "Não foi possível reproduzir esta mídia. Verifique a fonte e tente outro conteúdo.",
-      PLAYER_SURFACE: "Não foi possível preparar o vídeo dentro da janela. Tente abrir o conteúdo novamente.",
-      PLAYER_MISSING: "O motor de vídeo não foi encontrado. Extraia todos os arquivos do ZIP ao lado do executável.",
+      INTERRUPTED:
+        "A importação foi interrompida. Atualize a lista para tentar novamente.",
+      PLAYBACK:
+        "Não foi possível reproduzir esta mídia. Verifique a fonte e tente outro conteúdo.",
+      PLAYER_SURFACE:
+        "Não foi possível preparar o vídeo dentro da janela. Tente abrir o conteúdo novamente.",
+      PLAYER_MISSING:
+        "O motor de vídeo não foi encontrado. Extraia todos os arquivos do ZIP ao lado do executável.",
       URL: "Informe uma URL HTTP ou HTTPS válida.",
       EMPTY: "A playlist não contém registros importáveis.",
       HLS: "Este arquivo é um manifesto de reprodução HLS, não um catálogo IPTV.",
@@ -67,9 +76,19 @@ async function call<T>(
   return invoke<T>(command, args);
 }
 export interface PlaybackStatus {
-  actionId?: number; uiAction?: string | null; hudReady?: boolean;
-  state: string; position: number; duration: number; volume: number;
-  paused: boolean; muted: boolean; seekable: boolean; speed: number;
+  mediaId?: string | null;
+  episodeId?: string | null;
+  actionId?: number;
+  uiAction?: string | null;
+  hudReady?: boolean;
+  state: string;
+  position: number;
+  duration: number;
+  volume: number;
+  paused: boolean;
+  muted: boolean;
+  seekable: boolean;
+  speed: number;
   tracks: { id: number; kind: string; label: string; selected: boolean }[];
   error: string | null;
 }
@@ -77,7 +96,13 @@ export type PlayerControl =
   | { kind: "pause" | "mute" | "fullscreen"; value: boolean }
   | { kind: "volume" | "seek" | "speed" | "audio" | "subtitle"; value: number }
   | { kind: "stop" };
-export interface SurfaceRect { x: number; y: number; width: number; height: number; visible: boolean }
+export interface SurfaceRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  visible: boolean;
+}
 // Serializa criação/troca/fechamento, inclusive o ciclo duplo de efeitos do React StrictMode.
 let lifecycle: Promise<void> = Promise.resolve();
 export function playbackLifecycle(work: () => Promise<void>): Promise<void> {
@@ -87,8 +112,35 @@ export function playbackLifecycle(work: () => Promise<void>): Promise<void> {
 }
 export const nativeApi = {
   surface: (rect: SurfaceRect) => call<void>("player_surface", { rect }),
-  play: (mediaId: string, episodeId?: string) => call<void>("play_media", { mediaId, episodeId: episodeId ?? null }),
-  playerControl: (control: PlayerControl) => call<void>("player_control", { control }),
+  play: (mediaId: string, episodeId?: string, resume = false) =>
+    call<void>("play_media", {
+      mediaId,
+      episodeId: episodeId ?? null,
+      ...(resume ? { resume: true } : {}),
+    }),
+  library: (mediaId: string) =>
+    call<NativeLibraryState>("library_state", { mediaId }),
+  setLibrary: (mediaId: string, favorite: boolean, watchlist: boolean) =>
+    call<NativeLibraryState>("set_library", { mediaId, favorite, watchlist }),
+  saveProgress: (
+    mediaId: string,
+    episodeId: string | undefined,
+    position: number,
+    duration: number,
+  ) =>
+    call<void>("save_progress", {
+      mediaId,
+      episodeId: episodeId ?? null,
+      position,
+      duration,
+    }),
+  thumbnail: (mediaId: string, episodeId?: string) =>
+    call<{ mime: string; base64: string } | null>("thumbnail_for", {
+      mediaId,
+      episodeId: episodeId ?? null,
+    }),
+  playerControl: (control: PlayerControl) =>
+    call<void>("player_control", { control }),
   playerStatus: () => call<PlaybackStatus>("player_status"),
   listSources: () => call<NativeSource[]>("list_sources"),
   saveSource: (input: NativeSourceInput) =>

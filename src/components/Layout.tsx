@@ -1,3 +1,4 @@
+import { useMediaNavigation } from "../state/useMediaNavigation";
 import { useState, useRef, type ReactNode } from "react";
 import {
   PanelLeftClose,
@@ -8,6 +9,7 @@ import {
   X,
   Triangle,
   Monitor,
+  Bookmark,
 } from "lucide-react";
 import { useAppStore } from "../state/useAppStore";
 import { navigation } from "../app/navigation";
@@ -27,6 +29,21 @@ export function Layout({ children }: { children: ReactNode }) {
     if (compact) setCompactExpanded((value) => !value);
     else toggleSidebar();
   }
+  const navItems = demo
+    ? navigation
+    : [
+        ...navigation.slice(0, 5),
+        { id: "watchlist" as const, label: "Minha Lista", icon: Bookmark },
+        ...navigation.slice(5),
+      ].map((item) => ({
+        ...item,
+        label:
+          item.id === "sources"
+            ? "Minhas fontes"
+            : item.id === "history"
+              ? "Continuar assistindo"
+              : item.label,
+      }));
   const navRef = useRef<HTMLElement>(null);
   async function windowAction(action: "minimize" | "maximize" | "close") {
     try {
@@ -37,7 +54,9 @@ export function Layout({ children }: { children: ReactNode }) {
   }
   return (
     <Tooltip.Provider delayDuration={350}>
-      <div className={`app-shell ${!demo ? "cinema-shell" : ""} ${menuCollapsed ? "sidebar-collapsed" : ""}`}>
+      <div
+        className={`app-shell ${!demo ? "cinema-shell" : ""} ${menuCollapsed ? "sidebar-collapsed" : ""}`}
+      >
         <a className="skip-link" href="#main-content">
           Ir para o conteúdo
         </a>
@@ -54,7 +73,10 @@ export function Layout({ children }: { children: ReactNode }) {
           <button
             className="icon-button"
             aria-label="Abrir configurações"
-            onClick={() => navigate("settings")}
+            onClick={() => {
+              useMediaNavigation.getState().close();
+              navigate("settings");
+            }}
           >
             <Settings size={18} />
           </button>
@@ -128,13 +150,14 @@ export function Layout({ children }: { children: ReactNode }) {
               buttons[next]?.focus();
             }}
           >
-            {navigation.map(({ id, label, icon: Icon }, i) => (
-              <Tip key={id} label={label} enabled={menuCollapsed || !demo}>
+            {navItems.map(({ id, label, icon: Icon }, i) => (
+              <Tip key={id} label={label} enabled={menuCollapsed}>
                 <button
                   className={`nav-item ${page === id ? "active" : ""} ${i === 4 ? "nav-divider" : ""}`}
                   aria-current={page === id ? "page" : undefined}
                   aria-label={label}
                   onClick={() => {
+                    useMediaNavigation.getState().close();
                     navigate(id);
                     if (compact) setCompactExpanded(false);
                   }}

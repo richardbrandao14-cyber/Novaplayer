@@ -52,3 +52,7 @@ A pedido do proprietário, o acento passa a vermelho NOVA (#E52335), com foco cl
 Referências de streaming fornecidas pelo proprietário: destaque amplo, hierarquia centrada na obra, navegação compacta, fileiras de pôsteres e preto predominante. Manter identidade NOVA e vermelho como acento; não reproduzir logotipos nem inventar metadados, recomendações pessoais ou histórico. Hero e capas usam apenas imagens da fonte, com placeholders honestos.
 
 Séries: temporada explícita, cartões de episódio com número, título, descrição/duração quando fornecidas, clique direto e retorno com contexto preservado. Player: fundo preto, cabeçalho discreto e HUD nativo sobre o vídeo; painéis React ficam em área separada para respeitar a composição Windows. OSC usa fade zero e controles sem animações pesadas; o restante respeita movimento reduzido.
+
+## NOVA Library
+
+Catálogos reais de filmes/séries usam destaque amplo, subcategorias discretas e grid de pôsteres. Detalhes são páginas com fundo da fonte e transição para preto; não copiar marcas externas. Série mostra cartões 16:9 com imagem do episódio e título legível, agrupados pela temporada. Menu expandido: ícone/texto; compacto: ícone com nome acessível/tooltip. Barras de rolagem ocultas preservam overflow, roda, touchpad e teclado; não usar `overflow:hidden` para esconder conteúdo navegável. TV mantém categorias e canais visíveis durante prévia. Respeitar movimento reduzido e não inventar elenco/notas/imagens ausentes.
