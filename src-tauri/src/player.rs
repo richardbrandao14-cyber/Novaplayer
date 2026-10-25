@@ -1148,8 +1148,12 @@ mod tests {
                     // de entrada, conservando seções, coordenadas e hit-testing.
                     // Não chamar script-binding nem atribuir pause para provar clique.
                     engine
-                        .command(&["mouse", &x.to_string(), &y.to_string(), "0", "single"])
+                        .command(&["mouse", &x.to_string(), &y.to_string()])
                         .unwrap();
+                    std::thread::sleep(Duration::from_millis(60));
+                    engine.command(&["keydown", "MBTN_LEFT"]).unwrap();
+                    std::thread::sleep(Duration::from_millis(60));
+                    engine.command(&["keyup", "MBTN_LEFT"]).unwrap();
                 }
             };
             click(&mut engine, 400, 396);
