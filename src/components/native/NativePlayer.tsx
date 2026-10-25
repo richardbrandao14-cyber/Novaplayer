@@ -47,6 +47,7 @@ export function NativePlayer({
   const [retry, setRetry] = useState(0);
   const handledAction = useRef(0);
   const ready = useRef(false);
+  const overlayOpen = usePlaybackStore((s) => s.overlayOpen);
   const start = usePlaybackStore((s) => s.start);
   const { item, episodeId } = session;
   const docked = session.mode === "docked";
@@ -137,7 +138,7 @@ export function NativePlayer({
         y: Math.max(0, Math.round((bounds?.top ?? 0) * scale)),
         width: Math.max(1, Math.round((bounds?.width || 960) * scale)),
         height: Math.max(1, Math.round((bounds?.height || 540) * scale)),
-        visible: true,
+        visible: !usePlaybackStore.getState().overlayOpen,
       };
     }
     function resize() {
@@ -186,6 +187,26 @@ export function NativePlayer({
       }).catch(() => {});
     };
   }, [item.id, episodeId, retry, session.resume]);
+  useEffect(() => {
+    let active = true;
+    void playbackLifecycle(async () => {
+      if (!active || !ready.current || !canvas.current) return;
+      const bounds = canvas.current.getBoundingClientRect();
+      const scale = window.devicePixelRatio || 1;
+      await nativeApi.surface({
+        x: Math.max(0, Math.round(bounds.left * scale)),
+        y: Math.max(0, Math.round(bounds.top * scale)),
+        width: Math.max(1, Math.round(bounds.width * scale)),
+        height: Math.max(1, Math.round(bounds.height * scale)),
+        visible: !overlayOpen,
+      });
+    }).catch((e) => {
+      if (active) setError(nativeError(e));
+    });
+    return () => {
+      active = false;
+    };
+  }, [overlayOpen]);
   useEffect(() => {
     let active = true;
     let timer: ReturnType<typeof setTimeout>;

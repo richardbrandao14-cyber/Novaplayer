@@ -14,13 +14,17 @@ export interface PlaybackSession {
 }
 export const usePlaybackStore = create<{
   session: PlaybackSession | null;
+  overlayOpen: boolean;
+  setOverlayOpen: (open: boolean) => void;
   start: (session: PlaybackSession) => void;
   close: () => void;
   setMode: (mode: "docked" | "theater", fullscreen?: boolean) => void;
 }>((set) => ({
   session: null,
+  overlayOpen: false,
+  setOverlayOpen: (overlayOpen) => set({ overlayOpen }),
   start: (session) => set({ session }),
-  close: () => set({ session: null }),
+  close: () => set({ session: null, overlayOpen: false }),
   setMode: (mode, fullscreen = false) =>
     set((s) => ({
       session: s.session ? { ...s.session, mode, fullscreen } : null,

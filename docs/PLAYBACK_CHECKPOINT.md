@@ -1,3 +1,17 @@
+# Menu de categorias e busca global — revisão atual
+
+- Filmes e Séries substituem o conteúdo do mesmo menu lateral pelas subcategorias da fonte. Retorno ao menu principal mantém o catálogo atual; Início leva diretamente à home. Há filtro de categorias, estados de carregamento/erro/repetição e mensagem quando a fonte não fornece categorias. Seleção destaca a categoria e consulta o backend paginado; filtros de filmes/séries são independentes. Não são criadas categorias fictícias.
+- Expandir/recolher preserva seleção. No modo compacto, ícones de retorno, Início e expansão substituem uma coluna de tags indistinguíveis. Teclado e rolagem sem barras preservados; retorno restaura foco na seção do menu.
+- Busca global maior, com ícone destacado e indicação Filmes/séries/canais, acessível por clique/Ctrl+K. Ao buscar durante prévia, a superfície nativa é ocultada para não cobrir o diálogo, sem parar/reabrir o stream. Fechar restaura a prévia; escolher filme/série encerra a TV e abre detalhes.
+
+Validação local: 32 testes de unidade/componentes, 13 cenários Playwright, tipos/lint/build Vite aprovados. Backend, esquema, player e dependências Rust permanecem os do marco anterior. Nova compilação Windows e referência do pacote serão registradas após a CI. Teste de mouse/foco/diálogo sobre WebView+HWND com Horizon no PC permanece manual.
+
+[Captura do menu com dados sintéticos](screenshots/nova-category-menu-fixture.png).
+
+---
+
+## Marco anterior — histórico
+
 # NOVA Library — navegação contextual
 
 Pedido autorizado: catálogo cinematográfico em TV/filmes/séries, menu com ícones e texto quando expandido, rolagem funcional sem barras, detalhes próprios e episódios visuais. A composição integrada anterior foi aprovada visualmente pelo proprietário.

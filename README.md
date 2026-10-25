@@ -2,7 +2,11 @@
 
 Player desktop para **Windows 10/11 x64**. O usuário fornece suas fontes autorizadas; o app não oferece conteúdo ou assinatura.
 
-## Estado atual
+## Menu e busca — atualização em validação
+
+Filmes/Séries agora abrem suas categorias no mesmo menu lateral, com retorno ao menu principal, Início direto e filtro de categorias. Busca global maior no topo; abrir/fechar durante prévia preserva o stream. [Captura identificada com dados de teste](docs/screenshots/nova-category-menu-fixture.png). Ver pacote da revisão final no [checkpoint](docs/PLAYBACK_CHECKPOINT.md).
+
+## Estado anterior aprovado
 
 Importação real M3U/Xtream, SQLite e reprodução com áudio via libmpv implementados. O proprietário confirmou reprodução da Horizon e aprovou o visual integrado anterior. Esta revisão acrescenta:
 

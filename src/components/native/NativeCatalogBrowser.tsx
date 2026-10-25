@@ -21,6 +21,7 @@ import {
   nativeAvailable,
   nativeError,
 } from "../../integrations/native";
+import { useCatalogFilters } from "../../state/useCatalogFilters";
 import { useAppStore } from "../../state/useAppStore";
 import { usePlaybackStore } from "../../state/usePlaybackStore";
 import {
@@ -35,10 +36,19 @@ function useBrowse(
   collection?: "favorites" | "watchlist" | "continue",
 ) {
   const [sources, setSources] = useState<NativeSource[]>([]);
-  const [sourceId, setSourceId] = useState("");
+  const [localSource, setSourceId] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
-  const [category, setCategory] = useState("");
-  const [offset, setOffset] = useState(0);
+  const [localCategory, setCategory] = useState("");
+  const [localOffset, setLocalOffset] = useState(0);
+  const contextual = !collection && (kind === "movie" || kind === "series");
+  const section = kind === "series" ? "series" : "movie";
+  const filters = useCatalogFilters((s) => s[section]);
+  const update = useCatalogFilters((s) => s.update);
+  const sourceId = contextual ? filters.sourceId : localSource;
+  const category = contextual ? filters.category : localCategory;
+  const offset = contextual ? filters.offset : localOffset;
+  const setOffset = (value: number) =>
+    contextual ? update(section, { offset: value }) : setLocalOffset(value);
   const [sort, setSort] = useState("name");
   const search = useAppStore((s) => s.search);
   const setSearch = useAppStore((s) => s.setSearch);
@@ -53,24 +63,36 @@ function useBrowse(
     if (search === queryText) return;
     const timer = setTimeout(() => {
       setQueryText(search);
-      setOffset(0);
+      if (contextual) update(section, { offset: 0 });
+      else setLocalOffset(0);
     }, 180);
     return () => clearTimeout(timer);
-  }, [search, queryText]);
+  }, [search, queryText, contextual, section, update]);
   useEffect(() => {
     let active = true;
     nativeApi
       .listSources()
       .then((value) => {
-        if (active) setSources(value);
+        if (active) {
+          setSources(value);
+          if (contextual) {
+            const current = useCatalogFilters.getState()[section];
+            if (
+              current.sourceId &&
+              !value.some((source) => source.id === current.sourceId)
+            )
+              update(section, { sourceId: "", category: "", offset: 0 });
+          }
+        }
       })
       .catch(() => {});
     return () => {
       active = false;
     };
-  }, []);
+  }, [contextual, section, update]);
   useEffect(() => {
     let active = true;
+    if (contextual) return;
     nativeApi
       .categories(kind, sourceId || undefined)
       .then((value) => {
@@ -82,7 +104,7 @@ function useBrowse(
     return () => {
       active = false;
     };
-  }, [kind, sourceId]);
+  }, [kind, sourceId, contextual]);
   const query = {
     ...(kind ? { kind } : {}),
     ...(sourceId ? { sourceId } : {}),
@@ -115,15 +137,23 @@ function useBrowse(
     sources,
     sourceId,
     changeSource: (id: string) => {
-      setSourceId(id);
-      setCategory("");
-      setOffset(0);
+      if (contextual)
+        update(section, { sourceId: id, category: "", offset: 0 });
+      else {
+        setSourceId(id);
+        setCategory("");
+        setLocalOffset(0);
+      }
     },
+    contextual,
     categories,
     category,
     changeCategory: (value: string) => {
-      setCategory(value);
-      setOffset(0);
+      if (contextual) update(section, { category: value, offset: 0 });
+      else {
+        setCategory(value);
+        setLocalOffset(0);
+      }
     },
     offset,
     setOffset,
@@ -268,7 +298,7 @@ function MediaCatalog({
   return (
     <div className="media-browse-page">
       <SourceSearch model={model} title={title} />
-      <Categories model={model} />
+      {!model.contextual && <Categories model={model} />}
       {model.error && (
         <p role="alert" className="notice">
           {model.error}

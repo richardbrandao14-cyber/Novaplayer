@@ -493,6 +493,9 @@ test("TV mantém categorias e rolagem na prévia; segundo clique amplia sem reca
   await expect(
     page.getByRole("heading", { name: "Filmes", exact: true }),
   ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Voltar ao menu principal", exact: true })
+    .click();
   await page.getByRole("button", { name: "Recolher menu" }).click();
   await expect(
     nav.getByRole("button", { name: "Filmes", exact: true }).locator("span"),
@@ -571,4 +574,209 @@ test("canal escolhido no início entra na TV em prévia e encerra ao sair", asyn
   await expect(
     page.getByRole("heading", { name: "Séries", exact: true }),
   ).toBeVisible();
+});
+
+test("menu contextual de filmes e séries filtra catálogo, volta ao menu e acessa Início", async ({
+  page,
+}) => {
+  await fixture(page);
+  const nav = page.getByRole("navigation", { name: "Navegação principal" });
+  await nav.getByRole("button", { name: "Filmes", exact: true }).click();
+  await expect(
+    nav.getByRole("button", { name: "Voltar ao menu principal", exact: true }),
+  ).toBeFocused();
+  await expect(
+    nav.getByRole("button", { name: "Todos os filmes", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Subcategorias" }),
+  ).toHaveCount(0);
+  await nav.getByRole("button", { name: "Documentários", exact: true }).click();
+  await expect(
+    nav.getByRole("button", { name: "Documentários", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        (
+          window as unknown as {
+            novaFixtureCalls: {
+              command: string;
+              args: {
+                query?: { kind?: string; category?: string; offset?: number };
+              };
+            }[];
+          }
+        ).novaFixtureCalls.some(
+          (c) =>
+            c.command === "query_catalog" &&
+            c.args.query?.kind === "movie" &&
+            c.args.query.category === "Documentários" &&
+            c.args.query.offset === 0,
+        ),
+      ),
+    )
+    .toBe(true);
+  await page.locator(".browse-feature-art.image-ready").waitFor();
+  await page.evaluate(() => {
+    const label = document.createElement("div");
+    label.id = "fixture-label";
+    label.textContent = "INTERFACE ATUAL · DADOS SINTÉTICOS DE TESTE";
+    label.style.cssText =
+      "position:fixed;right:20px;bottom:10px;padding:8px 12px;background:#080809ed;color:#bbb;font:10px sans-serif;z-index:100;letter-spacing:1px";
+    document.body.appendChild(label);
+  });
+  await page.screenshot({
+    path: "test-results/screens/NOVA-menu-movies-fixture.png",
+    fullPage: true,
+  });
+  await page.evaluate(() => document.getElementById("fixture-label")?.remove());
+  for (const width of [1100, 900, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+  await nav
+    .getByRole("textbox", { name: "Filtrar categorias de Filmes" })
+    .fill("entre");
+  await expect(
+    nav.getByRole("button", { name: "Documentários", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    nav.getByRole("button", { name: "Entretenimento", exact: true }),
+  ).toBeVisible();
+  await nav
+    .getByRole("textbox", { name: "Filtrar categorias de Filmes" })
+    .clear();
+  await page.getByRole("button", { name: "Recolher menu" }).click();
+  await nav
+    .getByRole("button", { name: "Expandir categorias de Filmes", exact: true })
+    .click();
+  await expect(
+    nav.getByRole("button", { name: "Documentários", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await nav
+    .getByRole("button", { name: "Voltar ao menu principal", exact: true })
+    .click();
+  await expect(
+    nav.getByRole("button", { name: "Filmes", exact: true }),
+  ).toBeFocused();
+  await nav.getByRole("button", { name: "Séries", exact: true }).click();
+  await expect(
+    nav.getByRole("button", { name: "Todas as séries", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await nav.getByRole("button", { name: "Destaques", exact: true }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        (
+          window as unknown as {
+            novaFixtureCalls: {
+              command: string;
+              args: { query?: { kind?: string; category?: string } };
+            }[];
+          }
+        ).novaFixtureCalls.some(
+          (c) =>
+            c.command === "query_catalog" &&
+            c.args.query?.kind === "series" &&
+            c.args.query.category === "Destaques",
+        ),
+      ),
+    )
+    .toBe(true);
+  await nav
+    .getByRole("button", { name: "Ir para o Início", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Uma noite de cinema", exact: true }),
+  ).toBeVisible();
+  await expect(
+    nav.getByRole("button", { name: "Filmes", exact: true }),
+  ).toBeVisible();
+});
+
+test("busca global durante prévia esconde só superfície, mantém stream e abre filme", async ({
+  page,
+}) => {
+  await fixture(page);
+  const nav = page.getByRole("navigation", { name: "Navegação principal" });
+  await nav.getByRole("button", { name: "TV ao Vivo", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Prévia de Canal de teste 1", exact: true })
+    .click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            window as unknown as { novaFixtureCalls: { command: string }[] }
+          ).novaFixtureCalls.filter((c) => c.command === "play_media").length,
+      ),
+    )
+    .toBe(1);
+  await page.keyboard.press("Control+k");
+  await expect(
+    page.getByRole("dialog", { name: "Buscar na biblioteca" }),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            window as unknown as {
+              novaFixtureCalls: {
+                command: string;
+                args: { rect?: { visible: boolean } };
+              }[];
+            }
+          ).novaFixtureCalls
+            .filter((c) => c.command === "player_surface")
+            .at(-1)?.args.rect?.visible,
+      ),
+    )
+    .toBe(false);
+  await page.keyboard.press("Escape");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            window as unknown as {
+              novaFixtureCalls: {
+                command: string;
+                args: { rect?: { visible: boolean } };
+              }[];
+            }
+          ).novaFixtureCalls
+            .filter((c) => c.command === "player_surface")
+            .at(-1)?.args.rect?.visible,
+      ),
+    )
+    .toBe(true);
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as { novaFixtureCalls: { command: string }[] }
+        ).novaFixtureCalls.filter((c) => c.command === "play_media").length,
+    ),
+  ).toBe(1);
+  await page
+    .getByRole("button", { name: "Buscar na biblioteca", exact: true })
+    .click();
+  await page.getByRole("searchbox", { name: "Busca global" }).fill("Aurora");
+  await page
+    .getByRole("button", { name: "Abrir Além da Aurora", exact: true })
+    .click();
+  await expect(
+    page.getByRole("article", {
+      name: "Detalhes de Além da Aurora",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.locator(".watch-docked")).toHaveCount(0);
 });

@@ -1,3 +1,5 @@
+import { CatalogSidebar } from "./native/CatalogSidebar";
+import type { PageId } from "../domain/types";
 import { useMediaNavigation } from "../state/useMediaNavigation";
 import { useState, useRef, type ReactNode } from "react";
 import {
@@ -22,6 +24,13 @@ import { useCompactLayout } from "../ui/useCompactLayout";
 export function Layout({ children }: { children: ReactNode }) {
   const { page, navigate, collapsed, toggleSidebar, demo } = useAppStore();
   const [error, setError] = useState("");
+  const [mainMenuFor, setMainMenuFor] = useState<PageId | null>(null);
+  const context =
+    !demo && mainMenuFor !== page && (page === "movies" || page === "series")
+      ? page === "movies"
+        ? "movie"
+        : "series"
+      : null;
   const compact = useCompactLayout();
   const [compactExpanded, setCompactExpanded] = useState(false);
   const menuCollapsed = compact ? !compactExpanded : collapsed;
@@ -110,7 +119,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </header>
         <aside className="sidebar">
           <div className="sidebar-label">
-            <span>EXPLORAR</span>
+            <span>{context ? "CATEGORIAS" : "EXPLORAR"}</span>
             <button
               className="icon-button"
               aria-label={menuCollapsed ? "Expandir menu" : "Recolher menu"}
@@ -126,6 +135,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
           <nav
             aria-label="Navegação principal"
+            className={context ? "contextual-navigation" : undefined}
             ref={navRef}
             onKeyDown={(e) => {
               if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key))
@@ -150,23 +160,54 @@ export function Layout({ children }: { children: ReactNode }) {
               buttons[next]?.focus();
             }}
           >
-            {navItems.map(({ id, label, icon: Icon }, i) => (
-              <Tip key={id} label={label} enabled={menuCollapsed}>
-                <button
-                  className={`nav-item ${page === id ? "active" : ""} ${i === 4 ? "nav-divider" : ""}`}
-                  aria-current={page === id ? "page" : undefined}
-                  aria-label={label}
-                  onClick={() => {
-                    useMediaNavigation.getState().close();
-                    navigate(id);
-                    if (compact) setCompactExpanded(false);
-                  }}
-                >
-                  <Icon size={19} />
-                  <span>{label}</span>
-                </button>
-              </Tip>
-            ))}
+            {context ? (
+              <CatalogSidebar
+                key={context}
+                section={context}
+                collapsed={menuCollapsed}
+                onBack={() => {
+                  setMainMenuFor(page);
+                  requestAnimationFrame(() =>
+                    navRef.current
+                      ?.querySelector<HTMLButtonElement>(
+                        '[aria-current="page"]',
+                      )
+                      ?.focus(),
+                  );
+                }}
+                onHome={() => {
+                  setMainMenuFor(null);
+                  useMediaNavigation.getState().close();
+                  navigate("home");
+                }}
+                onExpand={() => {
+                  if (compact) setCompactExpanded(true);
+                  else if (collapsed) toggleSidebar();
+                }}
+              />
+            ) : (
+              navItems.map(({ id, label, icon: Icon }, i) => (
+                <Tip key={id} label={label} enabled={menuCollapsed}>
+                  <button
+                    className={`nav-item ${page === id ? "active" : ""} ${i === 4 ? "nav-divider" : ""}`}
+                    aria-current={page === id ? "page" : undefined}
+                    aria-label={label}
+                    onClick={() => {
+                      useMediaNavigation.getState().close();
+                      setMainMenuFor(null);
+                      navigate(id);
+                      if (!demo && (id === "movies" || id === "series")) {
+                        if (compact) setCompactExpanded(true);
+                        else if (collapsed) toggleSidebar();
+                      } else if (compact) setCompactExpanded(false);
+                    }}
+                  >
+                    <Icon size={19} />
+                    <span>{label}</span>
+                  </button>
+                </Tip>
+              ))
+            )}
           </nav>
           <div className="sidebar-footer">
             <Monitor size={18} />

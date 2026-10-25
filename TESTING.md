@@ -1,3 +1,9 @@
+# Menu contextual e busca — revisão atual
+
+`npm run check`: tipos, lint, 32 testes e build Vite. `NOVA_CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e`: 13 cenários incluindo categoria aplicada à consulta, isolamento Filmes/Séries, filtro do menu, voltar/Início, recolher/expandir, foco, limites de largura 900/1100/1440 e busca durante TV sem novo `play_media`. Captura com fixtures inspecionada. Backend não alterado; a nova CI Windows confirma compilação do frontend incorporado. Evidências e pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Teste de composição nativa com o provedor continua manual.
+
+---
+
 # Validação atual — NOVA Library
 
 A revisão atual introduz TV em prévia lateral, páginas de filme/série, episódios com imagens e biblioteca/progresso no SQLite v2. Ver [checkpoint](docs/PLAYBACK_CHECKPOINT.md).

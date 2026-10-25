@@ -25,10 +25,15 @@ export function NativeGlobalSearch() {
   } | null>(null);
   const list = useRef<HTMLDivElement>(null);
   const start = usePlaybackStore((s) => s.start);
+  useEffect(() => {
+    usePlaybackStore.getState().setOverlayOpen(open);
+    return () => usePlaybackStore.getState().setOverlayOpen(false);
+  }, [open]);
   const openDetails = useMediaNavigation((s) => s.open);
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (usePlaybackStore.getState().session) return;
+      const playback = usePlaybackStore.getState().session;
+      if (playback && playback.mode !== "docked") return;
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setOpen((value) => !value);
@@ -66,7 +71,11 @@ export function NativeGlobalSearch() {
       useMediaNavigation.getState().close();
       useAppStore.getState().navigate("live");
       start({ item, mode: "docked" });
-    } else openDetails(item);
+    } else {
+      if (usePlaybackStore.getState().session?.mode === "docked")
+        usePlaybackStore.getState().close();
+      openDetails(item);
+    }
     setOpen(false);
     setQuery("");
   }
@@ -81,8 +90,11 @@ export function NativeGlobalSearch() {
           setQuery("");
         }}
       >
-        <Search size={17} />
-        <span>Buscar no catálogo real</span>
+        <Search size={22} />
+        <span>
+          <strong>Buscar em todo o NOVA</strong>
+          <small>Filmes, séries e canais</small>
+        </span>
         <kbd>Ctrl K</kbd>
       </button>
       <Modal
@@ -92,7 +104,7 @@ export function NativeGlobalSearch() {
           if (!value) setQuery("");
         }}
         title="Buscar na biblioteca"
-        description="Busca paginada no catálogo local. Use as setas para navegar e Enter para abrir."
+        description="Encontre filmes, séries e canais de todas as suas fontes. Use as setas e Enter para escolher."
       >
         {!nativeAvailable() ? (
           <p className="notice">
@@ -109,6 +121,7 @@ export function NativeGlobalSearch() {
               data-autofocus
               className="global-query"
               type="search"
+              placeholder="Nome do filme, série ou canal"
               maxLength={200}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
