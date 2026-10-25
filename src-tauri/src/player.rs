@@ -350,18 +350,18 @@ impl Engine {
                 "osc-background_color=#111113,osc-held_element_color=#E52335,osc-timecode_color=#E52335,",
                 "osc-hidetimeout=2400,osc-fadeduration=0,osc-idlescreen=no,",
                 "osc-title_mbtn_left_command=,osc-title_mbtn_mid_command=,osc-title_mbtn_right_command=,",
-                "osc-menu_mbtn_left_command=script-message-to nova-hud settings,",
-                "osc-audio_track_mbtn_left_command=script-message-to nova-hud audio,",
-                "osc-audio_track_mbtn_right_command=script-message-to nova-hud audio,",
-                "osc-sub_track_mbtn_left_command=script-message-to nova-hud sub,",
-                "osc-sub_track_mbtn_right_command=script-message-to nova-hud sub,",
+                "osc-menu_mbtn_left_command=script-message-to nova_hud settings,",
+                "osc-audio_track_mbtn_left_command=script-message-to nova_hud audio,",
+                "osc-audio_track_mbtn_right_command=script-message-to nova_hud audio,",
+                "osc-sub_track_mbtn_left_command=script-message-to nova_hud sub,",
+                "osc-sub_track_mbtn_right_command=script-message-to nova_hud sub,",
                 "osc-volume_mbtn_right_command=,",
                 "osc-fullscreen_mbtn_left_command=script-message nova-ui fullscreen,",
                 "osc-fullscreen_mbtn_right_command=,",
-                "osc-skip_backward_mbtn_left_down_command=script-message-to nova-hud backward,",
-                "osc-skip_forward_mbtn_left_down_command=script-message-to nova-hud forward,",
+                "osc-skip_backward_mbtn_left_down_command=script-message-to nova_hud backward,",
+                "osc-skip_forward_mbtn_left_down_command=script-message-to nova_hud forward,",
                 "osc-custom_button_1_content=${speed}x,",
-                "osc-custom_button_1_mbtn_left_command=script-message-to nova-hud speed"
+                "osc-custom_button_1_mbtn_left_command=script-message-to nova_hud speed"
             ))?;
             // libmpv pode usar saída de embedding por padrão. Selecionar explicitamente
             // uma saída que cria janela Windows e o dispositivo de áudio do sistema.
@@ -950,7 +950,7 @@ mod tests {
                 "Vídeo deve acompanhar o resize da superfície"
             );
             engine
-                .command(&["script-binding", "nova-hud/nova-fullscreen"])
+                .command(&["script-binding", "nova_hud/nova-fullscreen"])
                 .unwrap();
             let action_deadline = std::time::Instant::now() + Duration::from_secs(2);
             while state.ui_action.as_deref() != Some("fullscreen")
