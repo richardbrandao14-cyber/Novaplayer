@@ -16,6 +16,6 @@ Correção comprovada por servidor HTTP local: URL explícita `player_api.php` a
 
 ## Gate
 
-A PoC CI usa mídia sintética de vídeo e áudio. Saídas nulas testam decodificação sem requerer dispositivo de áudio da máquina hospedada. Teste manual permanece obrigatório para imagem visível/som audível, fullscreen, teclado, GPU, ciclo de janela, HLS e serviço real. O resultado CI será registrado após execução; não considerar escrito como aprovado.
+A PoC CI usa AVI sintético (vídeo raw/áudio PCM) e HLS MPEG-2/AAC servido por HTTP local. Saídas nulas testam decodificação sem requerer dispositivo de áudio da máquina hospedada. Teste manual permanece obrigatório para imagem visível/som audível, fullscreen, teclado, GPU, ciclo de janela, HLS do provedor e serviço real. O resultado CI será registrado após execução; não considerar escrito como aprovado.
 
 Binário de teste preserva a distribuição original de libmpv e os avisos. Revisão de fontes/licenças transitivas é necessária antes de distribuição pública; veja THIRD_PARTY_NOTICES.md.

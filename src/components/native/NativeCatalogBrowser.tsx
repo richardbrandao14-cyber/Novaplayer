@@ -120,7 +120,7 @@ export function NativeCatalogBrowser({
       <PageHeading
         title={title}
         eyebrow="CATÁLOGO REAL"
-        description="Dados da sua fonte, consultados em páginas no banco local. Reprodução ainda não disponível."
+        description="Seu conteúdo, pronto para explorar. Abra os detalhes para reproduzir no Windows."
       />
       <div className="library-tools native-library-tools">
         <label className="local-search">
@@ -259,7 +259,7 @@ export function NativeCatalogBrowser({
                 <div className="player-placeholder">
                   <MonitorPlay size={42} />
                   <h2>{selectedChannel?.name || "Nome não fornecido"}</h2>
-                  <p>Canal importado · Streaming não implementado</p>
+                  <p>Seu canal · Reprodução em janela própria</p>
                   <Button
                     variant="secondary"
                     onClick={() => setSelected(selectedChannel)}
@@ -269,7 +269,7 @@ export function NativeCatalogBrowser({
                   </Button>
                 </div>
                 <p className="notice">
-                  EPG real e reprodução serão integrados em fases posteriores.
+                  Abra os detalhes do canal para reproduzir. A programação EPG ainda não está disponível.
                 </p>
               </div>
             </div>

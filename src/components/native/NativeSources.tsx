@@ -150,7 +150,7 @@ export function NativeSources() {
       <div className="heading-with-action">
         <PageHeading
           title="Minhas Listas"
-          description="Importe seu conteúdo autorizado por URL, arquivo M3U ou acesso Xtream. Reprodução ainda não disponível."
+          description="Conecte seu conteúdo autorizado por URL, arquivo M3U ou acesso Xtream. Depois da importação, escolha o que assistir."
         />
         {nativeAvailable() && (
           <Button onClick={() => changeOpen(true)}>
@@ -216,6 +216,7 @@ export function NativeSources() {
                           )[source.status] ??
                           "Fonte cadastrada")}
                     </p>
+                    {source.status === "failed" && !job && <p className="notice">A última importação falhou. Clique em Atualizar lista para tentar novamente e ver o diagnóstico.</p>}
                     {job && (
                       <div className="native-job" aria-live="polite">
                         <p>

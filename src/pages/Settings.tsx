@@ -45,8 +45,9 @@ export default function Settings() {
       <section className="settings-section">
         <h2>Reprodução</h2>
         <p className="muted">
-          O motor nativo não está integrado. Preferências de áudio, legendas e
-          buffer estarão disponíveis após a validação libmpv.
+          No aplicativo Windows, abra os detalhes de um conteúdo importado para
+          reproduzir. Volume, áudio e legendas ficam nos controles do player.
+          Preferências permanentes e ajustes de buffer ainda estão em desenvolvimento.
         </p>
         <button className="nova-button button-secondary" disabled>
           Configuração de reprodução indisponível

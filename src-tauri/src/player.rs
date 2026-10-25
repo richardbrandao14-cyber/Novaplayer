@@ -4,7 +4,10 @@ use crate::services::{Result, ServiceError};
 use std::{
     ffi::{c_char, c_int, c_void, CStr, CString},
     path::{Path, PathBuf},
-    sync::{mpsc, Arc, Mutex},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        mpsc, Arc, Mutex,
+    },
     time::Duration,
 };
 use tokio::sync::oneshot;
@@ -62,6 +65,8 @@ struct Message {
 pub struct Player {
     tx: mpsc::SyncSender<Message>,
     status: Arc<Mutex<PlaybackStatus>>,
+    stopping: Arc<AtomicBool>,
+    worker: Mutex<Option<std::thread::JoinHandle<()>>>,
 }
 impl Player {
     pub fn new(path: PathBuf) -> Self {
@@ -73,9 +78,11 @@ impl Player {
             ..Default::default()
         }));
         let state = status.clone();
-        std::thread::spawn(move || {
+        let stopping = Arc::new(AtomicBool::new(false));
+        let flag = stopping.clone();
+        let worker = std::thread::spawn(move || {
             let mut engine: Option<Engine> = None;
-            loop {
+            while !flag.load(Ordering::Relaxed) {
                 match rx.recv_timeout(Duration::from_millis(100)) {
                     Ok(message) => {
                         if matches!(message.request, Request::Shutdown) {
@@ -117,7 +124,12 @@ impl Player {
             }
             // Engine::drop termina o motor antes de descarregar a DLL.
         });
-        Self { tx, status }
+        Self {
+            tx,
+            status,
+            stopping,
+            worker: Mutex::new(Some(worker)),
+        }
     }
     async fn send(&self, request: Request) -> Result<()> {
         let (reply, rx) = oneshot::channel();
@@ -136,11 +148,22 @@ impl Player {
         self.status.lock().map(|s| s.clone()).map_err(|_| error())
     }
     pub fn shutdown(&self) {
+        self.stopping.store(true, Ordering::Relaxed);
         let (reply, _) = oneshot::channel();
         let _ = self.tx.try_send(Message {
             request: Request::Shutdown,
             reply,
         });
+        if let Ok(mut worker) = self.worker.lock() {
+            if let Some(worker) = worker.take() {
+                let _ = worker.join();
+            }
+        }
+    }
+}
+impl Drop for Player {
+    fn drop(&mut self) {
+        self.shutdown();
     }
 }
 #[repr(C)]
@@ -298,6 +321,8 @@ impl Engine {
             CString::new(value).map_err(|_| error())?,
         );
         if unsafe { (self.set_option)(self.handle, key.as_ptr(), value.as_ptr()) } < 0 {
+            #[cfg(test)]
+            eprintln!("Opção libmpv recusada: {}", key.to_string_lossy());
             Err(error())
         } else {
             Ok(())
@@ -364,7 +389,8 @@ impl Engine {
                 self.command(&["seek", &v.to_string(), "absolute"])
             }
             Control::Audio(id) if id >= 0 => self.set("aid", &id.to_string()),
-            Control::Subtitle(id) if id >= 0 => self.set("sid", &id.to_string()),
+            Control::Subtitle(0) => self.set("sid", "no"),
+            Control::Subtitle(id) if id > 0 => self.set("sid", &id.to_string()),
             Control::Stop => self.command(&["stop"]),
             _ => Err(ServiceError::new(
                 "validation",
@@ -443,6 +469,80 @@ impl Drop for Engine {
 #[cfg(test)]
 mod tests {
     use super::*;
+    struct FixtureServer {
+        address: std::net::SocketAddr,
+        stop: Arc<std::sync::atomic::AtomicBool>,
+        thread: Option<std::thread::JoinHandle<()>>,
+    }
+    impl FixtureServer {
+        fn start() -> Self {
+            use std::{
+                io::{Read, Write},
+                sync::atomic::{AtomicBool, Ordering},
+            };
+            let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            listener.set_nonblocking(true).unwrap();
+            let stop = Arc::new(AtomicBool::new(false));
+            let flag = stop.clone();
+            let thread = std::thread::spawn(move || {
+                while !flag.load(Ordering::Relaxed) {
+                    match listener.accept() {
+                        Ok((mut socket, _)) => {
+                            let _ = socket.set_read_timeout(Some(Duration::from_secs(2)));
+                            let _ = socket.set_write_timeout(Some(Duration::from_secs(2)));
+                            let mut buffer = [0; 4096];
+                            let n = socket.read(&mut buffer).unwrap_or(0);
+                            let request = String::from_utf8_lossy(&buffer[..n]);
+                            let path = request
+                                .split_whitespace()
+                                .nth(1)
+                                .unwrap_or("")
+                                .trim_start_matches('/');
+                            if ![
+                                "index.m3u8",
+                                "segment0.m2ts",
+                                "segment1.m2ts",
+                                "segment2.m2ts",
+                            ]
+                            .contains(&path)
+                            {
+                                continue;
+                            }
+                            let body = std::fs::read(
+                                Path::new(env!("CARGO_MANIFEST_DIR"))
+                                    .join("../tests/fixtures/player-hls")
+                                    .join(path),
+                            )
+                            .unwrap();
+                            let mime = if path.ends_with("m3u8") {
+                                "application/vnd.apple.mpegurl"
+                            } else {
+                                "video/mp2t"
+                            };
+                            let headers=format!("HTTP/1.1 200 OK\r\nContent-Type: {mime}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",body.len());
+                            let _ = socket.write_all(headers.as_bytes());
+                            let _ = socket.write_all(&body);
+                        }
+                        Err(_) => std::thread::sleep(Duration::from_millis(10)),
+                    }
+                }
+            });
+            Self {
+                address,
+                stop,
+                thread: Some(thread),
+            }
+        }
+    }
+    impl Drop for FixtureServer {
+        fn drop(&mut self) {
+            self.stop.store(true, std::sync::atomic::Ordering::Relaxed);
+            if let Some(thread) = self.thread.take() {
+                thread.join().unwrap();
+            }
+        }
+    }
     #[test]
     #[ignore = "Exige DLL Windows verificada; executar explicitamente na PoC CI"]
     fn windows_mpv_decodes_local_video_and_pcm_audio() {
@@ -476,6 +576,35 @@ mod tests {
         engine.control(Control::Volume(35.0)).unwrap();
         assert_eq!(engine.number("volume"), 35.0);
         engine.control(Control::Seek(1.0)).unwrap();
+        engine.control(Control::Mute(true)).unwrap();
+        assert_eq!(engine.property("mute").as_deref(), Some("yes"));
+        engine.control(Control::Mute(false)).unwrap();
+        assert!(engine.control(Control::Volume(101.0)).is_err());
+        engine.control(Control::Stop).unwrap();
+        // HLS real via servidor HTTP local, sem depender de provedor externo.
+        let server = FixtureServer::start();
+        let url = format!("http://{}/index.m3u8", server.address);
+        engine.set("pause", "no").unwrap();
+        engine.command(&["loadfile", &url, "replace"]).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(15);
+        let mut hls = PlaybackStatus::default();
+        while std::time::Instant::now() < deadline {
+            engine.poll(&mut hls);
+            if hls.position > 0.1 {
+                break;
+            }
+            assert!(hls.error.is_none(), "HLS local falhou");
+            std::thread::sleep(Duration::from_millis(30));
+        }
+        assert!(hls.position > 0.1, "Relógio HLS deve avançar");
+        assert!(
+            engine.property("audio-codec-name").is_some(),
+            "Áudio HLS decodificado"
+        );
+        assert!(
+            engine.property("video-codec").is_some(),
+            "Vídeo HLS decodificado"
+        );
         engine.control(Control::Stop).unwrap();
     }
 }

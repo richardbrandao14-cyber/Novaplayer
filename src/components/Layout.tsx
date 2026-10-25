@@ -164,14 +164,14 @@ export function Layout({ children }: { children: ReactNode }) {
             <span>
               {demo
                 ? "Conteúdos fictícios · Sem reprodução"
-                : "Fontes do usuário · Sem reprodução"}
+                : "Fontes do usuário · Player Windows"}
             </span>
           </div>
           {error && <p role="alert">{error}</p>}
           {children}
           <footer className="content-footer">
             NOVA PLAYER <span>Uma nova forma de explorar.</span>
-            <span>Catálogo e interface · Fase 3</span>
+            <span>Seu conteúdo. Sua experiência.</span>
           </footer>
         </main>
         <Notification />
