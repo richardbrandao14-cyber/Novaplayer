@@ -1151,6 +1151,23 @@ mod tests {
                 std::thread::sleep(Duration::from_millis(20));
             }
             if engine.property("pause").as_deref() != Some("no") {
+                let diagnostic = Path::new(&dll).parent().unwrap().join("hud-diagnostic.png");
+                engine
+                    .command(&["screenshot-to-file", diagnostic.to_str().unwrap(), "window"])
+                    .unwrap();
+                let shot = image::open(&diagnostic)
+                    .unwrap()
+                    .thumbnail(640, 360)
+                    .to_rgb8();
+                let mut jpeg = Vec::new();
+                image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, 45)
+                    .encode_image(&shot)
+                    .unwrap();
+                use base64::Engine as _;
+                eprintln!(
+                    "HUD_IMAGE_BASE64:{}",
+                    base64::engine::general_purpose::STANDARD.encode(jpeg)
+                );
                 eprintln!(
                     "HUD_CLICK mouse={:?} dimensions={:?} options={:?}",
                     engine.property("mouse-pos"),
