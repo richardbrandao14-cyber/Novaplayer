@@ -48,6 +48,9 @@ test("biblioteca cinematográfica e acesso a filme e episódio com um clique", a
   await page.getByRole("button", { name: "Reproduzir Além da fronteira", exact: true }).click();
   await expect(page.getByRole("main", { name: "Assistindo Além da fronteira" })).toBeVisible();
   await expect.poll(() => page.evaluate(() => (window as unknown as { novaFixtureCalls: { command: string; args: { episodeId?: string } }[] }).novaFixtureCalls.filter((c) => c.command === "play_media").at(-1)?.args.episodeId)).toBe("episode-3");
+  await page.getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(page.getByLabel("Temporada", { exact: true })).toHaveValue("2");
+  await expect(page.getByRole("button", { name: "Reproduzir Além da fronteira", exact: true })).toBeVisible();
 });
 test("prévia visual com fixtures locais, sem tráfego remoto", async ({ page }) => {
   const remote: string[] = [];
