@@ -3638,3 +3638,13 @@ body {
     font-size: 12px;
   }
 }
+
+/* Tela cheia usa cabeçalho/OSC no vídeo nativo: sem faixa fixa sobre o filme. */
+.watch-fullscreen.watch-native-chrome .watch-header,
+.watch-fullscreen.watch-native-chrome .watch-toolbar:not(:has([role="alert"])) { display:none; }
+.watch-fullscreen:not(.watch-native-chrome) .watch-header { position:absolute;top:0;left:0;right:0;z-index:4;background:#080809d9; }
+.watch-fullscreen:not(.watch-native-chrome) .watch-toolbar { position:absolute;bottom:0;left:0;right:0;z-index:4;background:#080809d9; }
+.watch-fullscreen.watch-idle:not(.watch-native-chrome) .watch-header,
+.watch-fullscreen.watch-idle:not(.watch-native-chrome) .watch-toolbar { opacity:0;visibility:hidden;pointer-events:none; }
+.watch-fullscreen.watch-idle { cursor:none; }
+.watch-fullscreen .watch-panel { padding-top:88px; }

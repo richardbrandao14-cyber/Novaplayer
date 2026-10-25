@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useIdleControls } from "../../player/useIdleControls";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import {
   ArrowLeft,
   Maximize,
@@ -61,6 +62,39 @@ export function NativePlayer({
   const lastSaved = useRef(0);
   const [progressError, setProgressError] = useState("");
   const bump = useLibraryRevision((s) => s.bump);
+  const { idle, wake } = useIdleControls(
+    fullscreen,
+    settings || episodes || overlayOpen || !!error || !!status?.error,
+  );
+  const lastWake = useRef(0);
+  function interact() {
+    wake();
+    if (fullscreen && status?.hudReady && Date.now() - lastWake.current > 150) {
+      lastWake.current = Date.now();
+      void nativeApi.playerControl({ kind: "wake" }).catch(() => {});
+    }
+  }
+  const keyboardActivity = useEffectEvent(() => {
+    interact();
+    if (document.activeElement === document.body) screen.current?.focus();
+  });
+  useEffect(() => {
+    if (!fullscreen) return;
+    screen.current?.focus();
+    const handler = () => keyboardActivity();
+    window.addEventListener("keydown", handler, true);
+    return () => window.removeEventListener("keydown", handler, true);
+  }, [fullscreen]);
+  const hasEpisodes = !!session.seasons;
+  useEffect(() => {
+    if (!status?.hudReady) return;
+    void nativeApi
+      .playerControl({
+        kind: "chrome",
+        value: { fullscreen, episodes: hasEpisodes },
+      })
+      .catch((e) => setError(nativeError(e)));
+  }, [fullscreen, status?.hudReady, hasEpisodes]);
   const title = session.episodeTitle || item.name || "Título não fornecido";
 
   async function control(command: PlayerControl) {
@@ -207,13 +241,35 @@ export function NativePlayer({
       active = false;
     };
   }, [overlayOpen]);
+  const nativeAction = useEffectEvent((next: PlaybackStatus) => {
+    if (!next?.actionId || next.actionId === handledAction.current) return;
+    handledAction.current = next.actionId;
+    if (
+      next.uiAction === "fullscreen" ||
+      (next.uiAction === "escape" && fullscreen)
+    ) {
+      if (docked) setMode("theater", true);
+      else
+        void nativeApi
+          .playerControl({ kind: "fullscreen", value: !fullscreen })
+          .then(() => setFullscreen(!fullscreen))
+          .catch((e) => setError(nativeError(e)));
+    } else if (next.uiAction === "episodes") {
+      setEpisodes((value) => !value);
+      setSettings(false);
+    } else if (next.uiAction === "back" || next.uiAction === "escape")
+      onClose();
+  });
   useEffect(() => {
     let active = true;
     let timer: ReturnType<typeof setTimeout>;
     async function poll() {
       try {
         const next = await nativeApi.playerStatus();
-        if (active && ready.current) setStatus(next);
+        if (active && ready.current) {
+          setStatus(next);
+          nativeAction(next);
+        }
       } catch (e) {
         if (active) setError(nativeError(e));
       }
@@ -225,22 +281,6 @@ export function NativePlayer({
       clearTimeout(timer);
     };
   }, []);
-  useEffect(() => {
-    if (!status?.actionId || status.actionId === handledAction.current) return;
-    handledAction.current = status.actionId;
-    if (
-      status.uiAction === "fullscreen" ||
-      (status.uiAction === "escape" && fullscreen)
-    ) {
-      if (docked) setMode("theater", true);
-      else
-        void nativeApi
-          .playerControl({ kind: "fullscreen", value: !fullscreen })
-          .then(() => setFullscreen(!fullscreen))
-          .catch((e) => setError(nativeError(e)));
-    } else if (status.uiAction === "back" || status.uiAction === "escape")
-      onClose();
-  }, [status, fullscreen, onClose, docked, setMode]);
   useEffect(
     () => () => {
       void nativeApi
@@ -291,7 +331,7 @@ export function NativePlayer({
     <main
       ref={screen}
       tabIndex={-1}
-      className={`watch-screen ${docked ? "watch-docked" : ""} ${failure ? "watch-failed" : ""}`}
+      className={`watch-screen ${docked ? "watch-docked" : ""} ${failure ? "watch-failed" : ""} ${fullscreen ? "watch-fullscreen" : ""} ${fullscreen && status?.hudReady ? "watch-native-chrome" : ""} ${idle ? "watch-idle" : ""}`}
       style={
         docked
           ? {
@@ -305,6 +345,10 @@ export function NativePlayer({
           : undefined
       }
       aria-label={`${docked ? "Prévia de" : "Assistindo"} ${title}`}
+      onPointerMove={interact}
+      onPointerDown={interact}
+      onFocusCapture={interact}
+      onKeyDownCapture={interact}
       onKeyDown={(event) => {
         const target = event.target;
         if (

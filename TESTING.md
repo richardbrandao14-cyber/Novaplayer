@@ -1,3 +1,9 @@
+# Controles em tela cheia — revisão atual
+
+35 testes frontend e build/tipos/lint aprovados. Três testes novos verificam prazo de três segundos, reinício por interação, manutenção de acesso com painel aberto e ausência de ocultação fora da tela cheia. Playwright: 14 cenários, incluindo o fluxo temporizado com mouse/teclado e ajustes. A prova gráfica Windows verifica o HUD nativo visível, ocultação após inatividade mesmo pausado, OSC oculto e reativação por binding. Estado da CI e pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Navegador usa IPC controlado e não comprova desenho do HWND; teste manual com provedor permanece necessário.
+
+---
+
 # Menu contextual e busca — revisão atual
 
 `npm run check`: tipos, lint, 32 testes e build Vite. `NOVA_CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e`: 13 cenários incluindo categoria aplicada à consulta, isolamento Filmes/Séries, filtro do menu, voltar/Início, recolher/expandir, foco, limites de largura 900/1100/1440 e busca durante TV sem novo `play_media`. Captura com fixtures inspecionada. Backend não alterado; a [nova CI Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312) confirmou compilação do frontend incorporado, quatro provas libmpv, Rust/DPAPI e Clippy. Evidências e pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Teste de composição nativa com o provedor continua manual.

@@ -780,3 +780,48 @@ test("busca global durante prévia esconde só superfície, mantém stream e abr
   ).toBeVisible();
   await expect(page.locator(".watch-docked")).toHaveCount(0);
 });
+
+test("tela cheia oculta controles após inatividade, reativa com mouse/teclado e mantém painel", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page
+    .getByRole("button", {
+      name: "Ver detalhes de Além da Aurora",
+      exact: true,
+    })
+    .first()
+    .click();
+  await page
+    .getByRole("button", { name: "Assistir agora", exact: true })
+    .click();
+  const player = page.getByRole("main", {
+    name: "Assistindo Além da Aurora",
+    exact: true,
+  });
+  await player.getByRole("button", { name: "Tela cheia", exact: true }).click();
+  await expect(player).toHaveClass(/watch-fullscreen/);
+  await page.mouse.move(350, 350);
+  await expect(
+    player.getByRole("button", { name: "Voltar", exact: true }),
+  ).toBeHidden({ timeout: 5000 });
+  await page.mouse.move(400, 400);
+  await expect(
+    player.getByRole("button", { name: "Voltar", exact: true }),
+  ).toBeVisible();
+  await expect(
+    player.getByRole("button", { name: "Voltar", exact: true }),
+  ).toBeHidden({ timeout: 5000 });
+  await page.keyboard.press("x");
+  await expect(
+    player.getByRole("button", { name: "Voltar", exact: true }),
+  ).toBeVisible();
+  await player.getByRole("button", { name: "Ajustes", exact: true }).click();
+  await page.waitForTimeout(3300);
+  await expect(
+    player.getByRole("combobox", { name: "Velocidade", exact: true }),
+  ).toBeVisible();
+  await expect(
+    player.getByRole("button", { name: "Voltar", exact: true }),
+  ).toBeVisible();
+});

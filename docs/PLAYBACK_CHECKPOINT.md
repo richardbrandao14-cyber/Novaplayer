@@ -1,3 +1,17 @@
+# Tela cheia — controles por inatividade
+
+Pedido: Voltar e controles de reprodução só devem aparecer durante interação e desaparecer após cerca de três segundos.
+
+- Cabeçalho e controles em tela cheia são desenhados pelo próprio player sobre o vídeo, sem faixa HTML fixa. Inclui Voltar, Ajustes, Sair da tela cheia e Episódios quando há temporadas.
+- Movimento do mouse sobre vídeo nativo, clique ou teclas reativam os controles. Três segundos sem interação ocultam cabeçalho/OSC, inclusive pausado. Cursor do motor segue prazo de três segundos.
+- Ao sair, navegação normal é restaurada. Painéis da interface e erros permanecem acessíveis. Nenhuma dependência, fonte ou configuração de armazenamento adicionada.
+
+Validação local: 35 testes frontend, TypeScript/lint/build Vite aprovados; 14 cenários Playwright cobrem ocultação, mouse, teclado, painel e regressão. Sintaxe Lua verificada. A prova gráfica Windows foi ampliada para conferir visibilidade do HUD, desaparecimento enquanto pausado e reativação por binding de teclado. CI/pacote desta revisão ainda em validação. No PC, confirmar mouse sobre o vídeo, botões nativos, pausa, DPI e saída/retorno com a Horizon.
+
+---
+
+## Marco anterior — histórico
+
 # Menu de categorias e busca global — revisão atual
 
 - Filmes e Séries substituem o conteúdo do mesmo menu lateral pelas subcategorias da fonte. Retorno ao menu principal mantém o catálogo atual; Início leva diretamente à home. Há filtro de categorias, estados de carregamento/erro/repetição e mensagem quando a fonte não fornece categorias. Seleção destaca a categoria e consulta o backend paginado; filtros de filmes/séries são independentes. Não são criadas categorias fictícias.

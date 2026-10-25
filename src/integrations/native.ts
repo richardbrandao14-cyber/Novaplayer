@@ -95,7 +95,8 @@ export interface PlaybackStatus {
 export type PlayerControl =
   | { kind: "pause" | "mute" | "fullscreen"; value: boolean }
   | { kind: "volume" | "seek" | "speed" | "audio" | "subtitle"; value: number }
-  | { kind: "stop" };
+  | { kind: "chrome"; value: { fullscreen: boolean; episodes: boolean } }
+  | { kind: "stop" | "wake" };
 export interface SurfaceRect {
   x: number;
   y: number;

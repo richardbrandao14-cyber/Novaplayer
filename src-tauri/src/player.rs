@@ -56,6 +56,8 @@ pub enum Control {
     Audio(i64),
     Subtitle(i64),
     Fullscreen(bool),
+    Chrome { fullscreen: bool, episodes: bool },
+    Wake,
     Stop,
 }
 enum Request {
@@ -380,6 +382,7 @@ impl Engine {
             ("input-vo-keyboard", "yes"),
             ("osc", "no"),
             ("osd-level", "0"),
+            ("cursor-autohide", "3000"),
             ("title", "NOVA PLAYER — Reprodução"),
             ("hwdec", "auto-safe"),
             ("network-timeout", "15"),
@@ -436,7 +439,7 @@ impl Engine {
             engine.option("script-opts", concat!(
                 "osc-layout=floating,osc-title=NOVA PLAYER,osc-floatingtitle=no,osc-windowcontrols=no,",
                 "osc-background_color=#111113,osc-held_element_color=#E52335,osc-timecode_color=#E52335,",
-                "osc-hidetimeout=2400,osc-fadeduration=0,osc-idlescreen=no,",
+                "osc-hidetimeout=3000,osc-fadeduration=0,osc-idlescreen=no,",
                 "osc-title_mbtn_left_command=,osc-title_mbtn_mid_command=,osc-title_mbtn_right_command=,",
                 "osc-menu_mbtn_left_command=script-message-to nova_hud settings,",
                 "osc-audio_track_mbtn_left_command=script-message-to nova_hud audio,",
@@ -532,6 +535,17 @@ impl Engine {
     }
     fn control(&mut self, value: Control) -> Result<()> {
         match value {
+            Control::Chrome {
+                fullscreen,
+                episodes,
+            } => self.command(&[
+                "script-message-to",
+                "nova_hud",
+                "fullscreen-chrome",
+                if fullscreen { "yes" } else { "no" },
+                if episodes { "yes" } else { "no" },
+            ]),
+            Control::Wake => self.command(&["script-message-to", "nova_hud", "activity"]),
             Control::Pause(v) => self.set("pause", if v { "yes" } else { "no" }),
             Control::Mute(v) => self.set("mute", if v { "yes" } else { "no" }),
             Control::Fullscreen(v) => self.set("fullscreen", if v { "yes" } else { "no" }),
@@ -585,7 +599,7 @@ impl Engine {
                                     status.hud_ready = true;
                                 }
                                 if name == b"nova-ui"
-                                    && [b"back".as_slice(), b"escape", b"fullscreen"]
+                                    && [b"back".as_slice(), b"escape", b"fullscreen", b"episodes"]
                                         .contains(&action)
                                 {
                                     status.action_id = status.action_id.wrapping_add(1);
@@ -1077,6 +1091,42 @@ mod tests {
                 Some("fullscreen"),
                 "HUD deve encaminhar ação ao aplicativo"
             );
+            engine
+                .control(Control::Chrome {
+                    fullscreen: true,
+                    episodes: true,
+                })
+                .unwrap();
+            std::thread::sleep(Duration::from_millis(200));
+            assert_eq!(
+                engine.property("user-data/nova/visibility").as_deref(),
+                Some("visible")
+            );
+            std::thread::sleep(Duration::from_millis(3300));
+            assert_eq!(
+                engine.property("user-data/nova/visibility").as_deref(),
+                Some("hidden"),
+                "Cabeçalho deve sumir após inatividade mesmo pausado"
+            );
+            assert_eq!(
+                engine.property("user-data/osc/visibility").as_deref(),
+                Some("never")
+            );
+            engine
+                .command(&["script-binding", "nova_hud/nova-wake"])
+                .unwrap();
+            std::thread::sleep(Duration::from_millis(150));
+            assert_eq!(
+                engine.property("user-data/nova/visibility").as_deref(),
+                Some("visible"),
+                "Teclado deve reativar controles"
+            );
+            engine
+                .control(Control::Chrome {
+                    fullscreen: false,
+                    episodes: true,
+                })
+                .unwrap();
             engine
                 .command(&["script-message-to", "osc", "osc-visibility", "always"])
                 .unwrap();

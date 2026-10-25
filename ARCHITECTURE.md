@@ -146,3 +146,9 @@ Migração transacional 002 mantém o catálogo existente e acrescenta favoritos
 `CatalogSidebar` carrega categorias reais por tipo/fonte e usa `useCatalogFilters` para compartilhar seleção, fonte e paginação com `NativeCatalogBrowser`. Estado separado por Filmes/Séries, somente em memória. Fonte removida invalida o filtro ao reabrir catálogo. O menu alterna entre seções principais e categorias sem abandonar o catálogo; Início fecha detalhes e navega para home.
 
 A busca global continua consultando todas as fontes, independente dos filtros da página. `overlayOpen` na sessão controla apenas visibilidade da superfície nativa para o diálogo Radix; mudanças de overlay são serializadas com o ciclo de reprodução e não recarregam mídia. Coordenadas e ResizeObserver respeitam esse estado. Escolher detalhes de filme/série encerra uma eventual prévia de TV.
+
+## Controles de tela cheia por inatividade
+
+Em tela cheia com HUD disponível, o cabeçalho e OSC são desenhados no próprio vídeo; o cabeçalho React não reserva altura. `Chrome` envia somente dois booleanos (fullscreen/episódios) ao script confiável. `Wake` sinaliza atividade da interface sem recarregar a mídia. Lua observa movimento dentro do HWND e os atalhos, mostra cabeçalho/OSC e oculta ambos três segundos depois, mesmo pausado. Botões superiores encaminham somente ações fixas para Voltar, tela cheia e painel de episódios; ajustes continuam nativos. Cursor tem prazo de três segundos. Não há alteração de codecs, rede, persistência ou credenciais.
+
+`useIdleControls` cobre o fallback React. Eventos globais de teclado reativam o HUD mesmo quando o foco está no WebView; mouse/teclado do vídeo são tratados no Lua. Painéis React abertos e erros mantêm seus controles acessíveis. Eventos nativos são tratados na consulta assíncrona de status, sem efeitos de estado encadeados. Sair de tela cheia restaura o cabeçalho de navegação e comportamento normal do OSC.
