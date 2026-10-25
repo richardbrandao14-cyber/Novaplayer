@@ -1,3 +1,5 @@
+import { usePlaybackStore } from "../state/usePlaybackStore";
+import { NativePlayer } from "../components/native/NativePlayer";
 import { lazy, Suspense } from "react";
 import { MotionConfig, motion, useReducedMotion } from "motion/react";
 import { useAppStore } from "../state/useAppStore";
@@ -18,9 +20,12 @@ export function App() {
   const reducedMotion = useReducedMotion();
   const page = useAppStore((s) => s.page);
   const Page = pages[page];
+  const session = usePlaybackStore((s) => s.session);
+  const close = usePlaybackStore((s) => s.close);
   return (
     <MotionConfig reducedMotion="user">
       <ErrorBoundary>
+        <div inert={session !== null}>
         <Layout>
           <Suspense fallback={<LoadState status="loading" />}>
             <motion.div
@@ -34,6 +39,8 @@ export function App() {
             </motion.div>
           </Suspense>
         </Layout>
+        </div>
+        {session && <NativePlayer session={session} onClose={close} />}
       </ErrorBoundary>
     </MotionConfig>
   );

@@ -28,6 +28,7 @@ export function nativeError(error: unknown): string {
       BUSY: "Já existem importações em andamento. Aguarde e tente novamente.",
       INTERRUPTED: "A importação foi interrompida. Atualize a lista para tentar novamente.",
       PLAYBACK: "Não foi possível reproduzir esta mídia. Verifique a fonte e tente outro conteúdo.",
+      PLAYER_SURFACE: "Não foi possível preparar o vídeo dentro da janela. Tente abrir o conteúdo novamente.",
       PLAYER_MISSING: "O motor de vídeo não foi encontrado. Extraia todos os arquivos do ZIP ao lado do executável.",
       URL: "Informe uma URL HTTP ou HTTPS válida.",
       EMPTY: "A playlist não contém registros importáveis.",
@@ -66,6 +67,7 @@ async function call<T>(
   return invoke<T>(command, args);
 }
 export interface PlaybackStatus {
+  actionId?: number; uiAction?: string | null; hudReady?: boolean;
   state: string; position: number; duration: number; volume: number;
   paused: boolean; muted: boolean; seekable: boolean; speed: number;
   tracks: { id: number; kind: string; label: string; selected: boolean }[];
@@ -75,7 +77,16 @@ export type PlayerControl =
   | { kind: "pause" | "mute" | "fullscreen"; value: boolean }
   | { kind: "volume" | "seek" | "speed" | "audio" | "subtitle"; value: number }
   | { kind: "stop" };
+export interface SurfaceRect { x: number; y: number; width: number; height: number; visible: boolean }
+// Serializa criação/troca/fechamento, inclusive o ciclo duplo de efeitos do React StrictMode.
+let lifecycle: Promise<void> = Promise.resolve();
+export function playbackLifecycle(work: () => Promise<void>): Promise<void> {
+  const next = lifecycle.then(work, work);
+  lifecycle = next.catch(() => {});
+  return next;
+}
 export const nativeApi = {
+  surface: (rect: SurfaceRect) => call<void>("player_surface", { rect }),
   play: (mediaId: string, episodeId?: string) => call<void>("play_media", { mediaId, episodeId: episodeId ?? null }),
   playerControl: (control: PlayerControl) => call<void>("player_control", { control }),
   playerStatus: () => call<PlaybackStatus>("player_status"),

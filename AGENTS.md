@@ -2,6 +2,7 @@
 
 ## Autoridade e escopo
 
+- Marco manual: proprietário confirmou que Horizon funcionou com vídeo/áudio no Windows na versão anterior. Novo pedido autorizado: player na mesma janela, HUD sobre o vídeo, um clique para canal/filme/episódio e biblioteca cinematográfica conforme referências. Validar nova composição HWND/HUD no Windows antes de entregar; não presumir que o marco anterior aprova essa mudança.
 - Atualização de escopo: o proprietário autorizou explicitamente corrigir Xtream e implementar reprodução nativa com áudio. Executar primeiro a PoC Windows isolada de libmpv; só habilitar a integração após esse gate automatizado. Sem instalador, Release ou publicação.
 - M3U/Xtream/SQLite e catálogo real já implementados. Registro de reprodução em docs/PLAYBACK_CHECKPOINT.md; não declarar som audível ou provedor real validados por testes com saídas nulas.
 - Desenvolver uma fase por vez, com aprovação técnica documentada; mudanças relevantes de arquitetura, custos ou limitações devem ser explicadas antes de execução.

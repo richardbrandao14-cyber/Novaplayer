@@ -17,6 +17,7 @@ fn main() {
             "play_media",
             "player_control",
             "player_status",
+            "player_surface",
         ]),
     ))
     .expect("Não foi possível preparar as permissões do aplicativo");

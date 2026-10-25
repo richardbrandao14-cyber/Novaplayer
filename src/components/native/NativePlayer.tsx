@@ -1,65 +1,130 @@
-import { useEffect, useState } from "react";
-import { nativeApi, nativeError, type PlaybackStatus, type PlayerControl } from "../../integrations/native";
-import { Button } from "../../ui/Button";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Maximize, Minimize, Pause, Play, Settings2, Volume2, VolumeX, ListVideo, SkipBack, SkipForward } from "lucide-react";
+import { nativeApi, nativeError, playbackLifecycle, type PlaybackStatus, type PlayerControl, type SurfaceRect } from "../../integrations/native";
+import { usePlaybackStore, type PlaybackSession } from "../../state/usePlaybackStore";
 
 function clock(value: number) {
   const seconds = Math.max(0, Math.floor(value));
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+  return `${Math.floor(seconds / 3600) ? `${Math.floor(seconds / 3600)}:` : ""}${Math.floor(seconds / 60) % 60}:${String(seconds % 60).padStart(2, "0")}`;
 }
-export function NativePlayer({ mediaId, episodeId }: { mediaId: string; episodeId?: string | undefined }) {
+export function NativePlayer({ session, onClose }: { session: PlaybackSession; onClose: () => void }) {
+  const canvas = useRef<HTMLDivElement>(null);
+  const back = useRef<HTMLButtonElement>(null);
   const [status, setStatus] = useState<PlaybackStatus | null>(null);
   const [error, setError] = useState("");
-  const [opening, setOpening] = useState(false);
+  const [settings, setSettings] = useState(false);
+  const [episodes, setEpisodes] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [retry, setRetry] = useState(0);
+  const handledAction = useRef(0);
+  const ready = useRef(false);
+  const start = usePlaybackStore((s) => s.start);
+  const { item, episodeId } = session;
+  const title = session.episodeTitle || item.name || "Título não fornecido";
+
+  async function control(command: PlayerControl) {
+    try { await nativeApi.playerControl(command); }
+    catch (e) { setError(nativeError(e)); }
+  }
+  async function toggleFullscreen() {
+    try { await nativeApi.playerControl({ kind: "fullscreen", value: !fullscreen }); setFullscreen(!fullscreen); }
+    catch (e) { setError(nativeError(e)); }
+  }
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    back.current?.focus();
+    return () => { previous?.focus(); };
+  }, []);
+  useEffect(() => {
+    let active = true;
+    ready.current = false;
+    let observer: ResizeObserver | undefined;
+    let frame = 0;
+    let last: SurfaceRect = { x: 0, y: 0, width: 1, height: 1, visible: false };
+    function rect(): SurfaceRect {
+      const bounds = canvas.current?.getBoundingClientRect();
+      const scale = window.devicePixelRatio || 1;
+      return { x: Math.max(0, Math.round((bounds?.left ?? 0) * scale)), y: Math.max(0, Math.round((bounds?.top ?? 0) * scale)), width: Math.max(1, Math.round((bounds?.width || 960) * scale)), height: Math.max(1, Math.round((bounds?.height || 540) * scale)), visible: true };
+    }
+    function resize() {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        void playbackLifecycle(async () => { if (active) { last = rect(); await nativeApi.surface(last); } }).catch((e) => { if (active) setError(nativeError(e)); });
+      });
+    }
+    void playbackLifecycle(async () => {
+      if (!active) return;
+      last = rect();
+      await nativeApi.surface(last);
+      if (!active) return;
+      await nativeApi.play(item.id, episodeId);
+      if (active) ready.current = true;
+    }).catch((e) => { if (active) setError(nativeError(e)); });
+    if (typeof ResizeObserver !== "undefined" && canvas.current) { observer = new ResizeObserver(resize); observer.observe(canvas.current); }
+    window.addEventListener("resize", resize);
+    return () => {
+      active = false; observer?.disconnect(); cancelAnimationFrame(frame); window.removeEventListener("resize", resize);
+      void playbackLifecycle(async () => {
+        try { await nativeApi.surface({ ...last, visible: false }); }
+        finally { await nativeApi.playerControl({ kind: "stop" }); }
+      }).catch(() => {});
+    };
+  }, [item.id, episodeId, retry]);
   useEffect(() => {
     let active = true;
     let timer: ReturnType<typeof setTimeout>;
     async function poll() {
-      try {
-        const next = await nativeApi.playerStatus();
-        if (active) setStatus(next);
-      } catch (e) { if (active) setError(nativeError(e)); }
-      if (active) timer = setTimeout(() => void poll(), 600);
+      try { const next = await nativeApi.playerStatus(); if (active && ready.current) setStatus(next); }
+      catch (e) { if (active) setError(nativeError(e)); }
+      if (active) timer = setTimeout(() => void poll(), 300);
     }
     void poll();
     return () => { active = false; clearTimeout(timer); };
   }, []);
-  async function play() {
-    setOpening(true); setError("");
-    try { await nativeApi.play(mediaId, episodeId); }
-    catch (e) { setError(nativeError(e)); }
-    finally { setOpening(false); }
-  }
-  async function control(command: PlayerControl) {
-    setError("");
-    try { await nativeApi.playerControl(command); }
-    catch (e) { setError(nativeError(e)); }
-  }
-  const active = status && ["playing", "loading"].includes(status.state);
-  const labels: Record<string, string> = { idle: "Pronto", loading: "Abrindo mídia…", playing: status?.paused ? "Pausado" : "Reproduzindo", failed: "Falha na reprodução", stopped: "Parado" };
-  return <section className="native-player" aria-label="Player nativo">
-    <div className="native-player-heading">
-      <Button disabled={opening} onClick={() => void play()}>{opening ? "Abrindo…" : episodeId ? "Reproduzir episódio" : "Reproduzir agora"}</Button>
-      <span role="status">{status ? labels[status.state] ?? "Pronto" : "Consultando player…"}</span>
+  useEffect(() => {
+    if (!status?.actionId || status.actionId === handledAction.current) return;
+    handledAction.current = status.actionId;
+    if (status.uiAction === "fullscreen" || (status.uiAction === "escape" && fullscreen)) {
+      void nativeApi.playerControl({ kind: "fullscreen", value: !fullscreen }).then(() => setFullscreen(!fullscreen)).catch((e) => setError(nativeError(e)));
+    } else if (status.uiAction === "back" || status.uiAction === "escape") onClose();
+  }, [status, fullscreen, onClose]);
+  useEffect(() => () => { void nativeApi.playerControl({ kind: "fullscreen", value: false }).catch(() => {}); }, []);
+  const failure = error || status?.error;
+  const total = status?.duration ?? 0;
+  return <main className="watch-screen" aria-label={`Assistindo ${title}`}>
+    <header className="watch-header">
+      <button ref={back} className="watch-back" onClick={onClose}><ArrowLeft size={21} /> Voltar</button>
+      <div className="watch-title"><span>{item.kind === "live" ? "AO VIVO" : item.kind === "series" ? item.name : "NOVA PLAYER"}</span><h1>{title}</h1></div>
+      {session.seasons && <button className="watch-action" onClick={() => { setEpisodes(!episodes); setSettings(false); }} aria-expanded={episodes}><ListVideo size={19} /> Episódios</button>}
+      <button className="watch-action" onClick={() => { setSettings(!settings); setEpisodes(false); }} aria-expanded={settings}><Settings2 size={19} /> Ajustes</button>
+      <button className="watch-action" onClick={() => void toggleFullscreen()} aria-label={fullscreen ? "Sair da tela cheia" : "Tela cheia"}>{fullscreen ? <Minimize size={19} /> : <Maximize size={19} />}</button>
+    </header>
+    <div className="watch-body">
+      <div className="watch-stage">
+        <div ref={canvas} className="watch-native-canvas" aria-label="Vídeo integrado com controles sobre a imagem" />
+        <div className="watch-status" role="status">{failure ? "Falha ao abrir conteúdo" : status?.state === "loading" ? "Preparando sua reprodução…" : ""}</div>
+      </div>
+      {(settings || episodes) && <aside className="watch-panel" aria-label={episodes ? "Episódios da série" : "Configurações de reprodução"}>
+        {episodes ? <><h2>Temporadas e episódios</h2>{session.seasons?.map((season) => <section key={season.id ?? season.number}><h3>Temporada {season.number}</h3>{season.episodes.map((episode, index) => <button className={`watch-episode ${episode.id === episodeId ? "selected" : ""}`} key={episode.id} onClick={() => start({ ...session, episodeId: episode.id, episodeTitle: episode.title || episode.name || `Episódio ${index + 1}` })}><span>{index + 1}</span><strong>{episode.title || episode.name || "Título não fornecido"}</strong><Play size={16} /></button>)}</section>)}</> : <>
+          <h2>Do seu jeito</h2>
+          <label>Velocidade<select value={status?.speed || 1} onChange={(e) => void control({ kind: "speed", value: Number(e.target.value) })}>{[0.5, 0.75, 1, 1.25, 1.5, 2].map((v) => <option key={v} value={v}>{v}×</option>)}</select></label>
+          <label>Áudio<select value={status?.tracks.find((t) => t.kind === "audio" && t.selected)?.id ?? ""} onChange={(e) => void control({ kind: "audio", value: Number(e.target.value) })}><option value="" disabled>Selecione uma faixa</option>{status?.tracks.filter((t) => t.kind === "audio").map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
+          <label>Legendas<select value={status?.tracks.find((t) => t.kind === "sub" && t.selected)?.id ?? 0} onChange={(e) => void control({ kind: "subtitle", value: Number(e.target.value) })}><option value="0">Desativadas</option>{status?.tracks.filter((t) => t.kind === "sub").map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
+          <p>Espaço pausa · ← → avançam ou voltam · F alterna tela cheia · Esc volta.</p>
+        </>}
+      </aside>}
     </div>
-    <p className="muted">O vídeo abre em uma janela própria. Os controles abaixo atuam na reprodução atual.</p>
-    {(error || status?.error) && <p role="alert">{error || status?.error}</p>}
-    {active && <>
-      <div className="native-player-controls">
-        <Button variant="secondary" onClick={() => void control({ kind: "pause", value: !status.paused })}>{status.paused ? "Continuar" : "Pausar"}</Button>
-        <Button variant="secondary" onClick={() => void control({ kind: "stop" })}>Parar</Button>
-        <Button variant="secondary" onClick={() => void control({ kind: "mute", value: !status.muted })}>{status.muted ? "Ativar som" : "Silenciar"}</Button>
-        <Button variant="secondary" onClick={() => void control({ kind: "fullscreen", value: true })}>Tela cheia</Button>
-        <Button variant="ghost" onClick={() => void control({ kind: "fullscreen", value: false })}>Sair da tela cheia</Button>
-      </div>
-      <label>Volume <input aria-label="Volume" type="range" min="0" max="100" value={Math.round(status.volume)} onChange={(e) => void control({ kind: "volume", value: Number(e.target.value) })} /></label>
-      <div>{clock(status.position)} / {status.duration > 0 ? clock(status.duration) : "Ao vivo / duração indisponível"}</div>
-      {status.seekable && status.duration > 0 && <input aria-label="Posição da reprodução" type="range" min="0" max={status.duration} step="1" value={Math.min(status.position, status.duration)} onChange={(e) => void control({ kind: "seek", value: Number(e.target.value) })} />}
-      <div className="native-player-controls">
-        <label>Velocidade <select aria-label="Velocidade" value={status.speed || 1} onChange={(e) => void control({ kind: "speed", value: Number(e.target.value) })}>{[0.5, 0.75, 1, 1.25, 1.5, 2].map((v) => <option key={v} value={v}>{v}×</option>)}</select></label>
-        {status.tracks.some((t) => t.kind === "audio") && <label>Áudio <select aria-label="Faixa de áudio" value={status.tracks.find((t) => t.kind === "audio" && t.selected)?.id ?? ""} onChange={(e) => void control({ kind: "audio", value: Number(e.target.value) })}><option value="" disabled>Selecionar</option>{status.tracks.filter((t) => t.kind === "audio").map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>}
-        <label>Legendas <select aria-label="Legendas" value={status.tracks.find((t) => t.kind === "sub" && t.selected)?.id ?? 0} onChange={(e) => void control({ kind: "subtitle", value: Number(e.target.value) })}><option value="0">Desativadas</option>{status.tracks.filter((t) => t.kind === "sub").map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
-      </div>
-      {!status.seekable && <p className="muted">Esta fonte não permite avançar ou retroceder.</p>}
-    </>}
-  </section>;
+    <footer className={`watch-toolbar ${status?.hudReady && !failure ? "hud-native-ready" : ""}`} aria-label="Controles acessíveis da reprodução">
+      {failure ? <><p role="alert">{failure}</p><button onClick={() => { setError(""); setRetry((v) => v + 1); }}>Tentar novamente</button></> : <>
+        <button aria-label={status?.paused ? "Continuar" : "Pausar"} onClick={() => void control({ kind: "pause", value: !status?.paused })}>{status?.paused ? <Play size={20} /> : <Pause size={20} />}</button>
+        <button aria-label="Voltar 10 segundos" disabled={!status?.seekable} onClick={() => void control({ kind: "seek", value: Math.max(0, (status?.position ?? 0) - 10) })}><SkipBack size={18} /></button>
+        <button aria-label="Avançar 10 segundos" disabled={!status?.seekable} onClick={() => void control({ kind: "seek", value: Math.min(total || Infinity, (status?.position ?? 0) + 10) })}><SkipForward size={18} /></button>
+        <span>{clock(status?.position ?? 0)}</span>
+        <input aria-label="Posição da reprodução" type="range" min="0" max={Math.max(1, total)} value={Math.min(status?.position ?? 0, total)} disabled={!status?.seekable || total <= 0} onChange={(e) => void control({ kind: "seek", value: Number(e.target.value) })} />
+        <span>{total > 0 ? clock(total) : "AO VIVO"}</span>
+        <button aria-label={status?.muted ? "Ativar som" : "Silenciar"} onClick={() => void control({ kind: "mute", value: !status?.muted })}>{status?.muted ? <VolumeX size={19} /> : <Volume2 size={19} />}</button>
+        <input className="watch-volume" aria-label="Volume" type="range" min="0" max="100" value={Math.round(status?.volume ?? 100)} onChange={(e) => void control({ kind: "volume", value: Number(e.target.value) })} />
+      </>}
+    </footer>
+  </main>;
 }

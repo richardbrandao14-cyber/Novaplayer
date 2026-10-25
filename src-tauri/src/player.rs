@@ -18,6 +18,9 @@ fn error() -> ServiceError {
 #[serde(rename_all = "camelCase")]
 pub struct PlaybackStatus {
     pub state: String,
+    pub hud_ready: bool,
+    pub action_id: u64,
+    pub ui_action: Option<String>,
     pub position: f64,
     pub duration: f64,
     pub volume: f64,
@@ -69,7 +72,7 @@ pub struct Player {
     worker: Mutex<Option<std::thread::JoinHandle<()>>>,
 }
 impl Player {
-    pub fn new(path: PathBuf) -> Self {
+    pub fn new(path: PathBuf, surface: Arc<crate::surface::VideoSurface>) -> Self {
         let (tx, rx) = mpsc::sync_channel::<Message>(16);
         let status = Arc::new(Mutex::new(PlaybackStatus {
             state: "idle".into(),
@@ -90,7 +93,11 @@ impl Player {
                         }
                         let result = (|| {
                             if engine.is_none() {
-                                engine = Some(Engine::open(&path, false)?);
+                                engine = Some(Engine::open_target(
+                                    &path,
+                                    false,
+                                    Some(surface.handle()?),
+                                )?);
                             }
                             let e = engine.as_mut().ok_or_else(error)?;
                             match message.request {
@@ -215,7 +222,11 @@ struct Engine {
     shutdown: bool,
 }
 impl Engine {
+    #[cfg(test)]
     fn open(path: &Path, headless: bool) -> Result<Self> {
+        Self::open_target(path, headless, None)
+    }
+    fn open_target(path: &Path, headless: bool, target: Option<isize>) -> Result<Self> {
         use std::os::windows::ffi::OsStrExt;
         if !path.is_absolute() || !path.is_file() {
             return Err(ServiceError::new(
@@ -272,7 +283,7 @@ impl Engine {
             ("config", "no"),
             ("terminal", "no"),
             ("msg-level", "all=no"),
-            ("input-default-bindings", "yes"),
+            ("input-default-bindings", "no"),
             ("input-vo-keyboard", "yes"),
             ("osc", "no"),
             ("osd-level", "0"),
@@ -314,6 +325,38 @@ impl Engine {
             engine.option("vo", "null")?;
             engine.option("ao", "null")?;
         } else {
+            let target = target.ok_or_else(|| {
+                ServiceError::new("player_surface", "Superfície de vídeo não preparada.")
+            })?;
+            engine.option("wid", &target.to_string())?;
+            let script = path.parent().ok_or_else(error)?.join("nova-hud.lua");
+            if !script.is_file() {
+                return Err(ServiceError::new(
+                    "player_missing",
+                    "Controles do player ausentes no pacote.",
+                ));
+            }
+            engine.option("script", script.to_str().ok_or_else(error)?)?;
+            engine.option("osc", "yes")?;
+            engine.option("osd-level", "1")?;
+            engine.option("script-opts", concat!(
+                "osc-layout=floating,osc-title=NOVA PLAYER,osc-floatingtitle=no,osc-windowcontrols=no,",
+                "osc-background_color=#111113,osc-held_element_color=#E52335,osc-timecode_color=#E52335,",
+                "osc-hidetimeout=2400,osc-fadeduration=0,osc-idlescreen=no,",
+                "osc-title_mbtn_left_command=,osc-title_mbtn_mid_command=,osc-title_mbtn_right_command=,",
+                "osc-menu_mbtn_left_command=script-message-to nova-hud settings,",
+                "osc-audio_track_mbtn_left_command=script-message-to nova-hud audio,",
+                "osc-audio_track_mbtn_right_command=script-message-to nova-hud audio,",
+                "osc-sub_track_mbtn_left_command=script-message-to nova-hud sub,",
+                "osc-sub_track_mbtn_right_command=script-message-to nova-hud sub,",
+                "osc-volume_mbtn_right_command=,",
+                "osc-fullscreen_mbtn_left_command=script-message nova-ui fullscreen,",
+                "osc-fullscreen_mbtn_right_command=,",
+                "osc-skip_backward_mbtn_left_down_command=script-message-to nova-hud backward,",
+                "osc-skip_forward_mbtn_left_down_command=script-message-to nova-hud forward,",
+                "osc-custom_button_1_content=${speed}x,",
+                "osc-custom_button_1_mbtn_left_command=script-message-to nova-hud speed"
+            ))?;
             // libmpv pode usar saída de embedding por padrão. Selecionar explicitamente
             // uma saída que cria janela Windows e o dispositivo de áudio do sistema.
             engine.option("vo", "gpu-next,gpu")?;
@@ -418,6 +461,34 @@ impl Engine {
             let event = unsafe { &*ptr };
             match event.id {
                 0 => break,
+                16 => {
+                    #[repr(C)]
+                    struct ClientMessage {
+                        count: c_int,
+                        args: *const *const c_char,
+                    }
+                    if !event.data.is_null() {
+                        let message = unsafe { &*event.data.cast::<ClientMessage>() };
+                        if message.count == 2 && !message.args.is_null() {
+                            let args = unsafe { std::slice::from_raw_parts(message.args, 2) };
+                            if !args[0].is_null() && !args[1].is_null() {
+                                let name = unsafe { CStr::from_ptr(args[0]) }.to_bytes();
+                                let action = unsafe { CStr::from_ptr(args[1]) }.to_bytes();
+                                if name == b"nova-ui" && action == b"hud-ready" {
+                                    status.hud_ready = true;
+                                }
+                                if name == b"nova-ui"
+                                    && [b"back".as_slice(), b"escape", b"fullscreen"]
+                                        .contains(&action)
+                                {
+                                    status.action_id = status.action_id.wrapping_add(1);
+                                    status.ui_action =
+                                        Some(String::from_utf8_lossy(action).into_owned());
+                                }
+                            }
+                        }
+                    }
+                }
                 1 => {
                     status.state = "stopped".into();
                     self.shutdown = true;
@@ -787,5 +858,105 @@ mod tests {
         drop(backend);
         drop(server);
         std::fs::remove_dir_all(root).unwrap();
+    }
+    #[test]
+    #[ignore = "Exige desktop Windows: HWND filho, GPU, Lua HUD e resize"]
+    fn windows_mpv_embedded_surface_and_overlay_hud() {
+        use windows_sys::Win32::UI::WindowsAndMessaging::*;
+        let dll = std::env::var("NOVA_MPV_DLL").unwrap();
+        let name: Vec<u16> = "STATIC\0".encode_utf16().collect();
+        let title: Vec<u16> = "NOVA embedding PoC\0".encode_utf16().collect();
+        let parent = unsafe {
+            CreateWindowExW(
+                0,
+                name.as_ptr(),
+                title.as_ptr(),
+                WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                40,
+                40,
+                1000,
+                700,
+                std::ptr::null_mut(),
+                std::ptr::null_mut(),
+                std::ptr::null_mut(),
+                std::ptr::null(),
+            )
+        };
+        assert!(!parent.is_null(), "Criar janela de teste Windows");
+        let surface = crate::surface::VideoSurface::new();
+        surface
+            .place(
+                parent as isize,
+                crate::surface::SurfaceRect {
+                    x: 0,
+                    y: 0,
+                    width: 960,
+                    height: 600,
+                    visible: true,
+                },
+            )
+            .unwrap();
+        let child = surface.handle().unwrap();
+        assert_eq!(
+            unsafe { GetParent(child as *mut c_void) },
+            parent,
+            "Vídeo deve pertencer à janela do aplicativo"
+        );
+        let worker = std::thread::spawn(move || {
+            let mut engine = Engine::open_target(Path::new(&dll), false, Some(child)).unwrap();
+            engine.set("aid", "no").unwrap(); // CI não tem alto-falante; áudio é coberto nos outros gates.
+            let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/player-av.mp4");
+            engine
+                .command(&["loadfile", file.to_str().unwrap(), "replace"])
+                .unwrap();
+            let deadline = std::time::Instant::now() + Duration::from_secs(20);
+            let mut state = PlaybackStatus::default();
+            while std::time::Instant::now() < deadline {
+                engine.poll(&mut state);
+                assert!(state.error.is_none(), "Reprodução embutida deve abrir");
+                if state.hud_ready && state.position > 0.1 {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            assert!(state.hud_ready, "Script NOVA HUD deve carregar");
+            assert!(state.position > 0.1, "Vídeo deve avançar no HWND filho");
+            assert!(
+                engine.property("current-vo").is_some(),
+                "Saída gráfica real deve existir"
+            );
+            assert!(
+                engine.property("user-data/osc/visibility").is_some(),
+                "HUD OSC deve estar ativo"
+            );
+            engine
+                .command(&["script-message-to", "osc", "osc-visibility", "always"])
+                .unwrap();
+            std::thread::sleep(Duration::from_millis(150));
+            let image = Path::new(&dll).parent().unwrap().join("embedded-poc.png");
+            engine
+                .command(&["screenshot-to-file", image.to_str().unwrap(), "window"])
+                .unwrap();
+            assert!(
+                image.is_file(),
+                "Captura da superfície gráfica deve ser gerada"
+            );
+            engine.control(Control::Stop).unwrap();
+        });
+        let deadline = std::time::Instant::now() + Duration::from_secs(35);
+        while !worker.is_finished() && std::time::Instant::now() < deadline {
+            unsafe {
+                let mut message: MSG = std::mem::zeroed();
+                while PeekMessageW(&mut message, std::ptr::null_mut(), 0, 0, PM_REMOVE) != 0 {
+                    TranslateMessage(&message);
+                    DispatchMessageW(&message);
+                }
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert!(worker.is_finished(), "PoC gráfica não deve travar");
+        let result = worker.join();
+        unsafe { DestroyWindow(parent) };
+        result.unwrap();
     }
 }

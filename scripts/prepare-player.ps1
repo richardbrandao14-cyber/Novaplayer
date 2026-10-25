@@ -11,6 +11,7 @@ if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expec
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao extrair o motor.' }
 $dll = Join-Path $destination 'libmpv-2.dll'
 if (-not (Test-Path $dll)) { throw 'DLL esperada ausente.' }
+Copy-Item (Join-Path $root 'src-tauri/player/nova-hud.lua') $destination -Force
 Copy-Item (Join-Path $root 'LICENSE') $destination -Force
 Copy-Item (Join-Path $root 'THIRD_PARTY_NOTICES.md') $destination -Force
 # Proveniência fixada; não fazer download de latest ou procurar DLL no PATH.
@@ -20,7 +21,7 @@ Extraia TODOS os arquivos antes de abrir nova-player.exe.
 A DLL libmpv-2.dll deve permanecer na mesma pasta do executável.
 Desative os dados demonstrativos / use Adicionar minha lista real.
 Depois da importação, abra um conteúdo e pressione Reproduzir agora.
-O vídeo abre em janela própria; controles ficam nos detalhes do NOVA PLAYER.
+O vídeo e os controles abrem na mesma janela do NOVA PLAYER.
 Tela cheia: F na janela de vídeo; sair: Esc. Espaço: pausa.
 Não há garantia de compatibilidade com todo provedor, codec ou formato.
 '@ | Set-Content -Encoding utf8 (Join-Path $destination 'LEIA-ME.txt')

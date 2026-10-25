@@ -23,6 +23,7 @@
     "allow-image-for",
     "allow-play-media",
     "allow-player-control",
-    "allow-player-status"
+    "allow-player-status",
+    "allow-player-surface"
   ]
 }

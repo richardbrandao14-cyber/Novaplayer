@@ -234,7 +234,7 @@ describe("fronteira nativa da Fase 3", () => {
     render(<NativeCatalogBrowser title="Início" />);
     expect(
       await screen.findByRole("button", {
-        name: "Ver detalhes de Título fornecido",
+        name: "Reproduzir Título fornecido",
       }),
     ).toBeInTheDocument();
     expect(
@@ -336,7 +336,7 @@ describe("fronteira nativa da Fase 3", () => {
       mediaId: item.id,
     });
     expect(
-      screen.getByRole("button", { name: "Selecionar para reproduzir" }),
+      screen.getByRole("button", { name: "Reproduzir Nome do episódio" }),
     ).toBeInTheDocument();
   });
   it("busca global real consulta no máximo 24 resultados e não usa fixtures como fallback", async () => {

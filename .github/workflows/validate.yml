@@ -45,7 +45,8 @@ jobs:
       - run: npm ci
       - name: Preparar motor de reprodução com hash fixado
         run: ./scripts/prepare-player.ps1
-      - name: Prova de conceito libmpv Windows (decodificação local)
+      - name: Prova de conceito libmpv Windows (decodificação e vídeo integrado)
+        timeout-minutes: 8
         run: |
           $PSNativeCommandUseErrorActionPreference = $false
           $ErrorActionPreference = 'Continue'

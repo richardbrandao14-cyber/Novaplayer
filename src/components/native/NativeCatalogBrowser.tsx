@@ -1,3 +1,4 @@
+import { usePlaybackStore } from "../../state/usePlaybackStore";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, MonitorPlay, Info } from "lucide-react";
 import type {
@@ -33,6 +34,7 @@ export function NativeCatalogBrowser({
   kind?: CatalogKind;
   title: string;
 }) {
+  const startPlayback = usePlaybackStore((s) => s.start);
   const [sourceId, setSourceId] = useState("");
   const [sources, setSources] = useState<NativeSource[]>([]);
   const [category, setCategory] = useState("");
@@ -240,7 +242,7 @@ export function NativeCatalogBrowser({
                     className={
                       item.id === selectedChannel?.id ? "selected" : ""
                     }
-                    onClick={() => setChannel(item)}
+                    onClick={() => { setChannel(item); startPlayback({ item }); }}
                   >
                     <NativeArtwork
                       mediaId={item.id}
@@ -259,7 +261,7 @@ export function NativeCatalogBrowser({
                 <div className="player-placeholder">
                   <MonitorPlay size={42} />
                   <h2>{selectedChannel?.name || "Nome não fornecido"}</h2>
-                  <p>Seu canal · Reprodução em janela própria</p>
+                  <p>Clique em um canal para começar a assistir</p>
                   <Button
                     variant="secondary"
                     onClick={() => setSelected(selectedChannel)}
@@ -269,7 +271,7 @@ export function NativeCatalogBrowser({
                   </Button>
                 </div>
                 <p className="notice">
-                  Abra os detalhes do canal para reproduzir. A programação EPG ainda não está disponível.
+                  O player abre aqui no NOVA. A programação EPG ainda não está disponível.
                 </p>
               </div>
             </div>
@@ -279,8 +281,8 @@ export function NativeCatalogBrowser({
                 <article className="media-card" key={item.id}>
                   <button
                     className="card-open"
-                    aria-label={`Ver detalhes de ${item.name || "registro sem nome"}`}
-                    onClick={() => setSelected(item)}
+                    aria-label={`${item.kind === "series" ? "Ver episódios de" : "Reproduzir"} ${item.name || "registro sem nome"}`}
+                    onClick={() => item.kind === "series" ? setSelected(item) : startPlayback({ item })}
                   >
                     <NativeArtwork
                       mediaId={item.id}

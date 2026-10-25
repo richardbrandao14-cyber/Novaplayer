@@ -37,7 +37,7 @@ export function Layout({ children }: { children: ReactNode }) {
   }
   return (
     <Tooltip.Provider delayDuration={350}>
-      <div className={`app-shell ${menuCollapsed ? "sidebar-collapsed" : ""}`}>
+      <div className={`app-shell ${!demo ? "cinema-shell" : ""} ${menuCollapsed ? "sidebar-collapsed" : ""}`}>
         <a className="skip-link" href="#main-content">
           Ir para o conteúdo
         </a>
@@ -129,7 +129,7 @@ export function Layout({ children }: { children: ReactNode }) {
             }}
           >
             {navigation.map(({ id, label, icon: Icon }, i) => (
-              <Tip key={id} label={label} enabled={menuCollapsed}>
+              <Tip key={id} label={label} enabled={menuCollapsed || !demo}>
                 <button
                   className={`nav-item ${page === id ? "active" : ""} ${i === 4 ? "nav-divider" : ""}`}
                   aria-current={page === id ? "page" : undefined}

@@ -1,4 +1,5 @@
-import { NativePlayer } from "./NativePlayer";
+import { usePlaybackStore } from "../../state/usePlaybackStore";
+import { Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import type {
   NativeCatalogItem,
@@ -7,11 +8,12 @@ import type {
 import { nativeApi, nativeError } from "../../integrations/native";
 import { Modal } from "../../ui/Dialog";
 import { NativeArtwork } from "./NativeArtwork";
-function DetailsBody({ item }: { item: NativeCatalogItem }) {
+function DetailsBody({ item, onClose }: { item: NativeCatalogItem; onClose: () => void }) {
+  const start = usePlaybackStore((s) => s.start);
   const [details, setDetails] = useState<NativeSeriesDetails | null>(null);
   const [error, setError] = useState("");
   const [season, setSeason] = useState("");
-  const [episodeId, setEpisodeId] = useState<string>();
+
   useEffect(() => {
     if (item.kind !== "series") return;
     let active = true;
@@ -48,7 +50,7 @@ function DetailsBody({ item }: { item: NativeCatalogItem }) {
       <p className="detail-description">
         {item.description || "Sinopse não fornecida pela fonte."}
       </p>
-      {(item.kind !== "series" || episodeId) && <NativePlayer mediaId={item.id} episodeId={episodeId} />}
+      {item.kind !== "series" && <button className="nova-button button-primary" onClick={() => { onClose(); start({ item }); }}><Play size={19} fill="currentColor" /> Assistir agora</button>}
       {item.kind === "unknown" && (
         <p className="notice">
           A fonte não forneceu classificação segura. Este registro foi
@@ -56,7 +58,7 @@ function DetailsBody({ item }: { item: NativeCatalogItem }) {
         </p>
       )}
       {item.kind === "series" && (
-        <section className="season-section">
+        <section className="season-section series-seasons">
           <h3>Temporadas e episódios</h3>
           {error ? (
             <p role="alert">{error}</p>
@@ -86,17 +88,12 @@ function DetailsBody({ item }: { item: NativeCatalogItem }) {
               <ol className="episode-list">
                 {selected?.episodes.map((episode, index) => (
                   <li key={episode.id}>
-                    <span className="episode-number">{index + 1}</span>
-                    <div>
-                      <h3>
-                        {episode.title ||
-                          episode.name ||
-                          "Título não informado"}
-                      </h3>
-                      <p>{episode.description || "Descrição não fornecida."}</p>
-                      {episode.duration && <small>{episode.duration}</small>}
-                      <button className="nova-button button-secondary" onClick={() => setEpisodeId(episode.id)}>{episodeId === episode.id ? "Episódio selecionado" : "Selecionar para reproduzir"}</button>
-                    </div>
+                    <button className="episode-play-card" onClick={() => { onClose(); start({ item, episodeId: episode.id, episodeTitle: episode.title || episode.name || "Título não fornecido", seasons: details ?? [] }); }} aria-label={`Reproduzir ${episode.title || episode.name || `episódio ${index + 1}`}`}>
+                      <span className="episode-number">{index + 1}</span>
+                      <span className="episode-preview"><Play size={25} fill="currentColor" /></span>
+                      <span className="episode-copy"><strong>{episode.title || episode.name || "Título não informado"}</strong><span>{episode.description || "Descrição não fornecida."}</span>{episode.duration && <small>{episode.duration}</small>}</span>
+                      <Play className="episode-play-icon" size={19} />
+                    </button>
                   </li>
                 ))}
               </ol>
@@ -129,9 +126,9 @@ export function NativeDetails({
         if (!value) onClose();
       }}
       title={item?.name || "Informação não fornecida"}
-      description="Catálogo real e reprodução nativa no Windows."
+      description={item?.kind === "series" ? "Escolha a temporada e clique no episódio para assistir." : "Seu conteúdo, pronto para assistir."}
     >
-      {item && <DetailsBody key={item.id} item={item} />}
+      {item && <DetailsBody key={item.id} item={item} onClose={onClose} />}
     </Modal>
   );
 }

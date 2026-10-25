@@ -17,7 +17,9 @@ pub fn run() {
                 .parent()
                 .ok_or("Diretório do aplicativo indisponível")?
                 .join("libmpv-2.dll");
-            app.manage(crate::player::Player::new(dll));
+            let surface = Arc::new(crate::surface::VideoSurface::new());
+            app.manage(crate::player::Player::new(dll, surface.clone()));
+            app.manage(surface);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -32,6 +34,7 @@ pub fn run() {
             commands::query_catalog,
             commands::list_categories,
             commands::series_details,
+            commands::player_surface,
             commands::play_media,
             commands::player_control,
             commands::player_status,

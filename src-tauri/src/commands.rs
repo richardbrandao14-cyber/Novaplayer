@@ -132,7 +132,13 @@ pub async fn play_media(
 pub async fn player_control(
     control: crate::player::Control,
     player: State<'_, crate::player::Player>,
+    window: tauri::WebviewWindow,
 ) -> Result<()> {
+    if let crate::player::Control::Fullscreen(value) = control {
+        return window
+            .set_fullscreen(value)
+            .map_err(|_| ServiceError::new("playback", "Não foi possível alterar a tela cheia."));
+    }
     player.control(control).await
 }
 #[tauri::command]
@@ -140,4 +146,25 @@ pub fn player_status(
     player: State<'_, crate::player::Player>,
 ) -> Result<crate::player::PlaybackStatus> {
     player.status()
+}
+
+#[tauri::command]
+pub async fn player_surface(
+    rect: crate::surface::SurfaceRect,
+    surface: State<'_, Arc<crate::surface::VideoSurface>>,
+    window: tauri::WebviewWindow,
+) -> Result<()> {
+    let parent = window
+        .hwnd()
+        .map_err(|_| ServiceError::new("player_surface", "Janela indisponível."))?
+        .0 as isize;
+    let surface = surface.inner().clone();
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    window
+        .run_on_main_thread(move || {
+            let _ = tx.send(surface.place(parent, rect));
+        })
+        .map_err(|_| ServiceError::new("player_surface", "Área de vídeo indisponível."))?;
+    rx.await
+        .map_err(|_| ServiceError::new("player_surface", "Área de vídeo indisponível."))?
 }

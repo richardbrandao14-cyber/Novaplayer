@@ -7,6 +7,8 @@ mod native;
 mod player;
 pub mod services;
 #[cfg(all(feature = "desktop", windows))]
+mod surface;
+#[cfg(all(feature = "desktop", windows))]
 pub fn run() {
     native::run();
 }

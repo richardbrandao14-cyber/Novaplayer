@@ -1,3 +1,5 @@
+> Novo marco em desenvolvimento: usuário confirmou a versão anterior funcionando com Horizon. Autorizou vídeo na mesma janela, HUD durante reprodução, acesso com um clique e visual inspirado nas referências de streaming. Superfície HWND filha do aplicativo + OSC embutido e script NOVA HUD controlado, sem WebView sobreposto ao vídeo. Gate gráfico Windows novo exige reprodução no HWND filho, script carregado, OSC ativo e captura da superfície. Resultado ainda pendente nesta revisão.
+
 # Player Windows — checkpoint de desenvolvimento
 
 Autorizado pelo proprietário: reprodução nativa e áudio; licença GPL versão 3 ou posterior. Não inclui instalador, publicação ou Release.

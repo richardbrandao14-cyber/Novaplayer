@@ -1,4 +1,4 @@
-import { NativeCatalogBrowser } from "../components/native/NativeCatalogBrowser";
+import { NativeHome } from "../components/native/NativeHome";
 import { useState } from "react";
 import { ArrowUpRight, Info, Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
@@ -108,5 +108,5 @@ function DemoHome() {
 
 export default function Home() {
   const demo = useAppStore((s) => s.demo);
-  return demo ? <DemoHome /> : <NativeCatalogBrowser title="Início" />;
+  return demo ? <DemoHome /> : <NativeHome />;
 }
