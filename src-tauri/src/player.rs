@@ -1030,6 +1030,17 @@ mod tests {
             )
         };
         assert!(!parent.is_null(), "Criar janela de teste Windows");
+        unsafe {
+            SetWindowPos(
+                parent,
+                HWND_TOPMOST,
+                0,
+                0,
+                0,
+                0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE,
+            );
+        }
         let surface = crate::surface::VideoSurface::new();
         surface
             .place(
@@ -1102,8 +1113,13 @@ mod tests {
             );
             let point = |x: i32, y: i32| (x | (y << 16)) as isize;
             let click = |x: i32, y: i32| unsafe {
+                let mut screen = windows_sys::Win32::Foundation::POINT { x, y };
+                windows_sys::Win32::Graphics::Gdi::ClientToScreen(video_hwnd, &mut screen);
+                SetCursorPos(screen.x, screen.y);
                 SendMessageW(video_hwnd, WM_MOUSEMOVE, 0, point(x, y));
+                std::thread::sleep(Duration::from_millis(180));
                 SendMessageW(video_hwnd, WM_LBUTTONDOWN, 1, point(x, y));
+                std::thread::sleep(Duration::from_millis(60));
                 SendMessageW(video_hwnd, WM_LBUTTONUP, 0, point(x, y));
             };
             click(400, 396);
@@ -1112,6 +1128,28 @@ mod tests {
                 && std::time::Instant::now() < deadline
             {
                 std::thread::sleep(Duration::from_millis(20));
+            }
+            if engine.property("pause").as_deref() != Some("no") {
+                eprintln!(
+                    "HUD_CLICK mouse={:?} dimensions={:?} options={:?}",
+                    engine.property("mouse-pos"),
+                    engine.property("osd-dimensions"),
+                    engine.property("script-opts")
+                );
+                if let Some(data) = engine
+                    .property("input-bindings")
+                    .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
+                {
+                    if let Some(items) = data.as_array() {
+                        for item in items.iter().filter(|v| {
+                            v.get("key")
+                                .and_then(|v| v.as_str())
+                                .is_some_and(|v| v.eq_ignore_ascii_case("MBTN_LEFT"))
+                        }) {
+                            eprintln!("HUD_CLICK binding={item}");
+                        }
+                    }
+                }
             }
             assert_eq!(
                 engine.property("pause").as_deref(),
@@ -1133,6 +1171,9 @@ mod tests {
             );
             engine.control(Control::Volume(80.0)).unwrap();
             unsafe {
+                let mut screen = windows_sys::Win32::Foundation::POINT { x: 583, y: 396 };
+                windows_sys::Win32::Graphics::Gdi::ClientToScreen(video_hwnd, &mut screen);
+                SetCursorPos(screen.x, screen.y);
                 SendMessageW(video_hwnd, WM_MOUSEMOVE, 0, point(583, 396));
             }
             std::thread::sleep(Duration::from_millis(150));
