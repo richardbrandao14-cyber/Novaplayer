@@ -577,6 +577,8 @@ mod tests {
                 while !flag.load(Ordering::Relaxed) {
                     match listener.accept() {
                         Ok((mut socket, _)) => {
+                            // Windows pode herdar FIONBIO do listener; ler headers requer socket bloqueante.
+                            socket.set_nonblocking(false).unwrap();
                             let _ = socket.set_read_timeout(Some(Duration::from_secs(5)));
                             let _ = socket.set_write_timeout(Some(Duration::from_secs(5)));
                             // TCP é um fluxo: uma leitura pode retornar só parte da linha/headers.
