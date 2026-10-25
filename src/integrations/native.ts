@@ -19,6 +19,12 @@ export function nativeError(error: unknown): string {
   if (error && typeof error === "object" && "code" in error) {
     const code = String(error.code).toUpperCase();
     const known: Record<string, string> = {
+      PROVIDER: "O servidor não retornou uma resposta Xtream válida. Confira o endereço e o acesso à conta.",
+      REDIRECT: "O servidor redirecionou para outro endereço. Cadastre o endereço final fornecido pelo serviço.",
+      BUSY: "Já existem importações em andamento. Aguarde e tente novamente.",
+      INTERRUPTED: "A importação foi interrompida. Atualize a lista para tentar novamente.",
+      PLAYBACK: "Não foi possível reproduzir esta mídia. Verifique a fonte e tente outro conteúdo.",
+      PLAYER_MISSING: "O motor de vídeo não foi encontrado. Extraia todos os arquivos do ZIP ao lado do executável.",
       URL: "Informe uma URL HTTP ou HTTPS válida.",
       EMPTY: "A playlist não contém registros importáveis.",
       HLS: "Este arquivo é um manifesto de reprodução HLS, não um catálogo IPTV.",
@@ -55,7 +61,20 @@ async function call<T>(
   if (!nativeAvailable()) throw new Error(desktopMessage);
   return invoke<T>(command, args);
 }
+export interface PlaybackStatus {
+  state: string; position: number; duration: number; volume: number;
+  paused: boolean; muted: boolean; seekable: boolean; speed: number;
+  tracks: { id: number; kind: string; label: string; selected: boolean }[];
+  error: string | null;
+}
+export type PlayerControl =
+  | { kind: "pause" | "mute" | "fullscreen"; value: boolean }
+  | { kind: "volume" | "seek" | "speed" | "audio" | "subtitle"; value: number }
+  | { kind: "stop" };
 export const nativeApi = {
+  play: (mediaId: string, episodeId?: string) => call<void>("play_media", { mediaId, episodeId: episodeId ?? null }),
+  playerControl: (control: PlayerControl) => call<void>("player_control", { control }),
+  playerStatus: () => call<PlaybackStatus>("player_status"),
   listSources: () => call<NativeSource[]>("list_sources"),
   saveSource: (input: NativeSourceInput) =>
     call<NativeSource>("save_source", {

@@ -1,3 +1,5 @@
+> **Marco atual:** correção Xtream e reprodução nativa Windows em validação. O pacote de teste passa a exigir `nova-player.exe` e `libmpv-2.dll` na mesma pasta. Extraia o ZIP inteiro. Janela de vídeo própria; áudio e controles nativos. Veja [checkpoint](docs/PLAYBACK_CHECKPOINT.md), [testes](TESTING.md) e [licenças](THIRD_PARTY_NOTICES.md). Testes no provedor real e som audível permanecem pendentes até execução manual.
+
 # NOVA PLAYER
 
 Aplicativo desktop de mídia para **Windows 10/11 x64**. O usuário fornece suas próprias fontes autorizadas; o produto não oferece conteúdo ou assinaturas. Linux cloud/CI serve apenas ao desenvolvimento web, sem distribuição desktop Linux/macOS.
@@ -67,3 +69,7 @@ Estas imagens mostram a interface demonstrativa, sem credenciais ou transmissão
 ## Testar agora no Windows
 
 Na execução aprovada acima, baixe o artefato **NOVA-PLAYER-Windows-x64-test**, extraia o ZIP e abra `nova-player.exe`. Isso dispensa Node/Rust no computador de teste. Siga o [roteiro de importação e persistência](docs/PHASE_3.md). Não há reprodução de vídeo nesta versão.
+
+## Licença
+
+NOVA PLAYER é software livre sob GNU GPL versão 3 ou posterior. Veja [LICENSE](LICENSE).

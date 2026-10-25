@@ -85,3 +85,15 @@ Execução [40140035463](https://github.com/richardbrandao14-cyber/Novaplayer/ac
 ## Correção do acesso à importação real e NOVA Crimson
 
 O proprietário confirmou que a lista havia sido cadastrada no formulário demonstrativo; isso não demonstra falha de rede ou do parser. A ação principal de Minhas Listas no Windows agora permite entrar diretamente no cadastro real com a demonstração ativa, com aviso explícito. O formulário Xtream mantém tipo/URL em falha, limpa a senha e mantém mensagens sanitizadas. Dois testes de regressão acrescentados; 29 Vitest aprovados. O uso com a fonte real do proprietário ainda precisa ser realizado no modo nativo.
+
+### Relato manual do proprietário
+
+O proprietário confirmou abertura da interface Windows e avaliou o design. A primeira lista foi adicionada na demonstração, sem conexão real. Após orientação para o modo real, relatou estado “Falhou”; a mensagem detalhada e o tipo da fonte ainda são necessários. Não classificar esse acesso como validado nem atribuir a causa a rede/autenticação/parser sem a informação. O refinamento Crimson e o acesso direto ao modo real são melhorias independentes; não são prova de correção da falha dessa fonte.
+
+## Reprodução nativa — marco autorizado pelo proprietário
+
+O proprietário autorizou libmpv, áudio e GPL em 25/10/2026. Implementação em validação: motor carregado de caminho absoluto, trabalhador dedicado, URLs descriptografadas somente no Rust, controles tipados e episódios escopados à série. A janela de vídeo é própria, sem sobreposição com WebView. Nenhuma promessa de reprodução no provedor real antes do reteste.
+
+A PoC Windows deve executar explicitamente o teste ignorado `windows_mpv_decodes_local_video_and_pcm_audio` com `NOVA_MPV_DLL` apontando para a DLL verificada. Usa AVI sintético local (padrão de teste + tom de 440 Hz, criado via FFmpeg), saída de vídeo e áudio nulas: verifica decodificação, avanço do relógio, pausa, volume e seek. **Não comprova áudio audível, renderização GPU, codecs de provedores, HLS, DPI, monitor, fullscreen ou drivers de áudio.** Esses itens precisam de teste Windows manual; não equivalem a build aprovado.
+
+Teste manual agrupado: extrair o ZIP inteiro, abrir aplicativo, cadastrar fonte real, importar e abrir canal/filme/episódio; confirmar imagem, ouvir áudio, testar volume/mudo, faixas disponíveis, pausa/seek apenas quando suportados, tela cheia, fechar/reabrir vídeo e encerrar aplicativo. Não enviar senhas nem URLs completas ao suporte.

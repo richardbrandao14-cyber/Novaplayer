@@ -1,3 +1,4 @@
+import { NativePlayer } from "./NativePlayer";
 import { useEffect, useState } from "react";
 import type {
   NativeCatalogItem,
@@ -10,6 +11,7 @@ function DetailsBody({ item }: { item: NativeCatalogItem }) {
   const [details, setDetails] = useState<NativeSeriesDetails | null>(null);
   const [error, setError] = useState("");
   const [season, setSeason] = useState("");
+  const [episodeId, setEpisodeId] = useState<string>();
   useEffect(() => {
     if (item.kind !== "series") return;
     let active = true;
@@ -46,9 +48,7 @@ function DetailsBody({ item }: { item: NativeCatalogItem }) {
       <p className="detail-description">
         {item.description || "Sinopse não fornecida pela fonte."}
       </p>
-      <p className="notice">
-        Catálogo importado. Reprodução de vídeo não implementada nesta fase.
-      </p>
+      {(item.kind !== "series" || episodeId) && <NativePlayer mediaId={item.id} episodeId={episodeId} />}
       {item.kind === "unknown" && (
         <p className="notice">
           A fonte não forneceu classificação segura. Este registro foi
@@ -95,6 +95,7 @@ function DetailsBody({ item }: { item: NativeCatalogItem }) {
                       </h3>
                       <p>{episode.description || "Descrição não fornecida."}</p>
                       {episode.duration && <small>{episode.duration}</small>}
+                      <button className="nova-button button-secondary" onClick={() => setEpisodeId(episode.id)}>{episodeId === episode.id ? "Episódio selecionado" : "Selecionar para reproduzir"}</button>
                     </div>
                   </li>
                 ))}
@@ -128,7 +129,7 @@ export function NativeDetails({
         if (!value) onClose();
       }}
       title={item?.name || "Informação não fornecida"}
-      description="Detalhes do catálogo real. Reprodução indisponível nesta fase."
+      description="Catálogo real e reprodução nativa no Windows."
     >
       {item && <DetailsBody key={item.id} item={item} />}
     </Modal>

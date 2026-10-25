@@ -336,7 +336,7 @@ describe("fronteira nativa da Fase 3", () => {
       mediaId: item.id,
     });
     expect(
-      screen.getByText(/Reprodução de vídeo não implementada/),
+      screen.getByRole("button", { name: "Selecionar para reproduzir" }),
     ).toBeInTheDocument();
   });
   it("busca global real consulta no máximo 24 resultados e não usa fixtures como fallback", async () => {

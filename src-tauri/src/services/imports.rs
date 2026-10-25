@@ -212,6 +212,16 @@ impl Backend {
         self.clean_cache().await;
         Ok(())
     }
+    pub fn playback_url(&self, media_id: &str, episode_id: Option<&str>) -> Result<String> {
+        let value = self
+            .db
+            .lock()
+            .map_err(|_| ServiceError::storage())?
+            .playback_url(media_id, episode_id, self.protector.as_ref())
+            .map_err(core_error)?;
+        HttpClient::validate_url(&value)?;
+        Ok(value)
+    }
     pub fn query(&self, query: &CatalogQuery) -> Result<CatalogPage> {
         self.db
             .lock()
@@ -524,7 +534,7 @@ impl Backend {
             let external = media.external_id.ok_or_else(|| {
                 ServiceError::new("provider", "A fonte não forneceu o identificador da série.")
             })?;
-            let key = format!("series:{media_id}");
+            let key = format!("series:v2:{media_id}");
             let cached = backend
                 .db
                 .lock()
@@ -540,9 +550,19 @@ impl Backend {
                 return Ok(value);
             }
         }
-        let (seasons, episodes) = XtreamClient::new(self.http.clone(), config)
+        let (mut seasons, episodes) = XtreamClient::new(self.http.clone(), config)
             .series(&external, Arc::new(AtomicBool::new(false)))
             .await?;
+        // O contrato usa IDs internos de episódio, escopados à série e temporada.
+        let mut occurrences = std::collections::HashMap::<String, u32>::new();
+        for season in &mut seasons {
+            for episode in &mut season.episodes {
+                let key = format!("{id}:{}:{}", season.number, episode.id);
+                let occurrence = occurrences.entry(key.clone()).or_default();
+                *occurrence += 1;
+                episode.id = format!("{key}:{occurrence}");
+            }
+        }
         let json = serde_json::to_string(&seasons).map_err(|_| ServiceError::storage())?;
         let backend = self.clone();
         let media_id = id.to_owned();
@@ -589,6 +609,7 @@ fn core_error(error: crate::core::error::CoreError) -> ServiceError {
         "too_many_records" => {
             ServiceError::new("too_large", "A playlist excedeu o limite de registros.")
         }
+        "playback" => ServiceError::new("playback", "Esta mídia não tem endereço de reprodução."),
         "not_found" => ServiceError::new("not_found", "O registro solicitado não foi encontrado."),
         _ => ServiceError::storage(),
     }

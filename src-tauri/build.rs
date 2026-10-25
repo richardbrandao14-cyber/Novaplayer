@@ -14,6 +14,9 @@ fn main() {
             "list_categories",
             "series_details",
             "image_for",
+            "play_media",
+            "player_control",
+            "player_status",
         ]),
     ))
     .expect("Não foi possível preparar as permissões do aplicativo");

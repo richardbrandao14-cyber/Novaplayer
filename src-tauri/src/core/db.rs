@@ -388,6 +388,30 @@ impl Database {
             )
             .map_err(db_error)
     }
+    /// Apenas para o backend nativo; nunca incluir este valor em DTOs IPC.
+    pub fn playback_url(
+        &self,
+        media_id: &str,
+        episode_id: Option<&str>,
+        protector: &dyn Protector,
+    ) -> CoreResult<String> {
+        let data: Option<Vec<u8>> = if let Some(episode) = episode_id {
+            self.connection.query_row("SELECT e.stream FROM episodes e JOIN seasons s ON s.id=e.season_id WHERE s.series_id=?1 AND e.id=?2", params![media_id, episode], |r| r.get(0)).optional().map_err(db_error)?.flatten()
+        } else {
+            self.connection
+                .query_row(
+                    "SELECT stream FROM media_items WHERE id=?1 AND kind!='series'",
+                    [media_id],
+                    |r| r.get(0),
+                )
+                .optional()
+                .map_err(db_error)?
+                .flatten()
+        };
+        let data =
+            data.ok_or_else(|| CoreError::new("playback", "Mídia sem endereço de reprodução."))?;
+        protector.decrypt(&data)
+    }
     pub fn artwork_url(&self, id: &str, protector: &dyn Protector) -> CoreResult<Option<String>> {
         let data: Option<Vec<u8>> = self
             .connection
@@ -727,6 +751,15 @@ mod tests {
                 |r| r.get(0),
             )
             .unwrap();
+        let episode_id = format!("{id}:2:original-ep:1");
+        assert!(db
+            .playback_url(&id, Some(&episode_id), &FixtureProtector)
+            .unwrap()
+            .contains("episode-secret"));
+        assert!(db
+            .playback_url("other-series", Some(&episode_id), &FixtureProtector)
+            .is_err());
+        assert!(db.playback_url(&id, None, &FixtureProtector).is_err());
         assert!(!String::from_utf8_lossy(&encrypted).contains("episode-secret"));
         assert!(FixtureProtector
             .decrypt(&encrypted)

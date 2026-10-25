@@ -43,6 +43,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-rust-1.95-${{ hashFiles('src-tauri/Cargo.lock') }}-
       - run: npm ci
+      - name: Preparar motor de reprodução com hash fixado
+        run: ./scripts/prepare-player.ps1
+      - name: Prova de conceito libmpv Windows (decodificação local)
+        run: |
+          $env:NOVA_MPV_DLL = Join-Path $PWD 'player-runtime/libmpv-2.dll'
+          cargo test --manifest-path src-tauri/Cargo.toml --locked windows_mpv_decodes_local_video_and_pcm_audio -- --ignored --nocapture
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
       - run: |
           cargo clippy --manifest-path src-tauri/Cargo.toml --locked --all-targets -- -D warnings 2>&1 | Tee-Object -FilePath windows-clippy.log
@@ -74,10 +81,12 @@ jobs:
             '```' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             exit $stepExit
           }
+      - name: Montar pacote portátil de teste
+        run: Copy-Item src-tauri/target/x86_64-pc-windows-msvc/release/nova-player.exe player-runtime/nova-player.exe
       - name: Guardar executável de teste Windows
         uses: actions/upload-artifact@v4
         with:
           name: NOVA-PLAYER-Windows-x64-test
-          path: src-tauri/target/x86_64-pc-windows-msvc/release/nova-player.exe
+          path: player-runtime/
           if-no-files-found: error
           retention-days: 7

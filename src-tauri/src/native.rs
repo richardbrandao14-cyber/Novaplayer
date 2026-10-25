@@ -13,6 +13,11 @@ pub fn run() {
             let backend =
                 Backend::new(data.join("nova.sqlite3"), cache, Arc::new(WindowsProtector))?;
             app.manage(backend);
+            let dll = std::env::current_exe()?
+                .parent()
+                .ok_or("Diretório do aplicativo indisponível")?
+                .join("libmpv-2.dll");
+            app.manage(crate::player::Player::new(dll));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -27,8 +32,16 @@ pub fn run() {
             commands::query_catalog,
             commands::list_categories,
             commands::series_details,
+            commands::play_media,
+            commands::player_control,
+            commands::player_status,
             commands::image_for
         ])
-        .run(tauri::generate_context!())
-        .expect("Não foi possível iniciar o NOVA PLAYER");
+        .build(tauri::generate_context!())
+        .expect("Não foi possível iniciar o NOVA PLAYER")
+        .run(|app, event| {
+            if matches!(event, tauri::RunEvent::Exit) {
+                app.state::<crate::player::Player>().shutdown();
+            }
+        });
 }

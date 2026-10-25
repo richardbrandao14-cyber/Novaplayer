@@ -20,6 +20,9 @@
     "allow-query-catalog",
     "allow-list-categories",
     "allow-series-details",
-    "allow-image-for"
+    "allow-image-for",
+    "allow-play-media",
+    "allow-player-control",
+    "allow-player-status"
   ]
 }

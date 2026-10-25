@@ -1,6 +1,6 @@
 # Arquitetura técnica
 
-Estado: arquitetura da Fase 0 com interface demonstrativa das Fases 1–2 implementada e validação web registrada em TESTING.md. Serviços de IPTV, SQLite e libmpv descritos abaixo continuam planejados, não implementados. Único alvo do produto no escopo atual: Windows 10/11 x64. Linux e macOS não terão builds desktop ou compromissos de compatibilidade. Arquitetura selecionada: Tauri 2 + React/TypeScript/Vite, serviços Rust/Tokio, SQLite e libmpv condicionado à PoC.
+Estado atual: interface demonstrativa, catálogo real M3U/Xtream e SQLite implementados. Player libmpv autorizado pelo proprietário e em validação Windows; decisão e evidências atuais em docs/PLAYBACK_CHECKPOINT.md e TESTING.md. As seções originais abaixo registram o planejamento e os critérios de validação. Único alvo do produto no escopo atual: Windows 10/11 x64. Linux e macOS não terão builds desktop ou compromissos de compatibilidade. Arquitetura selecionada: Tauri 2 + React/TypeScript/Vite, serviços Rust/Tokio, SQLite e libmpv condicionado à PoC.
 
 ## Viabilidade e versões
 

@@ -19,7 +19,10 @@ pub struct AppInfo {
 pub fn app_info() -> AppInfo {
     AppInfo {
         version: env!("CARGO_PKG_VERSION"),
-        playback_available: false,
+        playback_available: std::env::current_exe()
+            .ok()
+            .and_then(|p| p.parent().map(|d| d.join("libmpv-2.dll")))
+            .is_some_and(|p| p.is_file()),
     }
 }
 async fn blocking<T: Send + 'static>(
@@ -108,9 +111,33 @@ pub async fn image_for(
 mod tests {
     use super::*;
     #[test]
-    fn foundation_never_claims_native_playback() {
+    fn reports_version_without_network_access() {
         let info = app_info();
-        assert!(!info.playback_available);
         assert_eq!(info.version, "0.1.0");
     }
+}
+
+#[tauri::command]
+pub async fn play_media(
+    media_id: String,
+    episode_id: Option<String>,
+    backend: State<'_, Arc<Backend>>,
+    player: State<'_, crate::player::Player>,
+) -> Result<()> {
+    let backend = backend.inner().clone();
+    let url = blocking(move || backend.playback_url(&media_id, episode_id.as_deref())).await?;
+    player.load(url).await
+}
+#[tauri::command]
+pub async fn player_control(
+    control: crate::player::Control,
+    player: State<'_, crate::player::Player>,
+) -> Result<()> {
+    player.control(control).await
+}
+#[tauri::command]
+pub fn player_status(
+    player: State<'_, crate::player::Player>,
+) -> Result<crate::player::PlaybackStatus> {
+    player.status()
 }

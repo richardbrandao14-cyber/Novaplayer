@@ -2,7 +2,8 @@
 
 ## Autoridade e escopo
 
-- Fases 0–2 foram executadas; o pedido explícito mais recente autoriza somente a Fase 3 (M3U, Xtream, SQLite e catálogo), sem reprodução. Não avançar para a Fase 4 sem nova autorização. Manter pendente a comprovação nativa Windows até execução real.
+- Atualização de escopo: o proprietário autorizou explicitamente corrigir Xtream e implementar reprodução nativa com áudio. Executar primeiro a PoC Windows isolada de libmpv; só habilitar a integração após esse gate automatizado. Sem instalador, Release ou publicação.
+- M3U/Xtream/SQLite e catálogo real já implementados. Registro de reprodução em docs/PLAYBACK_CHECKPOINT.md; não declarar som audível ou provedor real validados por testes com saídas nulas.
 - Desenvolver uma fase por vez, com aprovação técnica documentada; mudanças relevantes de arquitetura, custos ou limitações devem ser explicadas antes de execução.
 - Inspecionar `git status`, arquivos e instruções antes de alterar. Preservar trabalho do usuário; não sobrescrever, resetar, publicar ou enviar commits sem autorização correspondente.
 - Usar o checkout existente. Cada tarefa cloud já é isolada; não criar worktree sem pedido explícito.

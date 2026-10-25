@@ -25,13 +25,25 @@ impl XtreamClient {
     pub fn new(http: HttpClient, config: SourceConfig) -> Self {
         Self { http, config }
     }
+    fn base_url(&self) -> Result<url::Url> {
+        let mut url = HttpClient::validate_url(&self.config.url)?;
+        let path = url.path().trim_end_matches('/');
+        let path = path
+            .strip_suffix("/player_api.php")
+            .unwrap_or(path)
+            .to_owned();
+        url.set_path(&path);
+        url.set_query(None);
+        url.set_fragment(None);
+        Ok(url)
+    }
     async fn api(
         &self,
         action: Option<&str>,
         extra: Option<(&str, &str)>,
         cancel: Arc<AtomicBool>,
     ) -> Result<Value> {
-        let mut url = HttpClient::validate_url(&self.config.url)?;
+        let mut url = self.base_url()?;
         let base_path = url.path().trim_end_matches('/').to_owned();
         url.set_path(&format!("{base_path}/player_api.php"));
         url.set_query(None);
@@ -185,8 +197,7 @@ impl XtreamClient {
         Ok((all, invalid))
     }
     fn stream_url(&self, kind: &str, id: &str, extension: &str) -> Result<String> {
-        let mut url = HttpClient::validate_url(&self.config.url)?;
-        url.set_query(None);
+        let mut url = self.base_url()?;
         let mut segments = url
             .path_segments_mut()
             .map_err(|_| ServiceError::new("url", "Servidor inválido."))?;
@@ -294,6 +305,57 @@ pub struct SeasonDto {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[tokio::test]
+    async fn api_accepts_explicit_player_endpoint_without_duplicate_path() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut bytes = vec![0; 8192];
+            let n = socket.read(&mut bytes).await.unwrap();
+            let request = String::from_utf8_lossy(&bytes[..n]);
+            let correct = request.starts_with("GET /portal/player_api.php?");
+            let body = r#"{"user_info":{"auth":1,"status":"Active"}}"#;
+            let status = if correct { "200 OK" } else { "404 Not Found" };
+            let response=format!("HTTP/1.1 {status}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",body.len());
+            socket.write_all(response.as_bytes()).await.unwrap();
+        });
+        let config = SourceConfig {
+            url: format!("http://{address}/portal/player_api.php"),
+            username: "fixture-user".into(),
+            password: "fixture-password".into(),
+            local_path: None,
+        };
+        let client = XtreamClient::new(HttpClient::new(1024).unwrap(), config);
+        let result = client.authenticate(Arc::new(AtomicBool::new(false))).await;
+        server.await.unwrap();
+        assert!(
+            result.is_ok(),
+            "A URL explícita da API deve ser aceita sem duplicar o caminho"
+        );
+    }
+    #[test]
+    fn explicit_endpoint_and_root_produce_the_same_stream_routes() {
+        for suffix in [
+            "/portal",
+            "/portal/",
+            "/portal/player_api.php",
+            "/portal/player_api.php/?ignored=1#fragment",
+        ] {
+            let config = SourceConfig {
+                url: format!("https://example.com{suffix}"),
+                username: "fixture-user".into(),
+                password: "fixture-pass".into(),
+                local_path: None,
+            };
+            let client = XtreamClient::new(HttpClient::new(1024).unwrap(), config);
+            assert_eq!(
+                client.stream_url("live", "42", "ts").unwrap(),
+                "https://example.com/portal/live/fixture-user/fixture-pass/42.ts"
+            );
+        }
+    }
     #[test]
     fn optional_provider_fields_are_tolerant() {
         let value = serde_json::json!({"stream_id":42,"name":null});
