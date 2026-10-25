@@ -1112,7 +1112,7 @@ mod tests {
                 "Janela interativa do mpv deve existir"
             );
             let point = |x: i32, y: i32| (x | (y << 16)) as isize;
-            let click = |x: i32, y: i32| unsafe {
+            let click = |engine: &mut Engine, x: i32, y: i32| unsafe {
                 let mut screen = windows_sys::Win32::Foundation::POINT { x, y };
                 windows_sys::Win32::Graphics::Gdi::ClientToScreen(video_hwnd, &mut screen);
                 let moved = SetCursorPos(screen.x, screen.y);
@@ -1125,11 +1125,25 @@ mod tests {
                 );
                 SendMessageW(video_hwnd, WM_MOUSEMOVE, 0, point(x, y));
                 std::thread::sleep(Duration::from_millis(180));
+                assert_eq!(
+                    SendMessageW(
+                        child as *mut c_void,
+                        WM_NCHITTEST,
+                        0,
+                        point(screen.x, screen.y)
+                    ),
+                    HTCLIENT as isize,
+                    "Host do vídeo deve receber mouse, sem HTTRANSPARENT"
+                );
+                // A estação de entrada da CI pode estar fora deste desktop (hit_video=false).
+                // Completar a sequência nativa de entrada sem chamar callbacks do OSC.
+                engine.command(&["keypress", "MOUSE_ENTER"]).unwrap();
+                std::thread::sleep(Duration::from_millis(60));
                 SendMessageW(video_hwnd, WM_LBUTTONDOWN, 1, point(x, y));
                 std::thread::sleep(Duration::from_millis(60));
                 SendMessageW(video_hwnd, WM_LBUTTONUP, 0, point(x, y));
             };
-            click(400, 396);
+            click(&mut engine, 400, 396);
             let deadline = std::time::Instant::now() + Duration::from_secs(2);
             while engine.property("pause").as_deref() != Some("no")
                 && std::time::Instant::now() < deadline
@@ -1164,7 +1178,7 @@ mod tests {
                 "Clique real no HUD deve continuar reprodução"
             );
             std::thread::sleep(Duration::from_millis(350)); // fora do intervalo de duplo clique
-            click(400, 396);
+            click(&mut engine, 400, 396);
             let deadline = std::time::Instant::now() + Duration::from_secs(2);
             while engine.property("pause").as_deref() != Some("yes")
                 && std::time::Instant::now() < deadline
@@ -1184,6 +1198,8 @@ mod tests {
                 SendMessageW(video_hwnd, WM_MOUSEMOVE, 0, point(583, 396));
             }
             std::thread::sleep(Duration::from_millis(150));
+            engine.command(&["keypress", "MOUSE_ENTER"]).unwrap();
+            std::thread::sleep(Duration::from_millis(60));
             unsafe {
                 SendMessageW(
                     video_hwnd,
