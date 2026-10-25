@@ -47,10 +47,15 @@ jobs:
         run: ./scripts/prepare-player.ps1
       - name: Prova de conceito libmpv Windows (decodificação local)
         run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          $ErrorActionPreference = 'Continue'
           $env:NOVA_MPV_DLL = Join-Path $PWD 'player-runtime/libmpv-2.dll'
           cargo test --manifest-path src-tauri/Cargo.toml --locked windows_mpv_decodes_local_video_and_pcm_audio -- --ignored --nocapture 2>&1 | Tee-Object -FilePath windows-player-poc.log
           $stepExit = $LASTEXITCODE
           if ($stepExit -ne 0) {
+            $diagnostic = (Get-Content windows-player-poc.log -Tail 80) -join "`n"
+            $diagnostic = $diagnostic.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+            Write-Output "::error title=Windows libmpv PoC (fixtures locais)::$diagnostic"
             '### windows-player-poc — diagnóstico (somente fixtures locais)' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             '```text' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             Get-Content windows-player-poc.log -Tail 180 | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
