@@ -1157,17 +1157,17 @@ mod tests {
                     .unwrap();
                 let shot = image::open(&diagnostic)
                     .unwrap()
-                    .thumbnail(640, 360)
+                    .thumbnail(320, 180)
                     .to_rgb8();
                 let mut jpeg = Vec::new();
                 image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, 45)
                     .encode_image(&shot)
                     .unwrap();
                 use base64::Engine as _;
-                eprintln!(
-                    "HUD_IMAGE_BASE64:{}",
-                    base64::engine::general_purpose::STANDARD.encode(jpeg)
-                );
+                let encoded = base64::engine::general_purpose::STANDARD.encode(jpeg);
+                for (index, chunk) in encoded.as_bytes().chunks(900).enumerate() {
+                    eprintln!("HUD_IMAGE_PART_{index}:{}", std::str::from_utf8(chunk).unwrap());
+                }
                 eprintln!(
                     "HUD_CLICK mouse={:?} dimensions={:?} options={:?}",
                     engine.property("mouse-pos"),
