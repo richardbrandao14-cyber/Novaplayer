@@ -992,6 +992,12 @@ mod tests {
         drop(server);
         std::fs::remove_dir_all(root).unwrap();
     }
+    // user-data é um nó JSON; a API string preserva aspas de valores string.
+    fn hud_value(engine: &Engine, key: &str) -> Option<String> {
+        engine
+            .property(key)
+            .and_then(|value| serde_json::from_str(&value).ok())
+    }
     #[test]
     #[ignore = "Exige desktop Windows: HWND filho, GPU, Lua HUD e resize"]
     fn windows_mpv_embedded_surface_and_overlay_hud() {
@@ -1099,17 +1105,17 @@ mod tests {
                 .unwrap();
             std::thread::sleep(Duration::from_millis(200));
             assert_eq!(
-                engine.property("user-data/nova/visibility").as_deref(),
+                hud_value(&engine, "user-data/nova/visibility").as_deref(),
                 Some("visible")
             );
             std::thread::sleep(Duration::from_millis(3300));
             assert_eq!(
-                engine.property("user-data/nova/visibility").as_deref(),
+                hud_value(&engine, "user-data/nova/visibility").as_deref(),
                 Some("hidden"),
                 "Cabeçalho deve sumir após inatividade mesmo pausado"
             );
             assert_eq!(
-                engine.property("user-data/osc/visibility").as_deref(),
+                hud_value(&engine, "user-data/osc/visibility").as_deref(),
                 Some("never")
             );
             engine
@@ -1117,7 +1123,7 @@ mod tests {
                 .unwrap();
             std::thread::sleep(Duration::from_millis(150));
             assert_eq!(
-                engine.property("user-data/nova/visibility").as_deref(),
+                hud_value(&engine, "user-data/nova/visibility").as_deref(),
                 Some("visible"),
                 "Teclado deve reativar controles"
             );
