@@ -294,12 +294,11 @@ impl Engine {
             engine.option(key, value)?;
         }
         // Bloquear referências locais e protocolos executáveis em playlists remotas.
-        engine.option("access-references", "no")?;
-        let protocols = if headless {
-            "file,http,https,tls,tcp,udp,rtp,crypto,data"
-        } else {
-            "http,https,tls,tcp,udp,rtp,crypto,data"
-        };
+        // HLS precisa abrir segmentos. Limitar os protocolos aninhados, em vez
+        // de bloquear toda referência (o que também bloqueia streaming válido).
+        engine.option("access-references", "yes")?;
+        engine.option("load-unsafe-playlists", "no")?;
+        let protocols = "http,https,tls,tcp,udp,rtp,crypto,data";
         engine.option(
             "demuxer-lavf-o",
             &format!("protocol_whitelist=\"{protocols}\""),
@@ -515,12 +514,17 @@ mod tests {
                             {
                                 continue;
                             }
-                            let body = std::fs::read(
-                                Path::new(env!("CARGO_MANIFEST_DIR"))
-                                    .join("tests/fixtures/player-hls")
-                                    .join(path),
-                            )
-                            .unwrap();
+                            let folder = Path::new(env!("CARGO_MANIFEST_DIR"))
+                                .join("tests/fixtures/player-hls");
+                            let body = if path == "unsafe.m3u8" {
+                                let local = url::Url::from_file_path(
+                                    folder.join("segment0.ts").canonicalize().unwrap(),
+                                )
+                                .unwrap();
+                                format!("#EXTM3U\n#EXT-X-TARGETDURATION:1\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:1,\n{local}\n#EXT-X-ENDLIST\n").into_bytes()
+                            } else {
+                                std::fs::read(folder.join(path)).unwrap()
+                            };
                             let mime = if path.ends_with("m3u8") {
                                 "application/vnd.apple.mpegurl"
                             } else {
@@ -610,6 +614,28 @@ mod tests {
         assert!(
             engine.property("video-codec").is_some(),
             "Vídeo HLS decodificado"
+        );
+        engine.control(Control::Stop).unwrap();
+        let unsafe_url = format!("http://{}/unsafe.m3u8", server.address);
+        engine
+            .command(&["loadfile", &unsafe_url, "replace"])
+            .unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(8);
+        let mut blocked = PlaybackStatus::default();
+        while std::time::Instant::now() < deadline {
+            engine.poll(&mut blocked);
+            assert!(
+                blocked.state != "playing" || blocked.position <= 0.1,
+                "HLS remoto não pode ler segmentos do disco local"
+            );
+            if blocked.state == "failed" {
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(30));
+        }
+        assert_eq!(
+            blocked.state, "failed",
+            "Referência local em HLS remoto deve ser rejeitada"
         );
         engine.control(Control::Stop).unwrap();
     }
