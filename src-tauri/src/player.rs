@@ -305,6 +305,13 @@ impl Engine {
             &format!("protocol_whitelist=\"{protocols}\""),
         )?;
         if headless {
+            // Apenas a PoC compilada como teste registra avisos de fixtures locais.
+            // A produção continua com terminal e logs desligados.
+            #[cfg(test)]
+            {
+                engine.option("terminal", "yes")?;
+                engine.option("msg-level", "all=warn")?;
+            }
             engine.option("vo", "null")?;
             engine.option("ao", "null")?;
         } else {
