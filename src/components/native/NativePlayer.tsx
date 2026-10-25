@@ -5,7 +5,7 @@ import { usePlaybackStore, type PlaybackSession } from "../../state/usePlaybackS
 
 function clock(value: number) {
   const seconds = Math.max(0, Math.floor(value));
-  return `${Math.floor(seconds / 3600) ? `${Math.floor(seconds / 3600)}:` : ""}${Math.floor(seconds / 60) % 60}:${String(seconds % 60).padStart(2, "0")}`;
+  return `${Math.floor(seconds / 3600) ? `${Math.floor(seconds / 3600)}:` : ""}${(seconds >= 3600 ? String(Math.floor(seconds / 60) % 60).padStart(2, "0") : Math.floor(seconds / 60) % 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 export function NativePlayer({ session, onClose }: { session: PlaybackSession; onClose: () => void }) {
   const canvas = useRef<HTMLDivElement>(null);

@@ -2573,5 +2573,7 @@ body {
 .watch-toolbar.hud-native-ready:not(:focus-within) { position: absolute; bottom: 0; height: 1px; min-height: 0; width: 100%; overflow: hidden; padding: 0; opacity: 0; pointer-events: none; }
 @media(max-width:900px) { .cinema-feature-copy { width: 86%; padding-left: 26px; }.cinema-feature { min-height: 480px; }.cinema-row { padding-left: 26px; }.cinema-row-heading { padding-right: 25px; }.cinema-feature-index { right: 25px; }.cinema-shell .sidebar { width: 64px; }.cinema-shell { --sidebar-width:64px; }.cinema-feature-copy h1 { font-size: 42px; } }
 @media(prefers-reduced-motion:reduce) { .cinema-feature-actions button,.cinema-poster-image,.cinema-poster-play { transition: none; } }
-.cinema-shell { grid-template-columns: 86px minmax(0,1fr); }.cinema-shell .sidebar-label,.cinema-shell .mode-strip,.cinema-shell .content-footer { display: none; }
+.cinema-shell { grid-template-columns: 86px minmax(0,1fr); }.cinema-shell .mode-strip,.cinema-shell .content-footer { display: none; }
 @media(max-width:900px) { .cinema-shell { grid-template-columns:64px minmax(0,1fr); } }
+
+.cinema-shell.sidebar-collapsed { grid-template-columns:64px minmax(0,1fr); }.cinema-shell.sidebar-collapsed .sidebar { width:64px; }

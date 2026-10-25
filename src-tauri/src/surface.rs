@@ -71,6 +71,9 @@ impl VideoSurface {
     pub fn place(&self, parent: isize, rect: SurfaceRect) -> Result<()> {
         let rect = rect.validate()?;
         let mut handle = self.handle.lock().map_err(|_| surface_error())?;
+        if !rect.visible && handle.is_none() {
+            return Ok(());
+        }
         let hwnd = if let Some(value) = *handle {
             value
         } else {

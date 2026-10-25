@@ -92,6 +92,11 @@ impl Player {
                             break;
                         }
                         let result = (|| {
+                            if engine.is_none()
+                                && matches!(&message.request, Request::Control(Control::Stop))
+                            {
+                                return Ok(());
+                            }
                             if engine.is_none() {
                                 engine = Some(Engine::open_target(
                                     &path,
@@ -108,6 +113,7 @@ impl Player {
                                     if let Ok(mut s) = state.lock() {
                                         s.state = "loading".into();
                                         s.error = None;
+                                        s.ui_action = None;
                                     }
                                     Ok(())
                                 }
@@ -336,7 +342,7 @@ impl Engine {
                     "Controles do player ausentes no pacote.",
                 ));
             }
-            engine.option("script", script.to_str().ok_or_else(error)?)?;
+            engine.option("scripts", script.to_str().ok_or_else(error)?)?;
             engine.option("osc", "yes")?;
             engine.option("osd-level", "1")?;
             engine.option("script-opts", concat!(
@@ -902,6 +908,7 @@ mod tests {
             parent,
             "Vídeo deve pertencer à janela do aplicativo"
         );
+        let (resize_tx, resize_rx) = std::sync::mpsc::sync_channel(1);
         let worker = std::thread::spawn(move || {
             let mut engine = Engine::open_target(Path::new(&dll), false, Some(child)).unwrap();
             engine.set("aid", "no").unwrap(); // CI não tem alto-falante; áudio é coberto nos outros gates.
@@ -929,6 +936,34 @@ mod tests {
                 engine.property("user-data/osc/visibility").is_some(),
                 "HUD OSC deve estar ativo"
             );
+            engine.set("pause", "yes").unwrap();
+            resize_tx.send(()).unwrap();
+            let resized_deadline = std::time::Instant::now() + Duration::from_secs(4);
+            while engine.number("osd-dimensions/w") != 800.0
+                && std::time::Instant::now() < resized_deadline
+            {
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            assert_eq!(
+                engine.number("osd-dimensions/w"),
+                800.0,
+                "Vídeo deve acompanhar o resize da superfície"
+            );
+            engine
+                .command(&["script-binding", "nova-hud/nova-fullscreen"])
+                .unwrap();
+            let action_deadline = std::time::Instant::now() + Duration::from_secs(2);
+            while state.ui_action.as_deref() != Some("fullscreen")
+                && std::time::Instant::now() < action_deadline
+            {
+                engine.poll(&mut state);
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            assert_eq!(
+                state.ui_action.as_deref(),
+                Some("fullscreen"),
+                "HUD deve encaminhar ação ao aplicativo"
+            );
             engine
                 .command(&["script-message-to", "osc", "osc-visibility", "always"])
                 .unwrap();
@@ -941,10 +976,36 @@ mod tests {
                 image.is_file(),
                 "Captura da superfície gráfica deve ser gerada"
             );
+            let pixels = image::open(&image).unwrap().into_rgb8();
+            let colors = pixels
+                .enumerate_pixels()
+                .filter(|(x, y, _)| {
+                    *x > 100 && *x < 700 && *y > 60 && *y < 300 && x % 8 == 0 && y % 8 == 0
+                })
+                .map(|(_, _, pixel)| pixel.0)
+                .collect::<std::collections::HashSet<_>>();
+            assert!(
+                colors.len() > 16,
+                "A captura deve conter quadros de vídeo, não somente fundo preto e HUD"
+            );
             engine.control(Control::Stop).unwrap();
         });
         let deadline = std::time::Instant::now() + Duration::from_secs(35);
         while !worker.is_finished() && std::time::Instant::now() < deadline {
+            if resize_rx.try_recv().is_ok() {
+                surface
+                    .place(
+                        parent as isize,
+                        crate::surface::SurfaceRect {
+                            x: 0,
+                            y: 0,
+                            width: 800,
+                            height: 450,
+                            visible: true,
+                        },
+                    )
+                    .unwrap();
+            }
             unsafe {
                 let mut message: MSG = std::mem::zeroed();
                 while PeekMessageW(&mut message, std::ptr::null_mut(), 0, 0, PM_REMOVE) != 0 {
