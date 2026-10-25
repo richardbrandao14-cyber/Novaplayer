@@ -4,7 +4,9 @@
 - Expandir/recolher preserva seleção. No modo compacto, ícones de retorno, Início e expansão substituem uma coluna de tags indistinguíveis. Teclado e rolagem sem barras preservados; retorno restaura foco na seção do menu.
 - Busca global maior, com ícone destacado e indicação Filmes/séries/canais, acessível por clique/Ctrl+K. Ao buscar durante prévia, a superfície nativa é ocultada para não cobrir o diálogo, sem parar/reabrir o stream. Fechar restaura a prévia; escolher filme/série encerra a TV e abre detalhes.
 
-Validação local: 32 testes de unidade/componentes, 13 cenários Playwright, tipos/lint/build Vite aprovados. Backend, esquema, player e dependências Rust permanecem os do marco anterior. Nova compilação Windows e referência do pacote serão registradas após a CI. Teste de mouse/foco/diálogo sobre WebView+HWND com Horizon no PC permanece manual.
+Validação local: 32 testes de unidade/componentes, 13 cenários Playwright, tipos/lint/build Vite aprovados. Backend, esquema, motor nativo e dependências Rust permanecem os do marco anterior. [CI web/core/Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312) aprovada em 25/10/2026 para o código `21f47a3411fe72f5079eb2f4f2439fbbfcc5e226`: quatro provas libmpv, suíte Rust/DPAPI, Clippy e build Tauri aprovados.
+
+Pacote [NOVA-PLAYER-Windows-x64-test](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312/artifacts/12599836666), 82,5 MB, ID `12599836666`. SHA-256 do ZIP: `f300b8cfcb01b9b0fe9f45df51b785fe4e7963e59e190b9ed01402d16df54360`. Extrair todo o ZIP, preservando DLL e HUD ao lado do exe. O pacote anterior abaixo é histórico. Commits posteriores de documentação não alteram este executável. Teste de mouse/foco/diálogo sobre WebView+HWND com Horizon no PC permanece manual.
 
 [Captura do menu com dados sintéticos](screenshots/nova-category-menu-fixture.png).
 

@@ -2,9 +2,9 @@
 
 Player desktop para **Windows 10/11 x64**. O usuário fornece suas fontes autorizadas; o app não oferece conteúdo ou assinatura.
 
-## Menu e busca — atualização em validação
+## Menu e busca — atualização aprovada
 
-Filmes/Séries agora abrem suas categorias no mesmo menu lateral, com retorno ao menu principal, Início direto e filtro de categorias. Busca global maior no topo; abrir/fechar durante prévia preserva o stream. [Captura identificada com dados de teste](docs/screenshots/nova-category-menu-fixture.png). Ver pacote da revisão final no [checkpoint](docs/PLAYBACK_CHECKPOINT.md).
+Filmes/Séries agora abrem suas categorias no mesmo menu lateral, com retorno ao menu principal, Início direto e filtro de categorias. Busca global maior no topo; abrir/fechar durante prévia preserva o stream. [Captura identificada com dados de teste](docs/screenshots/nova-category-menu-fixture.png). **[Baixar ZIP Windows atualizado](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312/artifacts/12599836666) — 82,5 MB.** [CI aprovada](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312), com 32 testes frontend, 13 cenários de navegação, quatro provas libmpv e build Tauri. Feche a versão anterior e extraia todo o ZIP. Novos fluxos ainda precisam de confirmação manual com Horizon. [Evidências](docs/PLAYBACK_CHECKPOINT.md).
 
 ## Estado anterior aprovado
 

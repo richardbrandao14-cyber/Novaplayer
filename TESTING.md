@@ -1,6 +1,6 @@
 # Menu contextual e busca — revisão atual
 
-`npm run check`: tipos, lint, 32 testes e build Vite. `NOVA_CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e`: 13 cenários incluindo categoria aplicada à consulta, isolamento Filmes/Séries, filtro do menu, voltar/Início, recolher/expandir, foco, limites de largura 900/1100/1440 e busca durante TV sem novo `play_media`. Captura com fixtures inspecionada. Backend não alterado; a nova CI Windows confirma compilação do frontend incorporado. Evidências e pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Teste de composição nativa com o provedor continua manual.
+`npm run check`: tipos, lint, 32 testes e build Vite. `NOVA_CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e`: 13 cenários incluindo categoria aplicada à consulta, isolamento Filmes/Séries, filtro do menu, voltar/Início, recolher/expandir, foco, limites de largura 900/1100/1440 e busca durante TV sem novo `play_media`. Captura com fixtures inspecionada. Backend não alterado; a [nova CI Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40195802312) confirmou compilação do frontend incorporado, quatro provas libmpv, Rust/DPAPI e Clippy. Evidências e pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Teste de composição nativa com o provedor continua manual.
 
 ---
 
