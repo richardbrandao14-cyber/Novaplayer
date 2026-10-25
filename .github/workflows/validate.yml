@@ -50,7 +50,7 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $false
           $ErrorActionPreference = 'Continue'
           $env:NOVA_MPV_DLL = Join-Path $PWD 'player-runtime/libmpv-2.dll'
-          cargo test --manifest-path src-tauri/Cargo.toml --locked windows_mpv_decodes_local_video_and_pcm_audio -- --ignored --nocapture 2>&1 | Tee-Object -FilePath windows-player-poc.log
+          cargo test --manifest-path src-tauri/Cargo.toml --locked windows_mpv_ -- --ignored --nocapture 2>&1 | Tee-Object -FilePath windows-player-poc.log
           $stepExit = $LASTEXITCODE
           if ($stepExit -ne 0) {
             $diagnostic = (Get-Content windows-player-poc.log -Tail 80) -join "`n"

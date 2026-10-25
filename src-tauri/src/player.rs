@@ -509,26 +509,74 @@ mod tests {
                                 .nth(1)
                                 .unwrap_or("")
                                 .trim_start_matches('/');
-                            if !["index.m3u8", "segment0.ts", "segment1.ts", "segment2.ts"]
-                                .contains(&path)
-                            {
-                                continue;
-                            }
                             let folder = Path::new(env!("CARGO_MANIFEST_DIR"))
                                 .join("tests/fixtures/player-hls");
-                            let body = if path == "unsafe.m3u8" {
+                            let (body, mime) = if path.starts_with("player_api.php?") {
+                                let query = path.split_once('?').unwrap().1;
+                                let fields = url::form_urlencoded::parse(query.as_bytes())
+                                    .collect::<std::collections::HashMap<_, _>>();
+                                let action = fields.get("action").map(|v| v.as_ref());
+                                let value = match action {
+                                    None => {
+                                        serde_json::json!({"user_info":{"auth":1,"status":"Active"}})
+                                    }
+                                    Some(
+                                        "get_live_categories"
+                                        | "get_vod_categories"
+                                        | "get_series_categories",
+                                    ) => {
+                                        serde_json::json!([{"category_id":"7","category_name":"Fixture"}])
+                                    }
+                                    Some("get_live_streams") => {
+                                        serde_json::json!([{"stream_id":1,"name":"Canal fixture","category_id":"7","container_extension":"ts"}])
+                                    }
+                                    Some("get_vod_streams") => {
+                                        serde_json::json!([{"stream_id":2,"name":"Filme fixture","category_id":"7","container_extension":"mp4"}])
+                                    }
+                                    Some("get_series") => {
+                                        serde_json::json!([{"series_id":3,"name":"Série fixture","category_id":"7"}])
+                                    }
+                                    Some("get_series_info") => {
+                                        serde_json::json!({"episodes":{"1":[{"id":4,"title":"Episódio fixture","container_extension":"mp4"}]}})
+                                    }
+                                    _ => serde_json::Value::Null,
+                                };
+                                (serde_json::to_vec(&value).unwrap(), "application/json")
+                            } else if path == "unsafe.m3u8" {
                                 let local = url::Url::from_file_path(
                                     folder.join("segment0.ts").canonicalize().unwrap(),
                                 )
                                 .unwrap();
-                                format!("#EXTM3U\n#EXT-X-TARGETDURATION:1\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:1,\n{local}\n#EXT-X-ENDLIST\n").into_bytes()
+                                (format!("#EXTM3U\n#EXT-X-TARGETDURATION:1\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:1,\n{local}\n#EXT-X-ENDLIST\n").into_bytes(),"application/vnd.apple.mpegurl")
+                            } else if path == "live/fixture-user/fixture-pass/1.ts" {
+                                (
+                                    std::fs::read(folder.join("segment0.ts")).unwrap(),
+                                    "video/mp2t",
+                                )
+                            } else if [
+                                "movie/fixture-user/fixture-pass/2.mp4",
+                                "series/fixture-user/fixture-pass/4.mp4",
+                            ]
+                            .contains(&path)
+                            {
+                                (
+                                    std::fs::read(folder.parent().unwrap().join("player-av.mp4"))
+                                        .unwrap(),
+                                    "video/mp4",
+                                )
+                            } else if ["index.m3u8", "segment0.ts", "segment1.ts", "segment2.ts"]
+                                .contains(&path)
+                            {
+                                (
+                                    std::fs::read(folder.join(path)).unwrap(),
+                                    if path.ends_with("m3u8") {
+                                        "application/vnd.apple.mpegurl"
+                                    } else {
+                                        "video/mp2t"
+                                    },
+                                )
                             } else {
-                                std::fs::read(folder.join(path)).unwrap()
-                            };
-                            let mime = if path.ends_with("m3u8") {
-                                "application/vnd.apple.mpegurl"
-                            } else {
-                                "video/mp2t"
+                                continue;
                             };
                             let headers=format!("HTTP/1.1 200 OK\r\nContent-Type: {mime}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",body.len());
                             let _ = socket.write_all(headers.as_bytes());
@@ -638,5 +686,106 @@ mod tests {
             "Referência local em HLS remoto deve ser rejeitada"
         );
         engine.control(Control::Stop).unwrap();
+    }
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    #[ignore = "Exige DLL Windows verificada e DPAPI; gate integrado de reprodução"]
+    async fn windows_mpv_xtream_import_to_playback_live_movie_and_episode() {
+        use crate::{
+            core::models::CatalogQuery,
+            services::{
+                imports::{Backend, SourceDraft},
+                secrets::WindowsProtector,
+            },
+        };
+        let dll = std::env::var("NOVA_MPV_DLL").expect("NOVA_MPV_DLL obrigatório");
+        let server = FixtureServer::start();
+        let root = std::env::temp_dir().join(format!("nova-playback-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&root).unwrap();
+        let backend = Backend::new(
+            root.join("catalog.sqlite3"),
+            root.join("cache"),
+            Arc::new(WindowsProtector),
+        )
+        .unwrap();
+        let source = backend
+            .save_source(SourceDraft {
+                name: "Fixture autorizada".into(),
+                kind: "xtream".into(),
+                url: format!("http://{}/player_api.php", server.address),
+                username: "fixture-user".into(),
+                password: "fixture-pass".into(),
+                source_id: None,
+            })
+            .unwrap();
+        let job = backend.start(source.id.clone()).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(20);
+        loop {
+            let state = backend.status(&job).unwrap();
+            assert!(state.error.is_none(), "Importação Xtream deve concluir");
+            if state.state == "completed" {
+                break;
+            }
+            assert!(
+                std::time::Instant::now() < deadline,
+                "Importação excedeu limite"
+            );
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+        let mut urls = Vec::new();
+        for kind in ["live", "movie", "series"] {
+            let page = backend
+                .query(&CatalogQuery {
+                    source_id: Some(source.id.clone()),
+                    kind: Some(kind.into()),
+                    limit: 10,
+                    ..Default::default()
+                })
+                .unwrap();
+            assert_eq!(page.total, 1, "Cada categoria deve chegar ao catálogo real");
+            let media = &page.items[0];
+            let url = if kind == "series" {
+                let seasons = backend.series(&media.id).await.unwrap();
+                let episode = &seasons[0].episodes[0];
+                assert!(
+                    episode.id.starts_with(&media.id),
+                    "ID interno deve pertencer à série"
+                );
+                backend.playback_url(&media.id, Some(&episode.id)).unwrap()
+            } else {
+                backend.playback_url(&media.id, None).unwrap()
+            };
+            urls.push((kind, url));
+        }
+        let mut engine = Engine::open(Path::new(&dll), true).unwrap();
+        for (kind, url) in urls {
+            engine.command(&["loadfile", &url, "replace"]).unwrap();
+            let deadline = std::time::Instant::now() + Duration::from_secs(15);
+            let mut state = PlaybackStatus::default();
+            while std::time::Instant::now() < deadline {
+                engine.poll(&mut state);
+                assert!(state.error.is_none(), "{kind}: erro de reprodução");
+                if state.state == "playing" && state.position > 0.1 {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(30));
+            }
+            assert!(
+                state.state == "playing" && state.position > 0.1,
+                "{kind}: reprodução deve avançar"
+            );
+            assert!(
+                engine.property("audio-codec-name").is_some(),
+                "{kind}: áudio decodificado"
+            );
+            assert!(
+                engine.property("video-codec").is_some(),
+                "{kind}: vídeo decodificado"
+            );
+            engine.control(Control::Stop).unwrap();
+        }
+        drop(engine);
+        drop(backend);
+        drop(server);
+        std::fs::remove_dir_all(root).unwrap();
     }
 }
