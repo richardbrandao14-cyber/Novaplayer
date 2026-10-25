@@ -19,6 +19,10 @@ export function nativeError(error: unknown): string {
   if (error && typeof error === "object" && "code" in error) {
     const code = String(error.code).toUpperCase();
     const known: Record<string, string> = {
+      NOT_FOUND: "O endereço solicitado não foi encontrado. Confira a URL do servidor ou atualize o catálogo.",
+      PROCESSING: "Não foi possível processar a resposta da fonte. Tente atualizar a lista.",
+      ENCODING: "Não foi possível ler a codificação desta playlist.",
+      FILE: "Não foi possível acessar o arquivo local. Selecione o arquivo novamente.",
       PROVIDER: "O servidor não retornou uma resposta Xtream válida. Confira o endereço e o acesso à conta.",
       REDIRECT: "O servidor redirecionou para outro endereço. Cadastre o endereço final fornecido pelo serviço.",
       BUSY: "Já existem importações em andamento. Aguarde e tente novamente.",

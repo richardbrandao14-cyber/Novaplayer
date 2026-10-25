@@ -34,6 +34,7 @@ it("não oferece busca temporal para live sem suporte; erro nativo não expõe a
   expect(document.body.textContent).not.toContain("fixture-secret");
 });
 it("traduz falhas Xtream e redirecionamento sem reutilizar mensagens remotas", () => {
+  expect(nativeError({ code: "not_found", message: "fixture-secret" })).toContain("não foi encontrado");
   expect(nativeError({ code: "provider", message: "fixture-secret" })).toContain("Xtream");
   expect(nativeError({ code: "redirect", message: "fixture-secret" })).toContain("endereço final");
 });

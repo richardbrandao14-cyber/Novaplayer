@@ -4,7 +4,7 @@ Autorizado pelo proprietário: reprodução nativa e áudio; licença GPL versã
 
 ## Decisão
 
-PoC isolada em teste Windows antes do build integrado. libmpv usa janela própria com controles React separados. A decisão evita depender de composição de vídeo com WebView2 ainda não comprovada. Não é a integração visual definitiva. Uma thread possui DLL e handle; fila limitada, estado consultado sem URLs, teardown explícito. DLL somente no diretório do executável, dependências somente nesse diretório e System32. Sem busca no PATH ou diretório de trabalho.
+PoC isolada em teste Windows antes do build integrado. libmpv usa janela própria com controles React separados. A decisão evita depender de composição de vídeo com WebView2 ainda não comprovada. Não é a integração visual definitiva. Saídas de produção explícitas: `gpu-next,gpu` para janela de vídeo, WASAPI compartilhado para áudio do Windows; a PoC usa `null` e não valida esses dispositivos. Uma thread possui DLL e handle; fila limitada, estado consultado sem URLs, teardown explícito. DLL somente no diretório do executável, dependências somente nesse diretório e System32. Sem busca no PATH ou diretório de trabalho.
 
 A UI usa IDs internos; o backend consulta SQLite, valida o escopo de episódios, descriptografa via DPAPI e só então abre HTTP/HTTPS no motor. Configuração e scripts externos, carregamento automático de legendas/áudio local, ytdl e logs do motor desativados; TLS permanece verificado. Protocolos de mídia limitados; referências locais bloqueadas para fontes remotas. Arquivos M3U locais continuam sendo catálogos, não abertura arbitrária de mídia local.
 

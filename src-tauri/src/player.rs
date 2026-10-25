@@ -308,6 +308,10 @@ impl Engine {
             engine.option("vo", "null")?;
             engine.option("ao", "null")?;
         } else {
+            // libmpv pode usar saída de embedding por padrão. Selecionar explicitamente
+            // uma saída que cria janela Windows e o dispositivo de áudio do sistema.
+            engine.option("vo", "gpu-next,gpu")?;
+            engine.option("ao", "wasapi")?;
             engine.option("force-window", "yes")?;
         }
         if unsafe { initialize(handle) } < 0 {
