@@ -1139,16 +1139,18 @@ mod tests {
                 // Completar a sequência nativa de entrada sem chamar callbacks do OSC.
                 engine.command(&["keypress", "MOUSE_ENTER"]).unwrap();
                 std::thread::sleep(Duration::from_millis(60));
-                SendMessageW(video_hwnd, WM_LBUTTONDOWN, 1, point(x, y));
-                std::thread::sleep(Duration::from_millis(60));
-                SendMessageW(video_hwnd, WM_LBUTTONUP, 0, point(x, y));
-                // O runner não possui cursor no desktop da janela (WindowFromPoint
-                // acima). Injetar um evento completo pela API pública de entrada,
-                // conservando resolução de seção, coordenadas e hit-testing do OSC.
-                // Não chamar script-binding nem atribuir pause para provar o clique.
-                engine
-                    .command(&["mouse", &x.to_string(), &y.to_string(), "0", "single"])
-                    .unwrap();
+                if hit == video_hwnd || IsChild(video_hwnd, hit) != 0 {
+                    SendMessageW(video_hwnd, WM_LBUTTONDOWN, 1, point(x, y));
+                    std::thread::sleep(Duration::from_millis(60));
+                    SendMessageW(video_hwnd, WM_LBUTTONUP, 0, point(x, y));
+                } else {
+                    // Runner sem cursor no desktop da janela. Usar a API pública
+                    // de entrada, conservando seções, coordenadas e hit-testing.
+                    // Não chamar script-binding nem atribuir pause para provar clique.
+                    engine
+                        .command(&["mouse", &x.to_string(), &y.to_string(), "0", "single"])
+                        .unwrap();
+                }
             };
             click(&mut engine, 400, 396);
             let deadline = std::time::Instant::now() + Duration::from_secs(2);
