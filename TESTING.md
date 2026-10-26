@@ -1,6 +1,6 @@
 # NEX · verificação visual atual
 
-37 testes frontend e 17 cenários de navegação Chromium aprovados; TypeScript, lint e build Vite aprovados. Cenários cobrem busca durante abertura sem bloqueio, foco por teclado, movimento reduzido, banner adaptativo, séries/TV com dados sintéticos e largura de 900/1100/1440 px, além dos fluxos funcionais anteriores. Refinamento CSS final reconferido no cenário visual dedicado. Capturas da abertura pausam apenas a animação da página de inspeção em 350 ms, sem mudar produção. fmt Rust aprovado. CI Windows desta revisão em andamento; a versão testada anterior não comprova este executável.
+37 testes frontend e 17 cenários de navegação Chromium aprovados; TypeScript, lint e build Vite aprovados. Cenários cobrem busca durante abertura sem bloqueio, foco por teclado, movimento reduzido, banner adaptativo, séries/TV com dados sintéticos e largura de 900/1100/1440 px, além dos fluxos funcionais anteriores. Refinamento CSS final reconferido no cenário visual dedicado. Capturas da abertura pausam apenas a animação da página de inspeção em 350 ms, sem mudar produção. fmt Rust aprovado. [CI web/core/Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40257997772) aprovada para `accff6ca68439ab239778e9ee5f4333b7d05f9bc`: 37 testes frontend, 17 cenários Chromium, núcleo Rust, quatro provas explícitas libmpv, suíte Windows/DPAPI, fmt/Clippy e build Tauri. Evidência do novo executável no checkpoint; teste manual no PC continua pendente.
 
 ---
 

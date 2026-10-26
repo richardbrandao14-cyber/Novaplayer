@@ -1,4 +1,4 @@
-# NOVA UI
+# NEX UI
 
 Direção aplicada à interface demonstrativa: aplicativo de mídia premium, escuro, compacto sem poluição. Capturas reais das oito telas e detalhes/busca foram produzidas; isso não substitui revisão visual no WebView2 Windows nem auditoria completa de acessibilidade.
 

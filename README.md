@@ -8,7 +8,7 @@ Assinatura laranja, marca/ícone vetoriais locais, abertura breve não bloqueant
 
 [Início com dados sintéticos](docs/screenshots/nex-home-fixture.png) · [Séries](docs/screenshots/nex-series-fixture.png) · [TV](docs/screenshots/nex-live-fixture.png) · [Abertura](docs/screenshots/nex-opening.png).
 
-37 testes frontend, 17 cenários Chromium, tipos/lint/build web aprovados localmente. Ajustes visuais finais reconferidos no cenário dedicado. Pacote Windows desta revisão em validação; ver [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Capturas não comprovam reprodução nativa.
+37 testes frontend, 17 cenários Chromium, tipos/lint/build web aprovados localmente. Ajustes visuais finais reconferidos no cenário dedicado. **[Baixar ZIP NEX Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40257997772/artifacts/12622604738) — 82,6 MB.** [CI web/core/Windows aprovada](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40257997772), incluindo quatro provas libmpv e build Tauri. Feche o app, extraia todo o ZIP e abra `nova-player.exe`; nome técnico do executável permanece para compatibilidade. Ver [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Capturas não comprovam reprodução nativa.
 
 
 ## HUD — correção de entrada Windows
