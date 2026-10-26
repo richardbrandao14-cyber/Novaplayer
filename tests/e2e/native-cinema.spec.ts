@@ -367,7 +367,7 @@ test("prévia visual com fixtures locais, sem tráfego remoto", async ({
       remote.push(r.url());
   });
   await fixture(page);
-  await page.locator(".cinema-feature .image-ready").waitFor();
+  await page.locator(".cinema-feature-art.image-ready").waitFor();
   for (const row of await page.locator(".cinema-row").all()) {
     await row.scrollIntoViewIfNeeded();
     await row.locator(".image-ready").first().waitFor();
@@ -891,4 +891,68 @@ test("TV salva favoritos sem iniciar canal e filtra a lista pessoal", async ({
   await expect(
     page.getByRole("main", { name: "Prévia de Canal de teste 1", exact: true }),
   ).toBeVisible();
+});
+
+test("NEX: identidade, composição cinematográfica e menu compacto", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Além da Aurora", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "NEX — ir ao início" }),
+  ).toBeVisible();
+  await expect(page.locator(".nex-entrance")).toHaveCount(0);
+  await expect(page.locator(".nex-feature-poster img")).toBeVisible();
+  for (const row of await page.locator(".cinema-row").all()) {
+    await row.scrollIntoViewIfNeeded();
+    await row.locator(".image-ready").first().waitFor();
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({
+    path: "docs/screenshots/nex-home-fixture.png",
+    fullPage: true,
+  });
+  const nav = page.getByRole("navigation", { name: "Navegação principal" });
+  await nav.getByRole("button", { name: "Séries", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Ver detalhes de Atlas", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Atlas", exact: true }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "docs/screenshots/nex-series-fixture.png",
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "NEX — ir ao início" }).click();
+  await nav.getByRole("button", { name: "TV ao Vivo", exact: true }).click();
+  await expect(
+    page.getByRole("button", {
+      name: "Prévia de Canal de teste 1",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "docs/screenshots/nex-live-fixture.png",
+    fullPage: true,
+  });
+  for (const width of [1100, 900]) {
+    await page.setViewportSize({ width, height: 800 });
+    await expect(
+      page.getByRole("button", { name: "Buscar na biblioteca" }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+  await page.screenshot({
+    path: "docs/screenshots/nex-live-900-fixture.png",
+    fullPage: true,
+  });
 });

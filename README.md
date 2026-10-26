@@ -1,6 +1,15 @@
-# NOVA PLAYER
+# NEX
 
 Player desktop para **Windows 10/11 x64**. O usuário fornece suas fontes autorizadas; o app não oferece conteúdo ou assinatura.
+
+## NEX · nova identidade visual
+
+Assinatura laranja, marca/ícone vetoriais locais, abertura breve não bloqueante, catálogo com cantos arredondados, busca presente e banners que se adaptam à proporção das imagens fornecidas. A identidade não altera identifier, diretórios, credenciais, fontes ou contratos do player. Nenhuma API de IA ou serviço pago foi integrado.
+
+[Início com dados sintéticos](docs/screenshots/nex-home-fixture.png) · [Séries](docs/screenshots/nex-series-fixture.png) · [TV](docs/screenshots/nex-live-fixture.png) · [Abertura](docs/screenshots/nex-opening.png).
+
+37 testes frontend, 17 cenários Chromium, tipos/lint/build web aprovados localmente. Ajustes visuais finais reconferidos no cenário dedicado. Pacote Windows desta revisão em validação; ver [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Capturas não comprovam reprodução nativa.
+
 
 ## HUD — correção de entrada Windows
 

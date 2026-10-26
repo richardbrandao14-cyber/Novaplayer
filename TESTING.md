@@ -1,3 +1,11 @@
+# NEX · verificação visual atual
+
+37 testes frontend e 17 cenários de navegação Chromium aprovados; TypeScript, lint e build Vite aprovados. Cenários cobrem busca durante abertura sem bloqueio, foco por teclado, movimento reduzido, banner adaptativo, séries/TV com dados sintéticos e largura de 900/1100/1440 px, além dos fluxos funcionais anteriores. Refinamento CSS final reconferido no cenário visual dedicado. Capturas da abertura pausam apenas a animação da página de inspeção em 350 ms, sem mudar produção. fmt Rust aprovado. CI Windows desta revisão em andamento; a versão testada anterior não comprova este executável.
+
+---
+
+## Marco anterior — histórico
+
 # HUD — regressão de entrada Windows
 
 Revisão `3794f427389c86d9b341a99c0925096fc9fc5dca`: quatro provas libmpv, suíte Rust/DPAPI, fmt, Clippy e build Tauri Windows aprovados na [execução](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40253105812); núcleo e `npm run check` aprovados. PoC primeiro exige janela mpv original desabilitada e depois janela habilitada pela integração; botões usam WM_LBUTTONDOWN/WM_LBUTTONUP sempre. Não usa keydown/keyup da API para substituir cliques. Roda e estado real de pausa/volume continuam obrigatórios. A automação sincroniza posição/hover, portanto ainda não equivale ao teste físico Tauri/WebView2 no PC. A navegação Chromium desta execução aguardava instalação do navegador no registro; ver checkpoint para evidência anterior e pacote corrigido.

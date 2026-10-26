@@ -86,3 +86,25 @@ test("layout e movimento reduzido", async ({ page }) => {
     ),
   ).toBe(true);
 });
+
+test("NEX: abertura não bloqueia busca nem teclado e termina sem espera obrigatória", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Buscar na biblioteca" }).waitFor();
+  await page.keyboard.press("Control+k");
+  await expect(
+    page.getByRole("dialog", { name: "Buscar na biblioteca" }),
+  ).toBeVisible();
+  await expect(page.locator(".nex-entrance")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "NEX — ir ao início" }).focus();
+  await expect(
+    page.getByRole("button", { name: "NEX — ir ao início" }),
+  ).toBeFocused();
+  const outline = await page
+    .getByRole("button", { name: "NEX — ir ao início" })
+    .evaluate((el) => getComputedStyle(el).outlineStyle);
+  expect(outline).not.toBe("none");
+});

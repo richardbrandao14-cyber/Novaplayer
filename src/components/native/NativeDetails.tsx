@@ -132,7 +132,7 @@ function DetailsPage({
         <div className="detail-page-shade" />
         <div className="detail-page-copy">
           <p className="eyebrow">
-            NOVA •{" "}
+            NEX •{" "}
             {item.kind === "series"
               ? "SÉRIE"
               : item.kind === "movie"

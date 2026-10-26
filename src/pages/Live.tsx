@@ -78,7 +78,7 @@ function DemoLive() {
           <div className="live-stage">
             <div className="player-placeholder">
               <span className="player-demo-label">
-                NOVA PLAYER · DEMONSTRAÇÃO
+                NEX · DEMONSTRAÇÃO
               </span>
               <MonitorPlay size={42} />
               <h2>{current?.title ?? "Selecione um canal"}</h2>

@@ -14,6 +14,7 @@ export function NativeArtwork({
   priority?: boolean;
 }) {
   const container = useRef<HTMLDivElement>(null);
+  const [landscapeFor, setLandscapeFor] = useState<string | null>(null);
   const [visibleId, setVisibleId] = useState<string | null>(null);
   const [result, setResult] = useState<ImageResult | null>(null);
   useEffect(() => {
@@ -52,7 +53,7 @@ export function NativeArtwork({
   return (
     <div
       ref={container}
-      className={`artwork native-artwork ${image && !failed ? "image-ready" : "image-pending"} ${className}`}
+      className={`artwork native-artwork ${image && !failed ? "image-ready" : "image-pending"} ${landscapeFor === mediaId ? "is-landscape" : ""} ${className}`}
     >
       {image && !failed ? (
         <img
@@ -63,6 +64,14 @@ export function NativeArtwork({
           decoding="async"
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
+          onLoad={(event) =>
+            setLandscapeFor(
+              event.currentTarget.naturalWidth >
+                event.currentTarget.naturalHeight * 1.2
+                ? mediaId
+                : null,
+            )
+          }
           onError={() => setResult({ mediaId, image: null, failed: true })}
         />
       ) : (

@@ -16,7 +16,7 @@ local function draw_header()
     overlay.res_x = 1280; overlay.res_y = height
     overlay.data = "{\\an7\\pos(0,0)\\bord0\\1c&H101010&\\1a&H40&\\p1}m 0 0 l 1280 0 1280 68 0 68{\\p0}" ..
         "\n{\\an7\\pos(28,23)\\fnSegoe UI\\fs20\\bord0\\1c&HFFFFFF&}‹  Voltar" ..
-        "\n{\\an7\\pos(175,27)\\fnSegoe UI\\fs13\\bord0\\1c&HB0B0B0&}NOVA PLAYER" ..
+        "\n{\\an7\\pos(175,27)\\fnSegoe UI\\fs13\\bord0\\1c&HB0B0B0&}NEX" ..
         "\n{\\an7\\pos(960,25)\\fnSegoe UI\\fs16\\bord0\\1c&HFFFFFF&}Ajustes" ..
         "\n{\\an7\\pos(1075,25)\\fnSegoe UI\\fs16\\bord0\\1c&HFFFFFF&}Sair da tela cheia"
     if has_episodes then overlay.data = overlay.data .. "\n{\\an7\\pos(840,25)\\fnSegoe UI\\fs16\\bord0\\1c&HFFFFFF&}Episódios" end

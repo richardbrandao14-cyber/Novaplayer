@@ -12,7 +12,7 @@ export function nativeAvailable() {
   return isTauri();
 }
 const desktopMessage =
-  "Esta função exige o NOVA PLAYER para Windows. A prévia no navegador não conecta fontes reais.";
+  "Esta função exige o NEX para Windows. A prévia no navegador não conecta fontes reais.";
 // Nunca reutilizar a mensagem bruta do IPC: ela pode conter URL/credenciais de um provedor.
 export function nativeError(error: unknown): string {
   if (error instanceof Error && error.message === desktopMessage)

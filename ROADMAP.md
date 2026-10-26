@@ -73,3 +73,11 @@ Fase parcialmente concluída, com núcleo e integração React testados conforme
 ## Gate automatizado Windows aprovado
 
 Em 24/10/2026, a [execução corrigida](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40140035463) concluiu build e testes Windows, incluindo DPAPI e artefato executável. Permanece o teste manual de abertura/importação no computador do proprietário. A Fase 4 segue não autorizada.
+
+
+## Próxima evolução funcional — após revisão visual NEX
+
+- Próximo episódio: botão imediato, contagem cancelável, preferência de reprodução automática e continuidade entre temporadas quando sequência estiver identificada. Preservar progresso.
+- Pular abertura/recapitulação: somente com intervalos confiáveis fornecidos ou definidos; não adotar tempo fixo universal nem prometer detecção ainda não implementada.
+- Recomendações locais e explicáveis: consumo/favoritos/feedback + metadados disponíveis, diversidade, opção de desligar e apagar histórico; sem envio externo por padrão.
+- Banners: composição automática com imagens reais já apresentada. Classificações lançamentos/em alta exigem datas/popularidade reais. IA para artes depende de estratégia separada de qualidade, direitos, custo e privacidade; não há API integrada nesta etapa.

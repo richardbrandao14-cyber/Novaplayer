@@ -56,3 +56,17 @@ Séries: temporada explícita, cartões de episódio com número, título, descr
 ## NOVA Library
 
 Catálogos reais de filmes/séries usam destaque amplo, subcategorias discretas e grid de pôsteres. Detalhes são páginas com fundo da fonte e transição para preto; não copiar marcas externas. Série mostra cartões 16:9 com imagem do episódio e título legível, agrupados pela temporada. Menu expandido: ícone/texto; compacto: ícone com nome acessível/tooltip. Barras de rolagem ocultas preservam overflow, roda, touchpad e teclado; não usar `overflow:hidden` para esconder conteúdo navegável. TV mantém categorias e canais visíveis durante prévia. Respeitar movimento reduzido e não inventar elenco/notas/imagens ausentes.
+
+## NEX · Obsidiana — direção visual atual
+
+Escopo autorizado: nome curto NEX na interface, assinatura laranja, apresentação breve, superfícies arredondadas e experiência cinematográfica. Sem integração de IA externa, recomendações, classificação de popularidade ou compra de serviço nesta revisão.
+
+Tokens: fundo #0B0C0E, superfície #161719, laranja #FF9B54, laranja suave #FFB680, texto principal #F5F3EF, secundário #A9AAAF. Ações laranja usam texto #24160C (contraste calculado 8,42:1); branco sobre esse laranja é proibido para texto comum (2,09:1). Erros mantêm cor semântica distinta. Raios: hero 24–28, cartões/painéis 18–22, navegação 14, campos 13, ações principais pill. Sem recorte/rotação na superfície HWND.
+
+Marca vetorial local: chevrons para continuidade e wordmark minúsculo com ponto laranja. Fonte do sistema, sem pedidos remotos. Abertura de 850 ms por montagem do aplicativo, sem progresso fictício, sem interceptar mouse/foco e omitida com movimento reduzido. Transições de interface entre 180–200 ms; deslocamentos de cartões são removidos com movimento reduzido. Entrada da marca não é indicador de carregamento.
+
+Banner real: tipografia e botões em DOM; imagem fornecida no fundo e em enquadramento lateral que se adapta à orientação da imagem. Não esticar pôster nem gerar cenas inexistentes. Cache compartilhado evita baixar a mesma capa duas vezes. Imagens/nomes/metadados demonstrativos são fixtures identificadas; não representam obras ou recomendações reais. “Em alta”, “Lançamentos” e “Para você” só podem aparecer quando existirem dados/critério implementado e identificável.
+
+Camada visual isolada em src/ui/nex.css. Identificador Tauri, productName técnico, chaves de storage e diretórios permanecem para preservar dados; título e ícone visíveis mudam para NEX. Não há migração de fontes, credenciais, histórico ou backend de reprodução.
+
+Evidência em docs/screenshots/nex-*.png. A captura de abertura pausa a animação em 350 ms para inspeção; o código de produção continua com duração de 850 ms. A revisão visual independente apontou contraste, seletores de séries/TV e estados de carregamento das capturas; corrigidos antes da entrega. Capturas não comprovam reprodução nativa.

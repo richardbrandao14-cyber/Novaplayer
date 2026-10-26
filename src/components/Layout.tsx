@@ -1,3 +1,4 @@
+import { Brand } from "./Brand";
 import { CatalogSidebar } from "./native/CatalogSidebar";
 import type { PageId } from "../domain/types";
 import { useMediaNavigation } from "../state/useMediaNavigation";
@@ -9,7 +10,6 @@ import {
   Minus,
   Square,
   X,
-  Triangle,
   Monitor,
   Bookmark,
 } from "lucide-react";
@@ -70,14 +70,16 @@ export function Layout({ children }: { children: ReactNode }) {
           Ir para o conteúdo
         </a>
         <header className="titlebar">
-          <div className="brand">
-            <span className="brand-symbol">
-              <Triangle size={18} fill="currentColor" />
-            </span>
-            <span>
-              NOVA <b>PLAYER</b>
-            </span>
-          </div>
+          <button
+            className="brand nex-home-button"
+            aria-label="NEX — ir ao início"
+            onClick={() => {
+              useMediaNavigation.getState().close();
+              navigate("home");
+            }}
+          >
+            <Brand />
+          </button>
           <GlobalSearch />
           <button
             className="icon-button"
@@ -212,8 +214,8 @@ export function Layout({ children }: { children: ReactNode }) {
           <div className="sidebar-footer">
             <Monitor size={18} />
             <div>
-              <strong>Seu espaço. Seu conteúdo.</strong>
-              <p>Windows · Fundação 0.1</p>
+              <strong>Sua biblioteca. Seu universo.</strong>
+              <p>Feito para o seu momento.</p>
             </div>
           </div>
         </aside>
@@ -221,20 +223,18 @@ export function Layout({ children }: { children: ReactNode }) {
           <div className="mode-strip">
             <span>
               <span className="status-dot" />
-              {demo
-                ? "AMBIENTE DEMONSTRATIVO"
-                : "CATÁLOGO REAL · RECURSOS NATIVOS"}
+              {demo ? "AMBIENTE DEMONSTRATIVO" : "SUA BIBLIOTECA"}
             </span>
             <span>
               {demo
                 ? "Conteúdos fictícios · Sem reprodução"
-                : "Fontes do usuário · Player Windows"}
+                : "Filmes, séries e TV ao vivo"}
             </span>
           </div>
           {error && <p role="alert">{error}</p>}
           {children}
           <footer className="content-footer">
-            NOVA PLAYER <span>Uma nova forma de explorar.</span>
+            NEX <span>Seu próximo momento.</span>
             <span>Seu conteúdo. Sua experiência.</span>
           </footer>
         </main>

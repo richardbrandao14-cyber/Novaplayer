@@ -12,7 +12,7 @@ export default function Settings() {
         <h2>Aparência</h2>
         <div className="setting-row">
           <div>
-            <h3>Tema NOVA Dark</h3>
+            <h3>Tema NEX · Obsidiana</h3>
             <p>Grafite, contraste sutil e foco no conteúdo.</p>
           </div>
           <span className="theme-swatch" aria-label="Tema escuro ativo" />
@@ -72,7 +72,7 @@ export default function Settings() {
         </p>
       </section>
       <section className="settings-section">
-        <h2>Sobre o NOVA PLAYER</h2>
+        <h2>Sobre o NEX</h2>
         <p>Versão 0.1.0 · Fundação técnica · Windows 10/11 x64</p>
         <p className="muted">
           Não fornecemos canais, filmes, séries ou assinaturas. Prévia web não

@@ -63,7 +63,7 @@ function DemoHome() {
           </p>
         </motion.div>
         <span className="hero-index">
-          NOVA ORIGINAL <span>· DEMO</span>
+          NEX · CONCEITO <span>· DEMO</span>
         </span>
       </section>
       {search && <p role="status">Resultados locais para “{search}”</p>}

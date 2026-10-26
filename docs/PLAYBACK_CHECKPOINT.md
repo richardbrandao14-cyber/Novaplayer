@@ -1,3 +1,15 @@
+# NEX · identidade e experiência visual
+
+Escopo: interface e ícone NEX, laranja com texto escuro nas ações, superfícies arredondadas, abertura local de 850 ms não bloqueante/omitida com movimento reduzido, navegação/estados de foco e banners automáticos pela orientação real das imagens. Preservados campos de mídia, cache, identifier/productName técnico/storage e comportamento nativo. Título visível da janela e assinatura HUD atualizados; nenhum renderer/HWND ou controle foi reimplementado.
+
+Sem IA externa, recomendações simuladas, lançamentos/em alta inventados ou novas dependências. Próximo episódio e personalização ficam no ROADMAP. [Contrato visual](../DESIGN_SYSTEM.md) e capturas sintéticas em screenshots/nex-*.png.
+
+Validação local: 37 testes frontend, 17 cenários Playwright, tipos/lint/build Vite e fmt Rust aprovados; último refinamento CSS reconferido no cenário visual dedicado. Revisão visual independente apontou contraste, seletores de estados, alinhamento de episódios e proporção do botão de hover; correções aplicadas e capturas refeitas. Revisão visual independente final: PASS para início, séries, TV em 1440/900, abertura e consistência da marca; não equivale à aprovação do proprietário ou reprodução Windows. Estado Windows/pacote em validação. Teste manual de DPI, ícone/janela e uso da nova interface no PC permanece pendente. Rollback visual pode remover camada nex.css/Brand/BrandEntrance e restaurar ativos anteriores, preservando a correção funcional de entrada Win32.
+
+---
+
+## Marco anterior — histórico
+
 # HUD — entrada real do Windows
 
 O proprietário confirmou que o pacote `b6a6140` continuava com HUD apenas visual. A validação anterior por `keydown`/`keyup` da API do mpv era insuficiente: não verificava se o Windows podia entregar entrada ao HWND.

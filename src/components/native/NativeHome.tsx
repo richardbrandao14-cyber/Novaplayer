@@ -1,3 +1,4 @@
+import { Brand } from "../Brand";
 import {
   useMediaNavigation,
   useLibraryRevision,
@@ -84,7 +85,8 @@ export function NativeHome() {
   if (!feature)
     return (
       <div className="cinema-welcome">
-        <p className="eyebrow">BEM-VINDO AO NOVA</p>
+        <Brand large />
+        <p className="eyebrow">BEM-VINDO AO NEX</p>
         <h1>
           Seu próximo
           <br />
@@ -117,10 +119,19 @@ export function NativeHome() {
           className="cinema-feature-art"
           priority
         />
+        {feature.hasArtwork && (
+          <div className="nex-feature-poster" aria-hidden="true">
+            <NativeArtwork
+              mediaId={feature.id}
+              hasArtwork={feature.hasArtwork}
+              priority
+            />
+          </div>
+        )}
         <div className="cinema-feature-shade" />
         <div className="cinema-feature-copy">
           <p className="eyebrow">
-            NOVA <span>•</span>{" "}
+            NEX <span>•</span>{" "}
             {feature.kind === "series"
               ? "SÉRIES"
               : feature.kind === "live"

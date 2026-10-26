@@ -92,7 +92,7 @@ export function NativeGlobalSearch() {
       >
         <Search size={22} />
         <span>
-          <strong>Buscar em todo o NOVA</strong>
+          <strong>Buscar em todo o NEX</strong>
           <small>Filmes, séries e canais</small>
         </span>
         <kbd>Ctrl K</kbd>

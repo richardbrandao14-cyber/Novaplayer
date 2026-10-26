@@ -13,13 +13,13 @@
     "windows": [
       {
         "label": "main",
-        "title": "NOVA PLAYER",
+        "title": "NEX",
         "width": 1440,
         "height": 940,
         "minWidth": 900,
         "minHeight": 650,
         "decorations": true,
-        "backgroundColor": "#101113"
+        "backgroundColor": "#0b0c0e"
       }
     ],
     "security": {

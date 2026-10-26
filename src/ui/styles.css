@@ -3,7 +3,7 @@
   --color-background: #101113;
   --color-foreground: #f3f4f6;
   --color-surface: #191b1f;
-  --color-primary: #e52335;
+  --color-primary: var(--nex-accent);
   --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
 }
 :root {
@@ -16,7 +16,7 @@
   font-weight: 400;
   --muted: #adb3bd;
   --border: #ffffff0e;
-  --accent: #f04452;
+  --accent: var(--nex-accent);
 }
 * {
   box-sizing: border-box;
@@ -146,7 +146,7 @@ select:focus {
 .brand-symbol {
   width: 29px;
   height: 29px;
-  background: #f04452;
+  background: var(--nex-accent);
   color: #101113;
   border-radius: 8px;
   display: grid;
@@ -328,7 +328,7 @@ main {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #f04452;
+  background: var(--nex-accent);
 }
 .page {
   flex: 1;
@@ -450,7 +450,7 @@ main {
   min-height: 38px;
 }
 .button-primary {
-  background: #e52335;
+  background: var(--nex-accent);
   color: #ffffff;
 }
 .button-primary:hover {
@@ -881,7 +881,7 @@ main {
   width: 36px;
   height: 28px;
   background: #101113;
-  border: 2px solid #f04452;
+  border: 2px solid var(--nex-accent);
   border-radius: 6px;
   flex-shrink: 0;
 }
@@ -925,7 +925,7 @@ main {
   top: -80px;
   left: 20px;
   padding: 12px;
-  background: #e52335;
+  background: var(--nex-accent);
   color: #101113;
   z-index: 100;
 }
@@ -1386,7 +1386,7 @@ main {
 }
 .episode-list progress {
   display: block;
-  accent-color: #f04452;
+  accent-color: var(--nex-accent);
   width: 100%;
   height: 4px;
   margin-top: 10px;
@@ -1534,7 +1534,7 @@ main {
   font-size: 10px;
 }
 .source-card > svg {
-  color: #f04452;
+  color: var(--nex-accent);
 }
 .source-card h2 {
   font-size: 18px;
@@ -1745,7 +1745,7 @@ main {
   display: block;
   width: 40%;
   height: 100%;
-  background: #f04452;
+  background: var(--nex-accent);
   border-radius: 4px;
 }
 .skeleton-layout {
@@ -2230,10 +2230,10 @@ main {
   background: #2b3443;
 }
 .episode-list progress::-webkit-progress-value {
-  background: #f04452;
+  background: var(--nex-accent);
 }
 .episode-list progress::-moz-progress-bar {
-  background: #f04452;
+  background: var(--nex-accent);
 }
 /* Em janelas menores, o menu expandido continua disponível como painel sobreposto. */
 @media (max-width: 900px) {
@@ -2315,7 +2315,7 @@ main {
 }
 .native-job progress {
   width: 100%;
-  accent-color: #f04452;
+  accent-color: var(--nex-accent);
 }
 @media (max-width: 650px) {
   .native-library-tools .local-search {
@@ -2334,10 +2334,10 @@ main {
 
 /* NOVA Crimson — solicitação visual aprovada pelo proprietário. */
 :root {
-  --nova-red: #e52335;
+  --nova-red: var(--nex-accent);
   --nova-red-hover: #c91b2d;
-  --nova-red-soft: #f04452;
-  --accent: #f76775;
+  --nova-red-soft: var(--nex-accent);
+  --accent: var(--nex-accent-soft);
 }
 body {
   background: #0c0d0f;
@@ -2551,25 +2551,25 @@ body {
 
 .native-player { margin-block: 1.25rem; padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px; background: #171316; }
 .native-player-heading, .native-player-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-block: .75rem; }
-.native-player input[type="range"] { accent-color: #e52335; width: min(100%, 30rem); }
+.native-player input[type="range"] { accent-color: var(--nex-accent); width: min(100%, 30rem); }
 .native-player label { display: flex; align-items: center; gap: .5rem; }
 /* NOVA Cinema: superfície nativa e navegação de reprodução no mesmo HWND. */
 .watch-screen { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; background: #050506; color: #f6f4f5; pointer-events: auto; }
 .watch-header { display: flex; align-items: center; gap: 20px; min-height: 76px; padding: 12px 28px; background: #080809; flex-shrink: 0; }
 .watch-header button, .watch-toolbar button { border: 0; background: none; color: inherit; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 12px; border-radius: 8px; }
 .watch-header button:hover, .watch-toolbar button:hover { background: #ffffff12; }
-.watch-header button:focus-visible, .watch-toolbar button:focus-visible { outline: 2px solid #f76775; outline-offset: -2px; }
+.watch-header button:focus-visible, .watch-toolbar button:focus-visible { outline: 2px solid var(--nex-accent-soft); outline-offset: -2px; }
 .watch-title { flex: 1; min-width: 0; }.watch-title span { color: #b8b2b6; font-size: 10px; letter-spacing: .17em; text-transform: uppercase; }.watch-title h1 { font-size: 17px; font-weight: 600; margin: 3px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .watch-body { flex: 1; min-height: 0; display: flex; }.watch-stage { position: relative; flex: 1; min-width: 0; background: #000; }.watch-native-canvas { width: 100%; height: 100%; }.watch-status { position: absolute; inset: 45% 0 auto; text-align: center; pointer-events: none; color: #ada6ac; }
 .watch-panel { width: 330px; padding: 25px; background: #111113; overflow: auto; border-left: 1px solid #ffffff12; flex-shrink: 0; }.watch-panel h2 { font-size: 20px; margin: 0 0 28px; }.watch-panel h3 { margin: 28px 0 12px; font-size: 15px; }.watch-panel label { display: grid; gap: 10px; margin-bottom: 25px; color: #aaa3aa; font-size: 13px; }.watch-panel select { width: 100%; }.watch-panel p { color: #8c858d; font-size: 12px; line-height: 1.8; }
 .watch-episode { display: flex; align-items: center; text-align: left; gap: 12px; width: 100%; border: 1px solid transparent; border-radius: 8px; padding: 16px 12px; color: #c9c4ca; background: transparent; cursor: pointer; }.watch-episode strong { flex: 1; font-size: 13px; }.watch-episode:hover, .watch-episode.selected { background: #e5233512; border-color: #e5233545; color: white; }
-.watch-toolbar { display: flex; align-items: center; gap: 13px; min-height: 62px; padding: 8px 28px; background: #080809; font-size: 12px; flex-shrink: 0; }.watch-toolbar input { accent-color: #e52335; flex: 1; min-width: 30px; }.watch-toolbar .watch-volume { flex: 0 1 90px; }.watch-toolbar button:disabled { opacity: .3; cursor: default; }.watch-toolbar [role="alert"] { flex: 1; color: #ff9da7; }
-.episode-list li { padding: 0; border: none; }.episode-play-card { display: flex; width: 100%; gap: 18px; align-items: center; padding: 19px 8px; text-align: left; border: 0; border-bottom: 1px solid #ffffff12; color: inherit; background: transparent; cursor: pointer; border-radius: 8px; }.episode-play-card:hover, .episode-play-card:focus-visible { background: #ffffff09; outline-color: #e52335; }.episode-preview { width: 120px; aspect-ratio: 16/9; flex-shrink: 0; display: grid; place-items: center; color: #e52335; background: #202023; border-radius: 6px; }.episode-copy { display: grid; flex: 1; gap: 7px; }.episode-copy strong { font-size: 15px; }.episode-copy > span { color: #99929b; font-size: 12px; line-height: 1.65; }.episode-copy small { color: #b7b0b9; }.episode-play-icon { margin-right: 14px; }.series-seasons h3 { font-size: 22px; }
+.watch-toolbar { display: flex; align-items: center; gap: 13px; min-height: 62px; padding: 8px 28px; background: #080809; font-size: 12px; flex-shrink: 0; }.watch-toolbar input { accent-color: var(--nex-accent); flex: 1; min-width: 30px; }.watch-toolbar .watch-volume { flex: 0 1 90px; }.watch-toolbar button:disabled { opacity: .3; cursor: default; }.watch-toolbar [role="alert"] { flex: 1; color: #ff9da7; }
+.episode-list li { padding: 0; border: none; }.episode-play-card { display: flex; width: 100%; gap: 18px; align-items: center; padding: 19px 8px; text-align: left; border: 0; border-bottom: 1px solid #ffffff12; color: inherit; background: transparent; cursor: pointer; border-radius: 8px; }.episode-play-card:hover, .episode-play-card:focus-visible { background: #ffffff09; outline-color: var(--nex-accent); }.episode-preview { width: 120px; aspect-ratio: 16/9; flex-shrink: 0; display: grid; place-items: center; color: var(--nex-accent); background: #202023; border-radius: 6px; }.episode-copy { display: grid; flex: 1; gap: 7px; }.episode-copy strong { font-size: 15px; }.episode-copy > span { color: #99929b; font-size: 12px; line-height: 1.65; }.episode-copy small { color: #b7b0b9; }.episode-play-icon { margin-right: 14px; }.series-seasons h3 { font-size: 22px; }
 @media(max-width: 750px) { .watch-header { gap: 5px; padding: 8px; min-height: 68px; }.watch-action { font-size: 11px; }.watch-panel { width: 260px; padding: 15px; }.watch-toolbar { padding: 8px; gap: 5px; }.episode-preview { width: 70px; }.episode-play-card { gap: 10px; }.watch-title h1 { font-size: 14px; } }
 /* Biblioteca real: arte fornecida pela fonte e hierarquia de cinema. */
 .cinema-shell { --sidebar-width: 86px; background: #080809; }.cinema-shell .sidebar { width: 86px; padding: 25px 12px; background: #080809; border-right: 0; }.cinema-shell .sidebar-label > span,.cinema-shell .sidebar-footer,.cinema-shell .nav-item > span { display: none; }.cinema-shell .nav-item { justify-content: center; padding: 17px 0; margin-block: 5px; }.cinema-shell .nav-item.active { background: #e5233515; border-radius: 12px; color: #f34653; }.cinema-shell .sidebar-label { justify-content: center; }.cinema-shell .titlebar { background: #080809f5; border-bottom: 1px solid #ffffff06; }.cinema-shell .brand { letter-spacing: .2em; }.cinema-shell .mode-strip { font-size: 10px; min-height: 28px; opacity: .6; }.cinema-shell #main-content { background: #080809; }.cinema-shell .content-footer { opacity: .55; }
-.cinema-home { overflow: hidden; padding-bottom: 40px; }.cinema-feature { position: relative; min-height: 580px; height: min(70vh, 820px); display: flex; align-items: center; isolation: isolate; background: #141316; }.cinema-feature-art { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -3; border-radius: 0; }.cinema-feature-art img { width: 100%; height: 100%; object-fit: cover; object-position: 65% 25%; }.cinema-feature-art .image-fallback { opacity: .1; }.cinema-feature-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg,#080809 0%,#080809de 21%,#08080955 57%,#0808090a 85%),linear-gradient(0deg,#080809 0%,transparent 45%,#08080920 100%); }.cinema-feature-copy { width: 64%; max-width: 780px; padding: 60px 0 100px 54px; }.cinema-feature-copy .eyebrow { color: #d5cdd2; letter-spacing: .23em; font-size: 11px; }.cinema-feature-copy .eyebrow span { color: #e52335; margin-inline: 9px; }.cinema-feature-copy h1 { font-size: clamp(36px,4.8vw,78px); font-weight: 750; letter-spacing: -.045em; line-height: 1.06; margin: 24px 0; text-wrap: balance; }.cinema-meta { display: flex; flex-wrap: wrap; gap: 9px 18px; color: #c9c1c8; font-size: 12px; }.cinema-synopsis { color: #bbb3bb; max-width: 510px; line-height: 1.8; margin: 23px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 14px; }.cinema-feature-actions { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }.cinema-feature-actions button { border: 0; display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 16px 24px; border-radius: 7px; font-weight: 650; cursor: pointer; transition: background .2s,transform .2s; }.cinema-watch { background: #f8f4f6; color: #101011; }.cinema-watch:hover { background: #e52335; color: white; transform: translateY(-2px); }.cinema-info { background: #ffffff18; color: #fff; }.cinema-info:hover { background: #ffffff26; }.cinema-feature-index { position: absolute; bottom: 84px; right: 45px; font-size: 9px; color: #8f858e; letter-spacing: .14em; }.cinema-feature-index span { display: inline-block; margin-left: 15px; color: white; border-bottom: 2px solid #e52335; padding-bottom: 7px; font-size: 13px; }
-.cinema-rows { margin-top: -48px; position: relative; z-index: 1; }.cinema-row { margin-bottom: 38px; padding-left: 54px; }.cinema-row-heading { display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 19px; }.cinema-row-heading h2 { display: flex; gap: 10px; align-items: center; font-size: 21px; font-weight: 600; letter-spacing: -.025em; margin: 0; }.cinema-row-heading button { border: none; color: #9e959d; background: none; display: inline-flex; align-items: center; gap: 8px; font-size: 11px; cursor: pointer; }.cinema-row-heading button:hover { color: white; }.cinema-rail { display: flex; gap: 16px; overflow-x: auto; padding: 5px 45px 16px 3px; scroll-snap-type: x proximity; scrollbar-width: none; scrollbar-color: #393239 transparent; }.cinema-poster { flex: 0 0 clamp(148px,14.2vw,222px); background: none; border: none; padding: 0; color: white; text-align: left; cursor: pointer; scroll-snap-align: start; min-width: 0; }.cinema-poster-image { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; border-radius: 8px; outline: 1px solid #ffffff09; transition: transform .2s,outline-color .2s; }.cinema-poster .native-artwork { width: 100%; height: 100%; }.cinema-poster .native-artwork img { height: 100%; width: 100%; object-fit: cover; }.cinema-poster:hover .cinema-poster-image,.cinema-poster:focus-visible .cinema-poster-image { transform: translateY(-4px); outline: 2px solid #ede5ec; }.cinema-poster-play { position: absolute; inset: 0; display: grid; place-items: center; background: #0004; opacity: 0; transition: opacity .2s; }.cinema-poster:hover .cinema-poster-play,.cinema-poster:focus-visible .cinema-poster-play { opacity: 1; }.cinema-poster > strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; margin-top: 12px; font-weight: 500; }.cinema-poster > small { display: block; margin-top: 6px; color: #807981; font-size: 10px; }.cinema-row-live .cinema-poster { flex-basis: 240px; }.cinema-row-live .cinema-poster-image { aspect-ratio: 16/9; }.cinema-row-live .native-artwork img { object-fit: contain; padding: 25px; background: #18171a; }.cinema-live-badge { position: absolute; top: 12px; left: 12px; font-size: 8px; letter-spacing: .1em; padding: 5px 7px; border-radius: 3px; background: #e52335; }.cinema-welcome { padding: 15vh 9%; min-height: 75vh; background: radial-gradient(ellipse at 80% 65%,#3b111833,transparent 55%); }.cinema-welcome h1 { font-size: clamp(38px,6vw,80px); line-height: 1.1; letter-spacing: -.055em; margin: 25px 0; }.cinema-welcome > p:not(.eyebrow) { color: #9b939c; margin-bottom: 32px; }.cinema-loading { color: #9b939c; padding-top: 20vh; }
+.cinema-home { overflow: hidden; padding-bottom: 40px; }.cinema-feature { position: relative; min-height: 580px; height: min(70vh, 820px); display: flex; align-items: center; isolation: isolate; background: #141316; }.cinema-feature-art { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -3; border-radius: 0; }.cinema-feature-art img { width: 100%; height: 100%; object-fit: cover; object-position: 65% 25%; }.cinema-feature-art .image-fallback { opacity: .1; }.cinema-feature-shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg,#080809 0%,#080809de 21%,#08080955 57%,#0808090a 85%),linear-gradient(0deg,#080809 0%,transparent 45%,#08080920 100%); }.cinema-feature-copy { width: 64%; max-width: 780px; padding: 60px 0 100px 54px; }.cinema-feature-copy .eyebrow { color: #d5cdd2; letter-spacing: .23em; font-size: 11px; }.cinema-feature-copy .eyebrow span { color: var(--nex-accent); margin-inline: 9px; }.cinema-feature-copy h1 { font-size: clamp(36px,4.8vw,78px); font-weight: 750; letter-spacing: -.045em; line-height: 1.06; margin: 24px 0; text-wrap: balance; }.cinema-meta { display: flex; flex-wrap: wrap; gap: 9px 18px; color: #c9c1c8; font-size: 12px; }.cinema-synopsis { color: #bbb3bb; max-width: 510px; line-height: 1.8; margin: 23px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 14px; }.cinema-feature-actions { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }.cinema-feature-actions button { border: 0; display: inline-flex; align-items: center; justify-content: center; gap: 12px; padding: 16px 24px; border-radius: 7px; font-weight: 650; cursor: pointer; transition: background .2s,transform .2s; }.cinema-watch { background: #f8f4f6; color: #101011; }.cinema-watch:hover { background: var(--nex-accent); color: white; transform: translateY(-2px); }.cinema-info { background: #ffffff18; color: #fff; }.cinema-info:hover { background: #ffffff26; }.cinema-feature-index { position: absolute; bottom: 84px; right: 45px; font-size: 9px; color: #8f858e; letter-spacing: .14em; }.cinema-feature-index span { display: inline-block; margin-left: 15px; color: white; border-bottom: 2px solid var(--nex-accent); padding-bottom: 7px; font-size: 13px; }
+.cinema-rows { margin-top: -48px; position: relative; z-index: 1; }.cinema-row { margin-bottom: 38px; padding-left: 54px; }.cinema-row-heading { display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 19px; }.cinema-row-heading h2 { display: flex; gap: 10px; align-items: center; font-size: 21px; font-weight: 600; letter-spacing: -.025em; margin: 0; }.cinema-row-heading button { border: none; color: #9e959d; background: none; display: inline-flex; align-items: center; gap: 8px; font-size: 11px; cursor: pointer; }.cinema-row-heading button:hover { color: white; }.cinema-rail { display: flex; gap: 16px; overflow-x: auto; padding: 5px 45px 16px 3px; scroll-snap-type: x proximity; scrollbar-width: none; scrollbar-color: #393239 transparent; }.cinema-poster { flex: 0 0 clamp(148px,14.2vw,222px); background: none; border: none; padding: 0; color: white; text-align: left; cursor: pointer; scroll-snap-align: start; min-width: 0; }.cinema-poster-image { position: relative; width: 100%; aspect-ratio: 2/3; overflow: hidden; border-radius: 8px; outline: 1px solid #ffffff09; transition: transform .2s,outline-color .2s; }.cinema-poster .native-artwork { width: 100%; height: 100%; }.cinema-poster .native-artwork img { height: 100%; width: 100%; object-fit: cover; }.cinema-poster:hover .cinema-poster-image,.cinema-poster:focus-visible .cinema-poster-image { transform: translateY(-4px); outline: 2px solid #ede5ec; }.cinema-poster-play { position: absolute; inset: 0; display: grid; place-items: center; background: #0004; opacity: 0; transition: opacity .2s; }.cinema-poster:hover .cinema-poster-play,.cinema-poster:focus-visible .cinema-poster-play { opacity: 1; }.cinema-poster > strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; margin-top: 12px; font-weight: 500; }.cinema-poster > small { display: block; margin-top: 6px; color: #807981; font-size: 10px; }.cinema-row-live .cinema-poster { flex-basis: 240px; }.cinema-row-live .cinema-poster-image { aspect-ratio: 16/9; }.cinema-row-live .native-artwork img { object-fit: contain; padding: 25px; background: #18171a; }.cinema-live-badge { position: absolute; top: 12px; left: 12px; font-size: 8px; letter-spacing: .1em; padding: 5px 7px; border-radius: 3px; background: var(--nex-accent); }.cinema-welcome { padding: 15vh 9%; min-height: 75vh; background: radial-gradient(ellipse at 80% 65%,#3b111833,transparent 55%); }.cinema-welcome h1 { font-size: clamp(38px,6vw,80px); line-height: 1.1; letter-spacing: -.055em; margin: 25px 0; }.cinema-welcome > p:not(.eyebrow) { color: #9b939c; margin-bottom: 32px; }.cinema-loading { color: #9b939c; padding-top: 20vh; }
 .watch-toolbar.hud-native-ready:not(:focus-within) { position: absolute; bottom: 0; height: 1px; min-height: 0; width: 100%; overflow: hidden; padding: 0; opacity: 0; pointer-events: none; }
 @media(max-width:900px) { .cinema-feature-copy { width: 86%; padding-left: 26px; }.cinema-feature { min-height: 480px; }.cinema-row { padding-left: 26px; }.cinema-row-heading { padding-right: 25px; }.cinema-feature-index { right: 25px; }.cinema-shell .sidebar { width: 64px; }.cinema-shell { --sidebar-width:64px; }.cinema-feature-copy h1 { font-size: 42px; } }
 @media(prefers-reduced-motion:reduce) { .cinema-feature-actions button,.cinema-poster-image,.cinema-poster-play { transition: none; } }
@@ -2687,16 +2687,16 @@ body {
     background 0.18s;
 }
 .browse-categories button.active {
-  background: #e52335;
+  background: var(--nex-accent);
   color: #fff;
-  border-color: #e52335;
+  border-color: var(--nex-accent);
 }
 .browse-categories button:hover {
   color: #fff;
   background: #302127;
 }
 .browse-categories button.active:hover {
-  background: #c61e2e;
+  background: #ee8138;
 }
 .browse-feature {
   position: relative;
@@ -2904,9 +2904,9 @@ body {
   cursor: pointer;
 }
 .detail-page-actions .cinema-watch {
-  background: #e52335;
+  background: var(--nex-accent);
   color: white;
-  border-color: #e52335;
+  border-color: var(--nex-accent);
   font-weight: 650;
 }
 .detail-page-actions button:hover {
@@ -2935,7 +2935,7 @@ body {
 .detail-resume progress {
   width: 160px;
   height: 3px;
-  accent-color: #e52335;
+  accent-color: var(--nex-accent);
 }
 .detail-resume small {
   font-size: 10px;
@@ -3049,7 +3049,7 @@ body {
   left: 0;
   width: 100%;
   height: 3px;
-  accent-color: #e52335;
+  accent-color: var(--nex-accent);
 }
 .series-episode-caption {
   display: flex;
@@ -3248,7 +3248,7 @@ body {
   flex: 0 0 5px;
   height: 5px;
   border-radius: 50%;
-  background: #e52335;
+  background: var(--nex-accent);
 }
 .live-browse-channels .browse-paging {
   margin: 0;
@@ -3504,7 +3504,7 @@ body {
   flex: 1;
 }
 .catalog-side-heading > svg {
-  color: #f04b5e;
+  color: var(--nex-accent-soft);
 }
 .catalog-side-heading > span {
   font-size: 10px;
@@ -3523,7 +3523,7 @@ body {
   flex-shrink: 0;
 }
 .catalog-side-search:focus-within {
-  border-color: #f04b5e;
+  border-color: var(--nex-accent-soft);
 }
 .catalog-side-search input {
   min-width: 0;
@@ -3557,7 +3557,7 @@ body {
   overflow-wrap: anywhere;
 }
 .catalog-side-list .nav-item.active > svg {
-  color: #f04b5e;
+  color: var(--nex-accent-soft);
 }
 .catalog-side-list > p,
 .catalog-side-error {
@@ -3591,7 +3591,7 @@ body {
 }
 .cinema-shell .global-search-trigger > svg {
   flex-shrink: 0;
-  color: #fa6577;
+  color: var(--nex-accent-soft);
 }
 .cinema-shell .global-search-trigger > span {
   display: flex;
@@ -3619,7 +3619,7 @@ body {
 .cinema-shell .global-search-trigger:hover,
 .cinema-shell .global-search-trigger:focus-visible {
   background: #2a252d;
-  border-color: #ed5268;
+  border-color: var(--nex-accent-soft);
   outline: 2px solid #ed526822;
   outline-offset: 2px;
 }
@@ -3707,7 +3707,7 @@ body {
   justify-content: space-between;
 }
 .watch-panel .video-compatibility input {
-  accent-color: #e52335;
+  accent-color: var(--nex-accent);
 }
 @media (max-width: 1200px) {
   .live-library-tabs {

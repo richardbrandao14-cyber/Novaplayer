@@ -404,7 +404,7 @@ export function NativePlayer({
               ? "AO VIVO"
               : item.kind === "series"
                 ? item.name
-                : "NOVA PLAYER"}
+                : "NEX"}
           </span>
           <h1>{title}</h1>
         </div>

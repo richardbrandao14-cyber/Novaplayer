@@ -102,7 +102,7 @@ jobs:
       - name: Guardar executável de teste Windows
         uses: actions/upload-artifact@v4
         with:
-          name: NOVA-PLAYER-Windows-x64-test
+          name: NEX-Windows-x64-test
           path: player-runtime/
           if-no-files-found: error
           retention-days: 7

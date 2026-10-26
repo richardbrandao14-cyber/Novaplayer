@@ -1,3 +1,4 @@
+import { BrandEntrance } from "../components/BrandEntrance";
 import { useMediaNavigation } from "../state/useMediaNavigation";
 import { NativeDetails } from "../components/native/NativeDetails";
 import { usePlaybackStore } from "../state/usePlaybackStore";
@@ -42,6 +43,7 @@ export function App() {
   return (
     <MotionConfig reducedMotion="user">
       <ErrorBoundary>
+        <BrandEntrance />
         <div inert={session !== null && !docked}>
           <Layout>
             <Suspense fallback={<LoadState status="loading" />}>
