@@ -51,6 +51,9 @@ unsafe extern "system" {
         flags: u32,
     ) -> i32;
     fn ShowWindow(window: *mut c_void, command: i32) -> i32;
+    fn EnableWindow(window: *mut c_void, enable: i32) -> i32;
+    fn IsWindowEnabled(window: *mut c_void) -> i32;
+    fn GetWindow(window: *mut c_void, command: u32) -> *mut c_void;
 }
 pub struct VideoSurface {
     handle: Mutex<Option<isize>>,
@@ -130,4 +133,23 @@ fn surface_error() -> ServiceError {
         "player_surface",
         "Não foi possível preparar o vídeo dentro da janela.",
     )
+}
+
+// mpv w32_common.c desabilita sua janela ao usar --wid. O host NOVA possui
+// somente esse filho nativo; reativá-lo permite mouse/teclado reais no OSC.
+// Poll cobre criação tardia e recriação do renderer sem expor HWND ao frontend.
+pub(crate) fn enable_embedded_input(host: isize) {
+    unsafe {
+        let video = GetWindow(host as *mut c_void, 5); // GW_CHILD
+        if !video.is_null() && IsWindowEnabled(video) == 0 {
+            EnableWindow(video, 1);
+        }
+    }
+}
+#[cfg(test)]
+pub(crate) fn embedded_input_enabled(host: isize) -> bool {
+    unsafe {
+        let video = GetWindow(host as *mut c_void, 5);
+        !video.is_null() && IsWindowEnabled(video) != 0
+    }
 }

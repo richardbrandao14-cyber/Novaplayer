@@ -299,6 +299,7 @@ impl Drop for Library {
     }
 }
 struct Engine {
+    input_host: Option<isize>,
     handle: *mut c_void,
     set_option: Set,
     set_property: Set,
@@ -365,6 +366,11 @@ impl Engine {
             return Err(error());
         }
         let mut engine = Self {
+            input_host: if headless || frame.is_some() {
+                None
+            } else {
+                target
+            },
             handle,
             set_option,
             set_property,
@@ -586,6 +592,9 @@ impl Engine {
         }
     }
     fn poll(&mut self, status: &mut PlaybackStatus) {
+        if let Some(host) = self.input_host {
+            crate::surface::enable_embedded_input(host);
+        }
         // O ponteiro de evento pertence ao mpv, válido até a próxima espera.
         for _ in 0..64 {
             let ptr = unsafe { (self.wait)(self.handle, 0.0) };
@@ -1069,6 +1078,8 @@ mod tests {
         let (resize_tx, resize_rx) = std::sync::mpsc::sync_channel(1);
         let worker = std::thread::spawn(move || {
             let mut engine = Engine::open_target(Path::new(&dll), false, Some(child)).unwrap();
+            // Reproduzir o estado original da DLL antes da correção do host.
+            engine.input_host = None;
             engine.set("aid", "no").unwrap(); // CI não tem alto-falante; áudio é coberto nos outros gates.
             let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/player-av.mp4");
             engine
@@ -1085,6 +1096,16 @@ mod tests {
                 std::thread::sleep(Duration::from_millis(20));
             }
             assert!(state.hud_ready, "Script NOVA HUD deve carregar");
+            assert!(
+                !crate::surface::embedded_input_enabled(child),
+                "DLL fixada deve reproduzir a janela embutida desabilitada"
+            );
+            engine.input_host = Some(child);
+            engine.poll(&mut state);
+            assert!(
+                crate::surface::embedded_input_enabled(child),
+                "Janela mpv embutida deve estar habilitada para mouse/teclado reais"
+            );
             assert!(state.position > 0.1, "Vídeo deve avançar no HWND filho");
             assert!(
                 engine.property("current-vo").is_some(),
@@ -1145,28 +1166,19 @@ mod tests {
                 // Completar a sequência nativa de entrada sem chamar callbacks do OSC.
                 engine.command(&["keypress", "MOUSE_ENTER"]).unwrap();
                 std::thread::sleep(Duration::from_millis(60));
-                if hit == video_hwnd || IsChild(video_hwnd, hit) != 0 {
-                    SendMessageW(video_hwnd, WM_LBUTTONDOWN, 1, point(x, y));
-                    std::thread::sleep(Duration::from_millis(60));
-                    SendMessageW(video_hwnd, WM_LBUTTONUP, 0, point(x, y));
-                } else {
-                    // Runner sem cursor no desktop da janela. Usar a API pública
-                    // de entrada, conservando seções, coordenadas e hit-testing.
-                    // Não chamar script-binding nem atribuir pause para provar clique.
-                    // OSC mantém estado próprio de entrada/saída da janela. Após
-                    // MOUSE_ENTER, emitir movimento efetivo, não coordenada repetida.
-                    engine
-                        .command(&["mouse", &(x - 1).to_string(), &y.to_string()])
-                        .unwrap();
-                    std::thread::sleep(Duration::from_millis(60));
-                    engine
-                        .command(&["mouse", &x.to_string(), &y.to_string()])
-                        .unwrap();
-                    std::thread::sleep(Duration::from_millis(60));
-                    engine.command(&["keydown", "MBTN_LEFT"]).unwrap();
-                    std::thread::sleep(Duration::from_millis(60));
-                    engine.command(&["keyup", "MBTN_LEFT"]).unwrap();
-                }
+                // Coordenadas efetivas restauram hover do OSC no desktop CI.
+                // Botões SEMPRE passam pelo procedimento Win32, sem keydown/keyup.
+                engine
+                    .command(&["mouse", &(x - 1).to_string(), &y.to_string()])
+                    .unwrap();
+                std::thread::sleep(Duration::from_millis(60));
+                engine
+                    .command(&["mouse", &x.to_string(), &y.to_string()])
+                    .unwrap();
+                std::thread::sleep(Duration::from_millis(60));
+                SendMessageW(video_hwnd, WM_LBUTTONDOWN, 1, point(x, y));
+                std::thread::sleep(Duration::from_millis(60));
+                SendMessageW(video_hwnd, WM_LBUTTONUP, 0, point(x, y));
             };
             click(&mut engine, 400, 396);
             let deadline = std::time::Instant::now() + Duration::from_secs(2);
