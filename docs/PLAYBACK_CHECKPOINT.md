@@ -1,3 +1,21 @@
+# HUD — entrada real do Windows
+
+O proprietário confirmou que o pacote `b6a6140` continuava com HUD apenas visual. A validação anterior por `keydown`/`keyup` da API do mpv era insuficiente: não verificava se o Windows podia entregar entrada ao HWND.
+
+Causa identificada no código da versão fixada do mpv (`e471496c56`, `video/out/w32_common.c`): em embedding, o motor chama `EnableWindow(w32->window, 0)`. Uma janela desabilitada não recebe entrada normal e pode ser ignorada por WindowFromPoint. Atribuir `hit_video=false` somente ao desktop do runner foi uma hipótese incompleta.
+
+Correção limitada: o worker nativo verifica o filho do host de vídeo e habilita sua entrada após criação/recriação. Não muda conteúdo, credenciais, superfície visual, dependências ou temporizador de cinco segundos. Poll cobre criação tardia sem enviar HWND ao frontend.
+
+Regressão Windows: primeiro mantém o comportamento original da DLL e exige janela desabilitada; depois aplica o caminho de produção e exige janela habilitada. Cliques de continuar/pausar usam WM_LBUTTONDOWN/WM_LBUTTONUP sempre, sem keydown/keyup injetados na API. Coordenadas/movimento da API permanecem apenas para sincronizar hover do OSC na automação; roda usa WM_MOUSEWHEEL. Estado real de pausa/volume deve mudar. Isso fortalece a prova, mas não substitui teste manual da composição Tauri/WebView2 no PC.
+
+Regressão gráfica Windows aprovada: baseline desabilitado → entrada habilitada, WM_LBUTTONDOWN/UP alterando pausa e WM_MOUSEWHEEL reduzindo volume. [Execução](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40253105812) para `3794f427389c86d9b341a99c0925096fc9fc5dca`: quatro provas libmpv, suíte Rust/DPAPI, fmt/Clippy e build Tauri Windows aprovados; núcleo e `npm run check` também aprovados. Etapa de navegação web desta execução ainda aguardava instalação do Chromium no registro; os 15 cenários da revisão anterior permanecem como evidência anterior, não como reexecução concluída.
+
+**[ZIP Windows corrigido](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40253105812/artifacts/12621333049)**, 82,6 MB, ID `12621333049`, SHA-256 `a73ca6b7e4ba25ae0e4a609e910446898a6f46325c63d9846254e4a88802dd18`. Fechar o app, extrair todos os arquivos e manter DLL/HUD ao lado do exe. Documentação posterior não muda esse binário. Confirmação manual de cliques/foco/menus na composição Tauri/WebView2 do PC continua pendente. Rollback técnico: reverter a mudança de entrada em `3794f42` restaura o comportamento anterior, incluindo a falha conhecida. O pacote abaixo é histórico e foi reportado como insuficiente para cliques reais.
+
+---
+
+## Marco anterior — histórico
+
 # TV favorita, HUD funcional e capas — revisão atual
 
 - TV: coração por canal, sem reproduzir ao favoritar; filtro Favoritos na própria TV. Estado salvo no SQLite existente e preservado ao atualizar a fonte. Consulta devolve indicadores em lote; não consulta favoritos individualmente ao carregar a lista. Filtrar/remover favorito não encerra o canal selecionado.

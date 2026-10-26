@@ -2,9 +2,15 @@
 
 Player desktop para **Windows 10/11 x64**. O usuário fornece suas fontes autorizadas; o app não oferece conteúdo ou assinatura.
 
-## TV, controles e capas — pacote atual
+## HUD — correção de entrada Windows
 
-Favoritos por canal com filtro próprio na TV, correção do mouse do HUD, controles com prazo de cinco segundos e modo de compatibilidade para experimentar em canais com áudio sem imagem. Capas agora usam carregamento paralelo limitado, cache compartilhado, derivados menores e prioridade para destaques. **[Baixar ZIP Windows atualizado](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40243312208/artifacts/12618225781) — 82,6 MB.** [Validação web/core/Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40243312208): testes, quatro provas libmpv e build Tauri aprovados. Feche o app e extraia **todo o ZIP**, incluindo DLL e `nova-hud.lua`, antes de abrir `nova-player.exe`. [Evidências e limites](docs/PLAYBACK_CHECKPOINT.md).
+A DLL mpv desabilitava sua janela embutida, bloqueando entrada normal do Windows. O app agora habilita a entrada após criação/recriação do vídeo. A nova regressão confirma o estado original desabilitado e exige cliques WM_LBUTTONDOWN/UP alterando pausa e roda alterando volume, sem injetar os botões pela API do motor. Testes nativos e build Windows aprovados.
+
+**[Baixar ZIP Windows corrigido](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40253105812/artifacts/12621333049) — 82,6 MB.** Feche o app, extraia **todo o ZIP** e abra `nova-player.exe`; mantenha DLL e HUD juntos. Ainda requer confirmação manual no PC. [Evidências e estado das verificações](docs/PLAYBACK_CHECKPOINT.md).
+
+## TV, controles e capas — marco anterior
+
+Favoritos por canal com filtro próprio na TV, correção do mouse do HUD, controles com prazo de cinco segundos e modo de compatibilidade para experimentar em canais com áudio sem imagem. Capas agora usam carregamento paralelo limitado, cache compartilhado, derivados menores e prioridade para destaques. **[ZIP anterior — HUD reportado como não interativo](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40243312208/artifacts/12618225781) — 82,6 MB.** [Validação web/core/Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40243312208): testes, quatro provas libmpv e build Tauri aprovados. Feche o app e extraia **todo o ZIP**, incluindo DLL e `nova-hud.lua`, antes de abrir `nova-player.exe`. [Evidências e limites](docs/PLAYBACK_CHECKPOINT.md).
 
 ## Tela cheia — marco anterior aprovado
 

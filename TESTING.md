@@ -1,3 +1,11 @@
+# HUD — regressão de entrada Windows
+
+Revisão `3794f427389c86d9b341a99c0925096fc9fc5dca`: quatro provas libmpv, suíte Rust/DPAPI, fmt, Clippy e build Tauri Windows aprovados na [execução](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40253105812); núcleo e `npm run check` aprovados. PoC primeiro exige janela mpv original desabilitada e depois janela habilitada pela integração; botões usam WM_LBUTTONDOWN/WM_LBUTTONUP sempre. Não usa keydown/keyup da API para substituir cliques. Roda e estado real de pausa/volume continuam obrigatórios. A automação sincroniza posição/hover, portanto ainda não equivale ao teste físico Tauri/WebView2 no PC. A navegação Chromium desta execução aguardava instalação do navegador no registro; ver checkpoint para evidência anterior e pacote corrigido.
+
+---
+
+## Marco anterior — histórico
+
 # Revisão atual — TV/HUD/capas
 
 37 testes frontend, 15 Playwright, 29 Rust headless e tipos/lint/Clippy/build web aprovados. Prova Windows ampliada: entrada por coordenadas e pressionar/soltar para continuar/pausar no OSC, roda para baixar volume, troca de compatibilidade, ocultação em cinco segundos e despertar por tecla. O host é verificado por WM_NCHITTEST/WM_MOUSEMOVE; desktop bloqueado da CI usa a API pública de entrada do mpv para os botões. Não substitui clique manual na composição Tauri/WebView2. [CI Windows/web/core](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40243312208) aprovada para `b6a6140`: quatro provas libmpv, suíte Rust/DPAPI, fmt/Clippy e build Tauri. Pacote em [checkpoint](docs/PLAYBACK_CHECKPOINT.md). Fixtures web não substituem essa prova. Benchmark controlado de imagens documentado, sem promessa de velocidade em provedor real.
