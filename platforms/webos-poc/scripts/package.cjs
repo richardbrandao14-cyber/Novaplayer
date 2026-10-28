@@ -55,6 +55,7 @@ fs.copyFileSync(
   path.join(root, "fixtures/tv-av.mp4"),
   path.join(app, "media/player-av.mp4"),
 );
+fs.copyFileSync(path.join(root,"fixtures/tv-uhd.mp4"),path.join(app,"media/player-uhd.mp4"));
 fs.cpSync(path.join(root, "fixtures/hls"), path.join(app, "media/hls"), {
   recursive: true,
 });

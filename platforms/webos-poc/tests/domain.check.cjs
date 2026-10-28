@@ -93,3 +93,32 @@ test("EPG decodifica dados fornecidos e preserva ausência de horário",()=>{
  assert.equal(rows[0].title,"Jornal da fonte");assert.equal(rows[0].start,1700000000000);assert.equal(rows[1].start,0);assert.deepEqual(D.epg({}),[]);
  const url=new URL(D.api(config,"get_short_epg","12"));assert.equal(url.searchParams.get("stream_id"),"12");
 });
+
+test("cadastro aceita http:domínio, https:domínio e variações copiadas sem trocar HTTPS",()=>{
+ for(const [input,expected] of [["✅ URL IPTV SMARTERS: http:example.com","http://example.com"],["http:example.com","http://example.com"],["http:example.com:8080","http://example.com:8080"],["https:example.com","https://example.com"],["http://example.com","http://example.com"],["https://example.com","https://example.com"],["HTTPS : / / example.com:8443/iptv/","https://example.com:8443/iptv"],["http//example.com","http://example.com"],["//example.com","http://example.com"],["\u200Bhttp:example.com\u200B","http://example.com"],["<https://example.com>","https://example.com"]])assert.equal(D.source(input,"user","pass").server,expected);
+ for(const input of ["javascript:alert(1)","javascript:alert(\"http://example.com\")","data:text/plain,http://example.com","file:///secret","ftp://example.com","http://example.com:99999","http","https"])assert.throws(()=>D.source(input,"user","pass"));
+});
+test("link completo importa acesso sem vazar nem perder parâmetros adicionais",()=>{
+ const parsed=D.source("https:example.com:8443/iptv/get.php?username=test%20user&password=a%2Bb%26c&type=m3u_plus&output=ts&token=fixture-token#list");
+ assert.equal(parsed.server,"https://example.com:8443/iptv");assert.equal(parsed.user,"test user");assert.equal(parsed.password,"a+b&c");assert.equal(parsed.liveFormat,"ts");
+ const api=new URL(D.api(parsed,"get_series_info","5"));assert.equal(api.pathname,"/iptv/player_api.php");assert.equal(api.searchParams.get("token"),"fixture-token");assert.equal(api.searchParams.get("action"),"get_series_info");assert.equal(api.searchParams.get("password"),"a+b&c");
+ const polluted=new URL(D.api({...parsed,apiQuery:[["action[]","wrong"],["username[]","wrong"],["token","kept"]]},"get_live_streams"));assert.equal(polluted.searchParams.get("action[]"),null);assert.equal(polluted.searchParams.get("username[]"),null);assert.equal(polluted.searchParams.get("token"),"kept");
+ const stream=new URL(D.stream(parsed,"movie",{stream_id:1,container_extension:"mp4"}));assert.equal(stream.searchParams.get("token"),"fixture-token");
+ assert.equal(D.source("https://from:link@example.com/player_api.php","manual","override").user,"manual");
+ assert.equal(D.source("https://example.com/live/u/p/123.ts").server,"https://example.com");assert.equal(D.source("https://example.com/live/u/p/123.ts").password,"p");
+ assert.throws(()=>D.source("https://example.com/get.php?username=a&username=b"));
+});
+test("TV sem construtor URL usa parsing pelo DOM sem relaxar protocolo",()=>{
+ const fs=require("node:fs"),vm=require("node:vm"),{JSDOM}=require("jsdom");const dom=new JSDOM("",{url:"https://fixture.invalid"});
+ const context={window:{},document:dom.window.document,URL:undefined};vm.runInNewContext(fs.readFileSync(require("node:path").join(__dirname,"../app/domain.js"),"utf8"),context);
+ const legacy=context.window.NexDomain;assert.equal(legacy.source("http:example.com:8080").server,"http://example.com:8080");assert.equal(legacy.source("https:example.com/panel/player_api.php?username=u&password=p").server,"https://example.com/panel");
+ assert.equal(legacy.httpUrl("https://example.com/movie/u/p/1.mp4").href,"https://example.com/movie/u/p/1.mp4");for(const input of ["http://", "http://example.com:bad", "file:///secret", "http://u:p@example.com"])assert.throws(()=>legacy.httpUrl(input));dom.window.close();
+});
+
+test("catálogos em envelopes e mapas de IDs são aceitos sem mascarar erros",()=>{
+ const rows=[{stream_id:1,name:"Fixture"}];for(const value of [rows,{data:rows},{streams:rows},{"1":rows[0]}])assert.deepEqual(D.records(value),rows);assert.throws(()=>D.records({user_info:{auth:0}}));assert.throws(()=>D.records({error:"denied"}));
+});
+
+test("resolução reporta dimensões reais sem chamar HD de 4K",()=>{
+ assert.equal(D.resolution(3840,2160),"4K · 3840 × 2160");assert.equal(D.resolution(1920,1080),"Full HD · 1920 × 1080");assert.equal(D.resolution(1280,720),"HD · 1280 × 720");assert.match(D.resolution(0,0),/aguardando/);assert.equal(D.resolution(7680,4320),"8K · 7680 × 4320");
+});

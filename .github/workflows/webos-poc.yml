@@ -33,7 +33,7 @@ jobs:
       - run: cp platforms/webos-poc/README.md platforms/webos-poc/dist/LEIA-ME.md
       - uses: actions/upload-artifact@v4
         with:
-          name: NEX-webOS-PoC
+          name: NEX-webOS-TV
           path: |
             platforms/webos-poc/dist/*.ipk
             platforms/webos-poc/dist/SHA256SUMS.txt

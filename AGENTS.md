@@ -2,6 +2,10 @@
 
 ## Autoridade e escopo
 
+- UHD webOS autorizado: preservar fluxo original, indicador real de dimensões e amostra sintética 3840×2160. Não confundir canvas lógico da UI com decoder/saída 4K nem mudar manifesto para 3840 sem prova LG. Detalhes em docs/WEBOS_LIBRARY_CHECKPOINT.md.
+
+- webOS 0.4.0: proprietário exigiu aceitar http:domínio, corrigir foco dos campos/catalogo vazio e seguir novas referências com navegação superior + imagem cinematográfica integrada. D.source separa endpoint/acesso/parâmetros de links Xtream; extras sensíveis só RAM/cifra no cofre. Não consultar os domínios reais fornecidos em testes. Streams carregam antes das categorias, falhas precisam ficar visíveis. Não alegar correção do provedor real sem teste.
+
 - Escopo webOS 0.3.0 autorizado pelo pedido de app funcional: persistir IDs de favoritos/progresso/preferências por lista (sem metadados ou URLs); acesso opcional somente cifrado AES-GCM por WebCrypto nativo e senha de desbloqueio não persistida. A proibição abaixo refere-se a credenciais em texto aberto; sem WebCrypto não criar fallback. EPG/áudio/legendas condicionados à fonte e APIs reais; manter diferenças entre contrato jsdom, mídia Chromium e teste LG. Critérios em docs/WEBOS_LIBRARY_CHECKPOINT.md.
 
 - Atualização autorizada webOS: após confirmar teste real de canais, proprietário pediu biblioteca de uso com UI cinematográfica, catálogo sem corte em 40, Voltar interno e entrada flexível do servidor. Implementação isolada 0.2.0; critérios e limites em docs/WEBOS_LIBRARY_CHECKPOINT.md. Não publicar loja; não confundir testes Chromium com TV física. Proteger credenciais; persistência somente nos termos do marco 0.3.0 acima.

@@ -192,3 +192,9 @@ Marco e limitações em [WEBOS_LIBRARY_CHECKPOINT.md](docs/WEBOS_LIBRARY_CHECKPO
 ## Continuidade webOS 0.3.0
 
 Favoritos/progresso/preferências agora persistem por IDs, acesso pode ser cifrado por senha e EPG/seletores de faixas/reconexão/contagem de próximo foram implementados. 16 testes de domínio, storage, cifra e contratos; lint, IPK e smoke Chromium com recarga real aprovados. O smoke usa Range HTTP válido e verifica retomada de filme/episódio. Faixas de áudio em jsdom são contrato simulado; TextTrack e decodificação MP4 são reais no Chromium; suporte físico/cofre/legendas/áudio LG ainda não certificados. Instruções atuais em platforms/webos-poc/README.md, substituindo os limites históricos da PoC.
+
+## webOS 0.4.0
+
+Regressões adicionais: http:domínio/HTTPS/links completos, parâmetros codificados e cifrados, parser DOM sem URL, envelopes de catálogo, setas passando por usuário/senha, erro de streams com retry e falha de categorias sem esconder conteúdo. Novo visual baseado nas referências: menu superior, hero integrado e capas; validar em 1280/1920. Provedor real ainda sem reprodução autenticada no ambiente cloud.
+
+UHD no marco 0.4.0: 21 testes unitários/contratos, mais smoke com mídia própria 3840×2160, tempo avançando, dimensões e quadros apresentados. Indicador não promete 4K a fontes HD. Saída física LG e compatibilidade dos codecs reais permanecem gates manuais; UI lógica 1920 preservada.

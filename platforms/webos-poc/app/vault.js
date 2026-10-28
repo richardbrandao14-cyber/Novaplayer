@@ -14,7 +14,7 @@
         if(!available())return error("Esta TV não disponibiliza o cofre criptografado. O acesso não será gravado.");
         if(typeof pass!=="string" || pass.length<8)return error("Use pelo menos oito caracteres na senha de desbloqueio.");
         var salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
-        return key(pass,salt).then(function(k){return crypto.subtle.encrypt({name:"AES-GCM",iv:iv,additionalData:context},k,encode(JSON.stringify({server:config.server,user:config.user,password:config.password})));}).then(function(cipher){if(current&&!current())return error("Operação de acesso cancelada.");storage.setItem(slot,JSON.stringify({v:1,salt:Array.prototype.slice.call(salt),iv:Array.prototype.slice.call(iv),cipher:Array.prototype.slice.call(new Uint8Array(cipher))}));},function(){return error("Não foi possível proteger o acesso. Nenhuma senha foi gravada em texto aberto.");});
+        return key(pass,salt).then(function(k){return crypto.subtle.encrypt({name:"AES-GCM",iv:iv,additionalData:context},k,encode(JSON.stringify({server:config.server,user:config.user,password:config.password,apiQuery:config.apiQuery})));}).then(function(cipher){if(current&&!current())return error("Operação de acesso cancelada.");storage.setItem(slot,JSON.stringify({v:1,salt:Array.prototype.slice.call(salt),iv:Array.prototype.slice.call(iv),cipher:Array.prototype.slice.call(new Uint8Array(cipher))}));},function(){return error("Não foi possível proteger o acesso. Nenhuma senha foi gravada em texto aberto.");});
       },
       open:function(pass){
         if(!available())return error("O cofre criptografado não está disponível nesta TV.");

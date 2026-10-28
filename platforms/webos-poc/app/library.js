@@ -3,7 +3,7 @@
   "use strict";
   window.NexLibrary = function (hooks) {
     var D = window.NexDomain, state = null, stack = [], favorites = {}, filterGeneration = 0, filterTimer, queryTimer;
-    var catalogCache = {};
+    var catalogCache = {}, featureTimer,featureCache={};
     var detail = null, detailGeneration = 0, season = "", episodePage = 0, pageSize = 48;
     function el(id) { return document.getElementById(id); }
     function text(id, value) { el(id).textContent = value || ""; }
@@ -21,8 +21,9 @@
       img.src = url; parent.appendChild(img);
     }
     function art(item) { return item.stream_icon || item.cover || item.movie_image || ""; }
-    function cancel() { hooks.cancel(); filterGeneration++; detailGeneration++; clearTimeout(filterTimer); clearTimeout(queryTimer); }
-    function message(value) { text("lib-status", value); }
+    function cancel() { hooks.cancel(); filterGeneration++; detailGeneration++; clearTimeout(filterTimer); clearTimeout(queryTimer);clearTimeout(featureTimer); }
+    function message(value) { text("lib-status", value);el("catalog-retry").hidden=true; }
+    function failed(value){if(state)state.error=value;message(value);el("catalog-retry").hidden=!state||!!detail||!!state.settings;}
     function remember() {
       if (!state) return;
       state.scroll = el("library").scrollTop; state.focus = document.activeElement;
@@ -42,12 +43,15 @@
       el("library").className = state.kind === "live" ? "live-library" : "";
       text("catalog-title", state.continuing ? "Continuar assistindo" : state.favorites ? "Seus favoritos" : state.home ? "Explore seus filmes" : label(state.kind));
       text("section-label", state.continuing ? "DE ONDE VOCÊ PAROU" : state.favorites ? "SUA SELEÇÃO" : "DA SUA LISTA");
+      categoriesSelect(); highlight(); render();
+    }
+    function categoriesSelect(){
       var select = el("lib-category"); select.textContent = "";
       var all = document.createElement("option"); all.value = ""; all.textContent = state.favorites || state.continuing ? "Todos os tipos" : "Todas as categorias"; select.appendChild(all);
       state.categories.forEach(function (category) {
         var option = document.createElement("option"); option.value = String(category.category_id); option.textContent = category.category_name || "Categoria sem nome"; select.appendChild(option);
       });
-      select.value = state.category; highlight(); render();
+      select.value = state.category;
     }
     function render() {
       var items = state.filtered, total = items.length, pages = Math.max(1, Math.ceil(total / pageSize));
@@ -62,16 +66,24 @@
         if(saved&&saved.position>0&&saved.duration>0){var bar=document.createElement("span");bar.className="saved-progress";var fill=document.createElement("progress");fill.max=saved.duration;fill.value=saved.position;bar.appendChild(fill);picture.appendChild(bar);}
         title.textContent = name(item); subtitle.textContent = kind === "live" ? "AO VIVO" : item.year || (kind === "series" ? "Série" : "Filme");
         button.appendChild(picture); button.appendChild(title); button.appendChild(subtitle);
+        button.addEventListener("focus",function(){clearTimeout(featureTimer);var captured=state;featureTimer=setTimeout(function(){if(captured===state&&!detail&&!state.query&&!state.favorites&&!state.continuing&&kind!=="live")feature(item);},180);});
         button.addEventListener("click", function () { open(item, kind); if (kind === "live") { var old = list.querySelector(".selected-channel"); if (old) old.classList.remove("selected-channel"); button.classList.add("selected-channel"); } }); list.appendChild(button);
       });
       text("page-count", total ? (state.page * pageSize + 1) + "–" + Math.min(total, (state.page + 1) * pageSize) + " de " + total : "Nenhum conteúdo encontrado");
       el("page-prev").disabled = state.page === 0; el("page-next").disabled = state.page + 1 >= pages;
       var first = items[state.page * pageSize]; el("feature").hidden = !first || state.kind === "live" || !!state.query || !!state.favorites || !!state.continuing;
-      if (first) {
-        text("feature-title", name(first)); text("feature-label", state.home ? "SUA PRÓXIMA ESCOLHA" : "DA SUA LISTA");
-        text("feature-description", first.plot || first.year || "Descubra os detalhes e escolha o que assistir."); image(el("feature-art"), art(first));
-      }
+      if(first)feature(first);
     }
+    function feature(item,info){
+      var featureKey=(item._nexKind||state.kind)+":"+id(item,item._nexKind||state.kind);
+      if(info){featureCache[featureKey]=info;var cachedKeys=Object.keys(featureCache);if(cachedKeys.length>16)delete featureCache[cachedKeys[0]];}
+      state.featureItem=item;info=info||featureCache[featureKey]||{};
+      text("feature-title",name(item));text("feature-label",state.home?"SEU UNIVERSO, NO SEU RITMO":"DA SUA LISTA");
+      text("feature-description",info.plot||info.description||item.plot||item.year||"Explore os detalhes e encontre sua próxima história.");
+      var backdrop=info.backdrop_path||item.backdrop_path;
+      image(el("feature-art"),Array.isArray(backdrop)&&backdrop[0]?backdrop[0]:art(item));
+    }
+
     function filter(restore) {
       var generation = ++filterGeneration, current = state, index = 0, result = [], query = state.query.toLowerCase();
       clearTimeout(filterTimer); message("Buscando no catálogo…");
@@ -83,7 +95,7 @@
           if ((!current.category || String(item.category_id) === current.category || ((current.favorites || current.continuing) && item._nexKind === current.category)) && (!query || name(item).toLowerCase().indexOf(query) !== -1)) result.push(item);
         }
         if (index < current.items.length) filterTimer = setTimeout(chunk, 0);
-        else { current.filtered = result; if (!restore) current.page = 0; render(); message(result.length ? result.length + " conteúdos · Use as setas e OK para escolher." : "Nenhum conteúdo encontrado. Tente outra busca ou categoria."); }
+        else { current.filtered = result; if (!restore) current.page = 0; render(); message(result.length ? result.length + " conteúdos · Use as setas e OK para escolher." : "Nenhum conteúdo encontrado. Tente outra busca ou categoria.");if(!current.items.length&&!current.favorites&&!current.continuing){failed("A fonte respondeu com zero registros nesta seção. Você pode tentar carregar novamente.");} }
       }
       chunk();
     }
@@ -96,18 +108,27 @@
         state.categories = [{category_id:"live",category_name:"TV ao vivo"},{category_id:"movie",category_name:"Filmes"},{category_id:"series",category_name:"Séries"}];
         loadCollection(); return;
       }
-      if (catalogCache[kind]) { state.items = catalogCache[kind].items; state.categories = catalogCache[kind].categories; browse(); filter(false); focus(el(home ? "lib-home" : kind === "live" ? "load-live" : kind === "series" ? "load-series" : "load-movies")); return; }
-      message("Carregando " + label(kind).toLowerCase() + "…");
-      var captured = state, action = kind === "live" ? "get_live_streams" : kind === "series" ? "get_series" : "get_vod_streams";
-      function catalog() {
-        hooks.request(D.api(hooks.config(), action), function (value) {
-          if (captured !== state) return;
-          state.items = D.records(value); catalogCache[kind] = {items:state.items,categories:state.categories}; browse(); filter(false);
-        });
+      var captured=state;
+      function featureMetadata(){
+        var item=state.items[0];if(kind!=="movie"||!item||captured!==state)return;
+        hooks.request(D.api(hooks.config(),"get_vod_info",id(item,kind)),function(value){if(captured===state&&!detail&&!state.query&&state.featureItem===item)feature(item,value&&value.info);},function(){});
       }
-      hooks.request(D.api(hooks.config(), kind === "live" ? "get_live_categories" : kind === "series" ? "get_series_categories" : "get_vod_categories"), function (value) {
-        if (captured !== state) return; captured.categories = Array.isArray(value) ? value.filter(function (x) { return x && x.category_id !== undefined; }) : []; catalog();
-      }, function () { if (captured === state) catalog(); });
+      function categories(){
+        hooks.request(D.api(hooks.config(),kind==="live"?"get_live_categories":kind==="series"?"get_series_categories":"get_vod_categories"),function(value){
+          if(captured!==state)return;
+          var groups;try{groups=D.records(value);}catch(error){groups=[];}
+          state.categories=groups.filter(function(x){return x.category_id!==undefined;});catalogCache[kind].categories=state.categories;catalogCache[kind].categoriesLoaded=true;categoriesSelect();featureMetadata();
+        },function(){if(captured===state){if(state.items.length)message(state.items.length+" conteúdos carregados. As categorias não puderam ser consultadas; você pode usar a busca.");else failed("A fonte respondeu com zero registros nesta seção. Você pode tentar carregar novamente.");}if(captured===state)featureMetadata();});
+      }
+      if(catalogCache[kind]){
+        state.items=catalogCache[kind].items;state.categories=catalogCache[kind].categories;browse();filter(false);if(!catalogCache[kind].categoriesLoaded)categories();
+        focus(el(home?"lib-home":kind==="live"?"load-live":kind==="series"?"load-series":"load-movies"));return;
+      }
+      message("Carregando "+label(kind).toLowerCase()+"…");
+      hooks.request(D.api(hooks.config(),kind==="live"?"get_live_streams":kind==="series"?"get_series":"get_vod_streams"),function(value){
+        if(captured!==state)return;
+        state.items=D.records(value);catalogCache[kind]={items:state.items,categories:[],categoriesLoaded:false};browse();filter(false);categories();
+      });
       focus(el(kind === "live" ? "load-live" : kind === "series" ? "load-series" : home ? "lib-home" : "load-movies"));
     }
     function collection() {
@@ -221,11 +242,12 @@
         var previous = stack.pop(); state = previous.state; detail = previous.detail; season = previous.season; episodePage = previous.episodePage;
         el("home").hidden = true; el("library").hidden = false;
         if(state.settings)settingsView();else if (detail) detailView(); else { if (state.favorites || state.continuing) state.items = collection(); browse(); if (state.favorites || state.continuing) filter(true); }
-        message("Use as setas e OK para escolher."); el("library").scrollTop = state.scroll || 0;
+        if(state.error)failed(state.error);else message("Use as setas e OK para escolher."); el("library").scrollTop = state.scroll || 0;
         focus(state.focus && document.documentElement.contains(state.focus) ? state.focus : el("lib-back"));
       } else if (state && !state.home) enter("movie", true, false);
       else { message("Você está no início. Acesse Minha fonte para trocar ou desconectar sua lista."); focus(el("lib-home")); }
     }
+    el("catalog-retry").addEventListener("click",function(){if(state){var previous=state;state=null;if(previous.favorites||previous.continuing)catalogCache={};else delete catalogCache[previous.kind];enter(previous.kind,previous.home,previous.favorites,previous.continuing);}});
     el("load-live").addEventListener("click", function () { enter("live"); });
     el("load-movies").addEventListener("click", function () { enter("movie"); });
     el("load-series").addEventListener("click", function () { enter("series"); });
@@ -243,7 +265,7 @@
     el("lib-category").addEventListener("change", function () { state.category = this.value; filter(false); });
     el("lib-search").addEventListener("input", function () { state.query = this.value.trim(); clearTimeout(queryTimer); queryTimer = setTimeout(function () { filter(false); }, 180); });
     ["page-prev","page-next"].forEach(function (button) { el(button).addEventListener("click", function () { state.page += button === "page-prev" ? -1 : 1; render(); focus(el("catalog-list").querySelector("button")); }); });
-    el("feature-open").addEventListener("click", function () { var item = state.filtered[state.page * pageSize]; if (item) open(item, item._nexKind || state.kind); });
+    el("feature-open").addEventListener("click", function () { var item = state.featureItem || state.filtered[state.page * pageSize]; if (item) open(item, item._nexKind || state.kind); });
     el("detail-play").addEventListener("click", function () { if (!detail) return; var item = detail.kind === "series" ? (detail.episodes[season] || [])[detail.resumeIndex !== undefined ? detail.resumeIndex : episodePage * 24] : detail.playItem; if (item) start(item, detail.kind, name(item)); });
     function toggleFavorite(item, kind) {
       var k = key(item, kind);
@@ -254,8 +276,8 @@
     el("detail-favorite").addEventListener("click", function () { if (detail) toggleFavorite(detail.item, detail.kind); });
     el("season-select").addEventListener("change", function () { season = this.value; episodePage = 0; if(detail){detail.resumeEpisode="";delete detail.resumeIndex;} renderEpisodes(); });
     ["episode-prev","episode-next"].forEach(function (button) { el(button).addEventListener("click", function () { episodePage += button === "episode-prev" ? -1 : 1; renderEpisodes(); focus(el("episode-list").querySelector("button")); }); });
-    return {connect:function(){favorites=hooks.shelf.favorites();},enter:function () { stack = []; enter("movie", true); stack = []; }, back:back, message:message, cancel:cancel,
-      clear:function () { cancel(); state = null; detail = null; stack = []; favorites = {}; catalogCache = {}; el("library").hidden = true; el("home").hidden = false; el("catalog-list").textContent = ""; el("episode-list").textContent = ""; },
+    return {connect:function(){favorites=hooks.shelf.favorites();},enter:function () { stack = []; enter("movie", true); stack = []; }, back:back, message:message, failed:failed, cancel:cancel,
+      clear:function () { cancel(); state = null; detail = null; stack = []; favorites = {}; catalogCache = {};featureCache={}; el("library").hidden = true; el("home").hidden = false; el("catalog-list").textContent = ""; el("episode-list").textContent = ""; },
       sourceBack:function () { if (!state) return false; el("home").hidden = true; el("library").hidden = false; if(state.settings)settingsView();else if (detail) detailView(); else browse(); focus(el("lib-source")); return true; }};
   };
 }());

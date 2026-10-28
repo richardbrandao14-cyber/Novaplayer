@@ -15,7 +15,7 @@
   function cancel() { requestGeneration++; if (activeRequest) activeRequest.abort(); activeRequest = null; }
   function request(url, callback, failure) {
     cancel(); var generation = requestGeneration, xhr = new XMLHttpRequest(), ended = false; activeRequest = xhr;
-    function fail(message) { if (generation !== requestGeneration || ended) return; ended = true; activeRequest = null; if (failure) failure(message); else status(message); }
+    function fail(message) { if (generation !== requestGeneration || ended) return; ended = true; activeRequest = null; if (failure) failure(message); else {status(message);if(library)library.failed(message);} }
     try { xhr.open("GET", url, true); xhr.timeout = 30000; }
     catch (error) { fail("Não foi possível iniciar a consulta. Confira o endereço do servidor."); return; }
     xhr.onprogress = function (event) { if (event.loaded > 32 * 1024 * 1024) { fail("Resposta acima do limite de memória de 32 MB. Consulte o provedor para dividir o catálogo."); xhr.abort(); } };
@@ -28,7 +28,7 @@
       var parsed;
       try { parsed = JSON.parse(xhr.responseText); } catch (error) { fail("A fonte não retornou dados válidos para esta operação."); return; }
       ended = true; activeRequest = null;
-      try { callback(parsed); } catch (error) { status("Não foi possível usar os dados desta resposta. Tente outra seção."); }
+      try { callback(parsed); } catch (error) { library.failed(error.code==="CATALOG_FORMAT"?error.message:"Não foi possível usar os dados desta resposta. Tente atualizar o catálogo."); }
     };
     try { xhr.send(null); } catch (error) { fail("A TV bloqueou a consulta. Confira endereço e permissões do servidor."); }
   }
@@ -70,6 +70,7 @@
     el("expand-player").hidden = !preview; el("playing-title").textContent = title; playerStatus(pendingResume ? "Retomando de " + clock(pendingResume) + "…" : "Preparando reprodução…");
     el("confirm-av").disabled = true; el("confirm-av").hidden = kind !== "local" && !el("home").hidden ? false : !el("library").hidden;
     el("player-favorite").hidden = true; el("next-episode").hidden = true;
+    el("video-quality").textContent="Resolução aguardando…";
     el("timeline").disabled = true; el("time").textContent = "0:00";
     playback.start({url:url,kind:kind,epgUrl:epgUrl||""});
     video.src = url; video.load();
@@ -90,13 +91,13 @@
     request(D.api(next),function(value){
       var info=value&&value.user_info;
       if(!info||!(info.auth===true||String(info.auth)==="1")||(info.status&&String(info.status).toLowerCase()!=="active")){status("A fonte não confirmou uma conta ativa. Confira os dados.");return;}
-      function ready(){if(generation!==authGeneration)return;config=next;shelf.connect(next);if(fromVault)el("live-format").value=shelf.format();else shelf.format(el("live-format").value);library.connect();el("password").value="";el("vault-create").value="";status("Fonte conectada.");library.enter();}
+      function ready(){if(generation!==authGeneration)return;config=next;el("server").value=next.server;el("username").value=next.user;shelf.connect(next);if(fromVault)el("live-format").value=shelf.format();else shelf.format(el("live-format").value);library.connect();el("password").value="";el("vault-create").value="";status("Fonte conectada.");library.enter();}
       if(remember){status("Protegendo seu acesso…");vault.save(next,pass,function(){return generation===authGeneration;}).then(function(){el("vault-login").hidden=false;ready();},function(error){if(generation===authGeneration){el("vault-capability").textContent=error.message;ready();}});}else ready();
     });
   }
   el("source-form").addEventListener("submit",function(event){
     event.preventDefault();var next,remember=el("remember-access").checked,pass=el("vault-create").value;
-    try{if(!el("server").value.trim())throw new Error("Informe o servidor da sua lista.");next={server:D.base(el("server").value.trim()),user:el("username").value.trim(),password:el("password").value};if(!next.user||!next.password)throw new Error("Informe usuário e senha.");if(remember&&(!vault.available()||pass.length<8))throw new Error("Para lembrar o acesso, crie uma senha de desbloqueio com pelo menos oito caracteres.");}catch(error){status(error.message);return;}
+    try{if(!el("server").value.trim())throw new Error("Informe o servidor da sua lista.");next=D.source(el("server").value,el("username").value.trim(),el("password").value);if(config&&next.server===config.server&&next.user===config.user&&!next.apiQuery&&config.apiQuery)next.apiQuery=config.apiQuery;if(next.liveFormat)el("live-format").value=next.liveFormat;if(!next.user||!next.password){focus(el(!next.user?"username":"password"));throw new Error("Informe usuário e senha.");}if(remember&&(!vault.available()||pass.length<8))throw new Error("Para lembrar o acesso, crie uma senha de desbloqueio com pelo menos oito caracteres.");}catch(error){status(error.message);return;}
     connect(next,remember,pass);
   });
   el("vault-form").addEventListener("submit",function(event){event.preventDefault();var generation=++authGeneration,pass=el("vault-password").value;el("vault-password").value="";status("Desbloqueando acesso…");vault.open(pass).then(function(next){if(generation!==authGeneration)return;try{next.server=D.base(next.server);if(!next.user||!next.password)throw new Error();connect(next,false,"",true);}catch(error){status("Acesso salvo inválido. Cadastre a lista novamente.");}},function(error){if(generation===authGeneration)status(error.message);});});
@@ -108,6 +109,7 @@
   el("clear-source").addEventListener("click", clearSource);
   el("direct-form").addEventListener("submit", function (event) { event.preventDefault(); try { var url = D.httpUrl(el("direct-url").value.trim()).href; el("direct-url").value = ""; play(url, "Conteúdo da sua fonte", el("direct-kind").value); } catch (error) { status(error.message); } });
   el("local-test").addEventListener("click", function () { play(localMedia("media/player-av.mp4"), "Teste local · Imagem sintética e áudio", "local"); });
+  el("local-uhd").addEventListener("click",function(){play(localMedia("media/player-uhd.mp4"),"Teste 4K · 3840 × 2160 · Imagem sintética e áudio","local");});
   el("local-hls").addEventListener("click", function () { play(localMedia("media/hls/index.m3u8"), "Teste HLS local", "local"); });
   el("toggle-tools").addEventListener("click", function () { var open = el("test-tools").hidden; el("test-tools").hidden = !open; this.setAttribute("aria-expanded", String(open)); this.textContent = open ? "Fechar ferramentas de teste" : "Abrir ferramentas de teste"; });
   el("source-focus").addEventListener("click", function () { el("new-source").hidden=false;el("vault-login").hidden=true;focus(el("server")); });
@@ -121,6 +123,8 @@
   el("timeline").addEventListener("change", function () { if (isFinite(video.duration) && video.duration > 0) { try { video.currentTime = Number(this.value) * video.duration / 1000; } catch (error) { playerStatus("Esta fonte não permite buscar essa posição."); } } hud(); });
   el("play-speed").addEventListener("change", function () { try { video.playbackRate = Number(this.value); } catch (error) { playerStatus("Velocidade não suportada nesta fonte."); } hud(); });
   el("confirm-av").addEventListener("click", function () { if (currentKind !== "local") confirmed[currentKind] = true; el("checks").textContent = "TV: " + (confirmed.live ? "OK" : "pendente") + " · Filme: " + (confirmed.movie ? "OK" : "pendente") + " · Episódio: " + (confirmed.series ? "OK" : "pendente"); stop(); status("Confirmação manual registrada nesta sessão."); });
+  function quality(){var label=D.resolution(video.videoWidth,video.videoHeight);if(el("video-quality").textContent!==label)el("video-quality").textContent=label;}
+  video.addEventListener("resize",quality);video.addEventListener("loadedmetadata",quality);video.addEventListener("playing",quality);video.addEventListener("timeupdate",quality);
   video.addEventListener("playing", function () { clearTimeout(playbackDeadline); el("confirm-av").disabled = currentKind === "local" || video.videoWidth === 0; playerStatus(currentKind === "live" ? "AO VIVO" : "Reproduzindo"); });
   video.addEventListener("waiting", function () { playerStatus("Carregando transmissão…"); hud(); });
   video.addEventListener("error", function () { clearTimeout(playbackDeadline); if(playback.error(video.error&&video.error.code))return; playerStatus(D.mediaError(video.error && video.error.code)); hud(); });
@@ -141,6 +145,10 @@
     if (code === 13 && active && active.tagName === "BUTTON" && !active.disabled) { event.preventDefault(); if (!event.repeat) active.click(); return; }
     if (!player.hidden && (code === 415 || code === 19 || code === 10252)) { event.preventDefault(); if (code === 10252 || code === 415 && video.paused || code === 19 && !video.paused) toggle(); return; }
     if (code < 37 || code > 40) return;
+    if(code===38||code===40){
+      var form=active;while(form&&form.tagName!=="FORM")form=form.parentElement;
+      if(form){var ordered=form.querySelectorAll("[data-nav]"),fields=[];for(var fieldIndex=0;fieldIndex<ordered.length;fieldIndex++)if(visible(ordered[fieldIndex]))fields.push(ordered[fieldIndex]);var current=fields.indexOf(active),nextField=fields[current+(code===40?1:-1)];if(current!==-1&&nextField){event.preventDefault();focus(nextField);return;}}
+    }
     if ((code === 37 || code === 39) && active.tagName === "INPUT") return;
     if ((code === 37 || code === 39) && active.tagName === "SELECT") { event.preventDefault(); active.selectedIndex = Math.max(0, Math.min(active.options.length - 1, active.selectedIndex + (code === 39 ? 1 : -1))); var change = document.createEvent("HTMLEvents"); change.initEvent("change", true, false); active.dispatchEvent(change); return; }
     var scope = !player.hidden && !preview ? player : !el("library").hidden ? el("library") : el("home");
@@ -155,5 +163,5 @@
   function connectionLabel(){var badge=document.querySelector(".session-badge");badge.textContent=navigator.onLine===false?"Sem conexão":"Sua biblioteca";badge.className=navigator.onLine===false?"session-badge offline":"session-badge";}
   window.addEventListener("online",connectionLabel);window.addEventListener("offline",connectionLabel);connectionLabel();
   window.nexReady = true; var styled = parseInt(window.getComputedStyle(document.querySelector(".brand")).fontSize, 10) >= 30;
-  el("initialization-status").textContent = "Versão 0.3.0 · JavaScript OK · " + (styled ? "Estilo OK" : "Estilo não carregado"); focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
+  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.0":"Versão 0.4.0 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
 }());
