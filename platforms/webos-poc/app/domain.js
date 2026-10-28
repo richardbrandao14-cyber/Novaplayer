@@ -29,6 +29,20 @@
     if(u.username || u.password || authority&&authority[1].indexOf("@")!==-1)throw new Error("Use os campos de usuário e senha para informar seu acesso.");
     return u;
   }
+  function imageUrl(value,server) {
+    if(typeof value!=="string"||value.length>4096)return "";
+    value=value.trim();if(!value)return "";
+    try{
+      if(/^https?:\/\//i.test(value))return httpUrl(value).href;
+      for(var i=0;i<value.length;i++){var code=value.charCodeAt(i);if(code<32||code===127||code===92)return "";}
+      if(/^[a-z][a-z0-9+.-]*:/i.test(value))return "";
+      var origin=httpUrl(base(server));
+      if(value.indexOf("//")===0)value=origin.protocol+value;
+      else if(value.charAt(0)==="/")value=origin.protocol+"//"+origin.host+value;
+      else value=base(server)+"/"+value;
+      return httpUrl(value).href;
+    }catch(error){return "";}
+  }
   function rootOf(u) { return (u.protocol+"//"+u.host+u.pathname.replace(/\/(?:player_api|panel_api|get|xmltv)\.php\/?$/i,"")).replace(/\/+$/,""); }
   function base(value) {
     var u=httpUrl(normalize(value));
@@ -125,7 +139,7 @@
   function mediaError(code) {
     return ({1:"Reprodução interrompida.",2:"Falha de rede durante a reprodução.",3:"A TV não conseguiu decodificar este conteúdo.",4:"Formato, codec ou endereço não aceito pelo player."})[code] || "Não foi possível reproduzir. Confira a fonte e a compatibilidade do aparelho.";
   }
-  var exported = {source:source,httpUrl:httpUrl,base:base,api:api,stream:stream,records:records,episodes:episodes,epg:epg,resolution:resolution,mediaError:mediaError};
+  var exported = {imageUrl:imageUrl,source:source,httpUrl:httpUrl,base:base,api:api,stream:stream,records:records,episodes:episodes,epg:epg,resolution:resolution,mediaError:mediaError};
   if (typeof window !== "undefined") window.NexDomain = exported;
   else if (typeof module !== "undefined" && module.exports) module.exports = exported;
   else root.NexDomain = exported;

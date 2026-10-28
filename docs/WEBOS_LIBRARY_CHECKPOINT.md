@@ -48,3 +48,23 @@ Interface permanece no canvas lógico 1920×1080 conhecido; não trocar appinfo 
 ## 0.4.1 — compatibilidade visual e metadados opcionais
 
 Foto real do usuário mostra catálogo comprimido à esquerda. CSS usava inset (não suportado por navegadores antigos), fundos hex com alpha e clamp. Substituídos por posicionamento explícito, rgba e tamanhos responsivos tradicionais. Hipótese compatível com foto; confirmação visual LG ainda necessária. Token TMDB fornecido pelo usuário não foi persistido nem incorporado. Integração configurável por sessão, ID prioritário/pesquisa conservadora, falha independente do IPTV. Sem acesso real TMDB no ambiente: rede configurada não inclui api.themoviedb.org. Testes contratuais não comprovam acesso físico.
+
+## 0.4.2 — controle remoto, menu lateral e prévia
+
+Pedido do proprietário: menu principal/subcategorias no mesmo painel, botões legíveis, imagem na prévia, canais por ↑/↓ em fullscreen, busca central e movimento suave. Implementado conforme descrição em platforms/webos-poc/README.md. Origem exata da prévia sem imagem na LG não reproduzida neste ambiente: HUD antes muito alto e clipping/composição são hipóteses; agora HUD compacto, plano sem recorte e tamanho explícito sincronizado. Não alegar teste físico com base em vídeo Chromium. Não alterar resolução lógica/URLs/codec para mascarar falhas. Setas de troca usam a coleção filtrada em memória, fecham sessão anterior antes de abrir outra e só atuam em TV fullscreen fora de diálogos. Movimento reduzido coberto; nenhum pacote de animação adicionado.
+
+### Revisão posterior, ainda não enviada
+
+Proprietário pediu busca no menu lateral (substitui posição central), rolagem suave sem fuga das setas para botões e elevação inequívoca da capa focada. Módulo navigation.js ES5 cuida de foco/scroll com animação de 200 ms e cancelamento; não depende de scroll-behavior/preventScroll nativos. Grade passa linhas/páginas na mesma coluna; episódios também. Na borda final mantém foco; esquerda dá acesso ao menu. Testes de navegador exercitam linhas, páginas e limites, além de preferências de movimento. Aguardando apresentação/revisão visual antes de publicar outro pacote.
+
+### Revisão seguinte — banner, busca dedicada e Minha lista
+
+Autorizado: foco atualiza banner com ações, busca abre tela dinâmica, retirar moldura/sublinhado do cartão e manter movimento curto. Minha lista adiciona mapa opcional de IDs validado/limitado a 4.000, mantendo schema público v1 compatível e separado de favoritos. Teste de persistência e isolamento entre contas acrescentado. Busca devolve snapshot do filtro/página e cancela processamento pendente para não substituir a grade depois que o usuário voltou. Testes reais de setas incluem banner correto em navegação rápida e seleção de ações. Design ainda aguarda revisão antes de envio à TV.
+
+### Revisão do player solicitada pelo proprietário
+
+Defeito: handler global retornava para INPUT nas setas laterais; range consumia navegação, sem acesso a outros controles. Correção: navegação explícita do player antecede o handler genérico; range só usa setas para seek no modo ativado por OK, com saídas por ↓/OK/Voltar. Toolbar separada do progresso e ajustes em painel lateral com foco próprio. HUD não some durante ajuste/painel; para no encerramento, e ao terminar mídia remove estados de edição antes do próximo episódio. Testar controle físico LG no marco manual; screenshots Chromium com mídia sintética servem à revisão do design.
+
+## Entrega autorizada pelo proprietário
+
+Pedido “Ok me traga o app para instalar” autoriza envio do conjunto webOS 0.4.2 revisado e geração do ZIP/IPK de desenvolvimento. Manter o app ID para preservar dados; não criar Release, publicar loja ou misturar alterações Windows pendentes. Confirmar CI e informar que o teste físico LG é o próximo marco.

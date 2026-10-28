@@ -1,10 +1,10 @@
-# NEX para LG webOS — 0.4.1
+# NEX para LG webOS — 0.4.2
 
 Edição de uso com fontes Xtream autorizadas. Alvo do proprietário: LG UM7510PSB, firmware 05.40.97. Canais reais e amostras locais de vídeo/áudio foram confirmados na versão anterior; esta atualização ainda precisa da confirmação física. Não fornece conteúdo, assinatura ou transcodificação.
 
 ## Atualizar sem programar
 
-Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.1_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
+Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.2_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
 
 ## Usar
 
@@ -29,7 +29,7 @@ Favoritos e progresso armazenam IDs/posições, não URLs, capas, senhas ou dado
 4. Deixe computador e TV na mesma rede. Anote o endereço IP e a passphrase mostrados pela TV **apenas para inserir no seu computador**. Não os publique nem envie senhas no chat.
 5. No Windows, obtenha o **webOS Dev Manager** em https://github.com/webosbrew/dev-manager-desktop/releases/latest. É uma ferramenta comunitária, não um aplicativo oficial da LG. Escolha o instalador Windows x64 `.msi`.
 6. Abra o gerenciador e adicione a TV em **Developer Mode**, usando o IP e a passphrase da tela da TV. O perfil de desenvolvimento normalmente usa SSH porta 9922; o gerenciador orienta os campos.
-7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.1_all.ipk` deste pacote.
+7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.2_all.ipk` deste pacote.
 8. Abra **NEX** pela TV ou pelo gerenciador. Não abra o `.ipk` como executável Windows e não use pen drive como instalador genérico.
 
 Developer Mode é temporário e exige atenção à sessão/renovação indicada na própria TV. Não fixamos duração em horas: conferir o comportamento atual no aparelho. Não é o fluxo de distribuição comercial definitiva.
@@ -70,3 +70,41 @@ Layout com top/right/bottom/left e cores rgba para o navegador antigo da TV: sem
 Em Configurações → Imagens e sinopses · TMDB, informe seu token de leitura e selecione Conectar TMDB. Token somente em memória: não vai no código, IPK, logs ou armazenamento local; precisa ser informado em cada abertura. Desconectar elimina token e cache. Requisições HTTPS independentes com prazo de 10 segundos. O TMDB recebe o título consultado ou ID; não recebe acesso Xtream.
 
 Ao abrir detalhes de filme/série, usa ID TMDB fornecido pela lista; sem ID, aceita somente correspondência única de título exato e ano quando informado. Ambiguidade/falha mantém os dados da fonte. Banner do TMDB quando disponível e sinopse apenas se ausente na fonte. Não oferece vídeos, não altera links de reprodução e não adiciona títulos externos ao catálogo. Cache de até 32 consultas em memória. Sem chamadas reais validadas ao TMDB neste ambiente; testes usam respostas sintéticas. Validar token, CORS e HTTPS na LG física. Uso comercial requer conferir os termos/licença do TMDB antes da distribuição comercial.
+
+### Navegação de TV · 0.4.2
+
+- Menu lateral com ícones e nomes. TV ao vivo, Filmes e Séries abrem subcategorias no mesmo painel; Menu principal retorna às seções, Início permanece acessível. Categorias são as da fonte, sem lista inventada. Todos os conteúdos permanece disponível se a fonte falhar ao fornecer categorias.
+- Setas cima/baixo percorrem o menu em ordem; direita entra no catálogo; esquerda na primeira coluna volta à categoria. Voltar com foco nas subcategorias retorna ao menu principal. Demais retornos preservam o histórico de telas.
+- TV: primeiro OK abre prévia à direita, segundo OK no mesmo canal amplia sem trocar o src. Em tela cheia ↓ próximo canal e ↑ anterior, dentro da busca/categoria ativa, com volta ao início/fim da lista. Repetição de tecla segurada é ignorada para evitar múltiplas conexões. EPG e confirmação do próximo episódio preservam sua própria navegação. Filmes e séries não usam troca de canais.
+- Prévia: tamanho explícito do vídeo sincronizado com a área em pixels ao iniciar/ampliar/voltar/redimensionar. Removidos recorte arredondado e excesso de controles sobre a mídia. HUD compacto deixa uma área central desobstruída. Isso trata possíveis causas de composição/encobrimento; não comprova correção física na LG.
+- Busca central no topo da área de conteúdo, campo maior e destaque de foco. Continua buscando a seção atual. Transições de 160–220 ms em foco/menu/textos; sem animar o plano do vídeo ou usar blur pesado. Preferência de movimento reduzido desativa animações/transições e deslocamento das capas.
+
+Testes Chromium cobrem setas reais do menu, retorno principal, busca central, preferência de movimento reduzido, prévia com imagem decodificada e centro não coberto, geometria 1920×1080/1280×720, troca de três canais com ↑/↓, retorno à prévia, EPG, biblioteca e reprodução 4K sintética. TV física, áudio audível e canais do provedor precisam de confirmação manual.
+
+### Ajuste em revisão — navegação contínua e busca lateral
+
+Diretriz posterior do proprietário substitui a busca central: campo arredondado dentro do menu lateral. ↑/↓ nas capas percorrem linhas na mesma coluna, permanecem no catálogo e atravessam páginas automaticamente; nas bordas da coleção mantêm o foco. ← na primeira coluna acessa o menu. Episódios seguem o mesmo percurso. Foco move a capa discretamente para cima, com escala e borda clara; movimento reduzido mantém apenas contraste/borda.
+
+Rolagem manual de 200 ms por requestAnimationFrame, compatível com navegador antigo, cancela animação anterior e respeita movimento reduzido. Foco restaura rolagem após node.focus() para evitar salto nativo antes da animação. Setas laterais no campo continuam editando o texto; cima/baixo movem pelo menu. Alterações visuais aguardam revisão do proprietário antes de envio à TV.
+
+### Revisão do banner e da busca — ainda não enviada à TV
+
+O título e as ações do banner acompanham imediatamente o foco nas capas; imagem troca após 110 ms de permanência para não iniciar downloads em cada passagem rápida. Ações reais: detalhes, adicionar/remover da Minha lista e favorito. Minha lista é separada dos favoritos e persiste apenas IDs no mesmo espaço por conta, compatível com os dados antigos. Para acessar ações pelo controle, ↑ na primeira linha; ↓ retorna à capa atual.
+
+Buscar no menu abre uma tela com campo maior e resultados incrementais na seção atual, com atraso de 180 ms para digitação e processamento de 1.000 registros por lote. Voltar restaura a consulta, categoria e página anteriores sem reconstrução tardia que roube o foco. Bordas de coleção mantêm o foco; não houve mudança no fluxo de TV fullscreen/↑/↓. Capa focada usa elevação/escala/brilho, sem anel ao redor do cartão; movimento reduzido desativa deslocamentos e conserva contraste. Transições de texto de 150 ms; sem IA, trailer, vídeo em segundo plano ou animação sobre o decoder nativo.
+
+### Player — controles mínimos e foco sem bloqueio
+
+Progresso em uma linha própria; pausa/retomar, −10 s, +10 s e Ajustes na linha inferior. Áudio, legendas, velocidade e reinício ficam em painel lateral, com foco por ordem e Concluir/Voltar. Faixas indisponíveis continuam desabilitadas.
+
+No player de filme/episódio: ←/→ percorrem os botões; ↑ entra no progresso; sem modo de edição, ← sai para −10 s e → sai para Ajustes. OK na barra ativa ajuste por ←/→ em dez segundos; OK, ↓ ou Voltar encerram ajuste. ↓ da barra sempre retorna à reprodução. Fora desses modos, HUD segue desaparecendo após cinco segundos. Enquanto painel/ajuste estiver aberto, não oculta controles no meio da interação. Voltar fecha painel antes de sair da reprodução. TV mantém ↑/↓ para troca de canal, exceto dentro do painel de Ajustes. Nenhuma alteração nos links/codecs.
+
+Capturas usam vídeo sintético; testes Chromium verificam pausa, saída do slider, avanço, velocidade real, legendas e fechamento do painel mantendo o vídeo. Não comprovam controle físico LG/áudio audível. Aguardar revisão antes de enviar à TV.
+
+### Logos da lista
+
+TV utiliza a imagem fornecida no registro, com prioridade para stream_icon; aceita também logo/tvg-logo quando presentes. Endereços HTTP(S) absolutos são preservados; caminhos relativos são resolvidos contra o servidor da lista e URLs // herdam seu protocolo, sem anexar usuário/senha ou parâmetros da API. Exibição contain preserva a proporção da logo. Sem imagem ou em caso de erro, placeholder neutro. Nenhuma busca externa ou logo inventada. Capturas antigas tinham canais sintéticos sem stream_icon; os testes agora incluem logos sintéticas fornecidas pela própria fonte simulada e verificam o carregamento das três formas de URL. Validar imagens do provedor na LG física.
+
+### Entrega 0.4.2
+
+Proprietário solicitou o pacote para instalar após a revisão visual. Inclui menu lateral/subcategorias, busca dedicada, banner com ações, Minha lista, logos da fonte e player com Ajustes e saída explícita da barra de progresso. Testes locais: 26 testes, lint, pacote IPK e cenário Chromium com catálogo de 50 mil registros e reprodução sintética HD/4K aprovados. Teste físico da atualização na LG continua pendente.

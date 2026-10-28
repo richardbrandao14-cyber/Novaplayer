@@ -63,7 +63,7 @@ test("scripts da TV usam sintaxe ES5 e manifest não pede serviços privilegiado
   const fs = require("node:fs");
   const path = require("node:path");
   const acorn = require("acorn");
-  for (const name of ["boot.js", "domain.js", "storage.js", "vault.js", "playback.js", "library.js", "app.js"])
+  for (const name of ["boot.js", "domain.js", "storage.js", "vault.js", "playback.js", "navigation.js", "tmdb.js", "library.js", "app.js"])
     acorn.parse(fs.readFileSync(path.join(__dirname, "../app", name), "utf8"), {
       ecmaVersion: 5,
     });
@@ -121,4 +121,12 @@ test("catálogos em envelopes e mapas de IDs são aceitos sem mascarar erros",()
 
 test("resolução reporta dimensões reais sem chamar HD de 4K",()=>{
  assert.equal(D.resolution(3840,2160),"4K · 3840 × 2160");assert.equal(D.resolution(1920,1080),"Full HD · 1920 × 1080");assert.equal(D.resolution(1280,720),"HD · 1280 × 720");assert.match(D.resolution(0,0),/aguardando/);assert.equal(D.resolution(7680,4320),"8K · 7680 × 4320");
+});
+
+test("logos da fonte aceitam URL absoluta, relativa e protocolo herdado sem expor acesso",()=>{
+ assert.equal(D.imageUrl(" https://cdn.example/logo.png ","http://example.com/proxy"),"https://cdn.example/logo.png");
+ assert.equal(D.imageUrl("/logos/canal.png","https://example.com/proxy"),"https://example.com/logos/canal.png");
+ assert.equal(D.imageUrl("logos/canal.png","https://example.com/proxy"),"https://example.com/proxy/logos/canal.png");
+ assert.equal(D.imageUrl("//cdn.example/logo.svg","https://example.com"),"https://cdn.example/logo.svg");
+ for(const url of ["javascript:alert(1)","data:image/png,anything","file:///secret","https://user:password@example.com/a.png", "//user:password@example.com/a.png", "https://cdn.example/\nsecret", ""])assert.equal(D.imageUrl(url,"https://example.com"),"");
 });

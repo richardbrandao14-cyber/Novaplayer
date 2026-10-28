@@ -27,7 +27,7 @@
   }
   function shelf(storage, report) {
     var name = "", state;
-    function defaults() { return {version:1,favorites:{},progress:{},settings:{autoNext:true,liveFormat:"m3u8"}}; }
+    function defaults() { return {version:1,favorites:{},watchlist:{},progress:{},settings:{autoNext:true,liveFormat:"m3u8"}}; }
     function validKey(key) { return /^(live|movie|series|episode):\d{1,20}$/.test(key); }
     function persist() { if (!name) return; try { storage.setItem(name,JSON.stringify(state)); } catch (error) { report("A TV não conseguiu salvar os dados. Libere espaço nas configurações do aparelho."); } }
     function connect(config) {
@@ -36,6 +36,7 @@
         var raw = storage.getItem(name); if (!raw || raw.length > 1024*1024) return;
         var value = JSON.parse(raw); if (!value || value.version !== 1) return;
         Object.keys(value.favorites || {}).slice(0,4000).forEach(function (key) { if (validKey(key) && value.favorites[key] === true) state.favorites[key] = true; });
+        Object.keys(value.watchlist || {}).slice(0,4000).forEach(function (key) { if (validKey(key) && value.watchlist[key] === true) state.watchlist[key] = true; });
         Object.keys(value.progress || {}).slice(0,2000).forEach(function (key) { var p=value.progress[key]; if (validKey(key) && p && typeof p.position === "number" && isFinite(p.position) && p.position >= 0 && p.position < 31536000) state.progress[key]={position:p.position,duration:typeof p.duration === "number" && isFinite(p.duration) ? p.duration : 0,parentId:/^\d{1,20}$/.test(String(p.parentId)) ? String(p.parentId) : "",updatedAt:Number(p.updatedAt)||0}; });
         if(value.settings&&(value.settings.liveFormat==="m3u8"||value.settings.liveFormat==="ts"))state.settings.liveFormat=value.settings.liveFormat;
         if (value.settings && typeof value.settings.autoNext === "boolean") state.settings.autoNext=value.settings.autoNext;
@@ -43,6 +44,8 @@
     }
     return {connect:connect, favorites:function () { return state ? state.favorites : {}; }, progress:function () { return state ? state.progress : {}; },
       favorite:function (key, selected) { if (!state || !validKey(key)) return; if (selected) { if (Object.keys(state.favorites).length>=4000 && !state.favorites[key]) { report("Limite de quatro mil favoritos atingido."); return; } state.favorites[key]=true; } else delete state.favorites[key]; persist(); },
+      watchlist:function(){return state?state.watchlist:{};},
+      list:function(key,selected){if(!state||!validKey(key))return;if(selected){if(Object.keys(state.watchlist).length>=4000&&!state.watchlist[key]){report("Limite de quatro mil itens na Minha lista atingido.");return;}state.watchlist[key]=true;}else delete state.watchlist[key];persist();},
       save:function (key, position, duration, parentId) { if (!state || !validKey(key) || !isFinite(position) || position < 0) return; state.progress[key]={position:position,duration:isFinite(duration)?duration:0,parentId:/^\d{1,20}$/.test(String(parentId))?String(parentId):"",updatedAt:Date.now()}; var keys=Object.keys(state.progress); if (keys.length>2000) { keys.sort(function(a,b){return state.progress[a].updatedAt-state.progress[b].updatedAt;}); delete state.progress[keys[0]]; } persist(); },
       autoNext:function (value) { if (!state) return true; if (typeof value === "boolean") { state.settings.autoNext=value; persist(); } return state.settings.autoNext; },
       format:function(value){if(!state)return "m3u8";if(value==="m3u8"||value==="ts"){state.settings.liveFormat=value;persist();}return state.settings.liveFormat;},

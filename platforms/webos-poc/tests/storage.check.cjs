@@ -17,3 +17,9 @@ test('dados danificados, chaves inválidas e armazenamento indisponível não in
  const storage=memory();const key='nex.shelf.v1.'+S.fingerprint(config.server+'\n'+config.user);storage.values[key]='{invalid';const messages=[];const shelf=S.create(storage,x=>messages.push(x));shelf.connect(config);assert.ok(messages.length);shelf.favorite('movie:../../secret',true);shelf.save('javascript:1',1,1,'');assert.deepEqual(shelf.favorites(),{});assert.deepEqual(shelf.progress(),{});
  const blocked=S.create({getItem(){throw new Error('blocked');},setItem(){throw new Error('quota');}},x=>messages.push(x));assert.doesNotThrow(()=>{blocked.connect(config);blocked.favorite('live:1',true);});assert.ok(messages.length>=3);
 });
+
+test('Minha lista é distinta dos favoritos e persiste apenas IDs por conta',()=>{
+ const storage=memory(),shelf=S.create(storage,()=>{});shelf.connect(config);shelf.list('movie:8',true);shelf.favorite('movie:9',true);shelf.list('movie:../../secret',true);
+ assert.deepEqual(shelf.watchlist(),{'movie:8':true});assert.deepEqual(shelf.favorites(),{'movie:9':true});
+ const next=S.create(storage,()=>{});next.connect(config);assert.deepEqual(next.watchlist(),{'movie:8':true});next.connect({...config,user:'another-account'});assert.deepEqual(next.watchlist(),{});next.connect(config);next.erase();assert.deepEqual(next.watchlist(),{});
+});
