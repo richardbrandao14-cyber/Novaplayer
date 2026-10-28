@@ -75,6 +75,7 @@
     pendingResume = shelf.progress()[playingKey] ? shelf.progress()[playingKey].position : 0; video.loop = kind === "local"; video.muted = false; video.playbackRate = 1; el("play-speed").value = "1";
     closeSettings(false);exitSeek();player.hidden = false; player.className = preview ? "is-preview" : ""; el("library").classList.toggle("with-preview", preview);
     if (!preview) lock();
+    el("channel-previous").hidden=kind!=="live";el("channel-next").hidden=kind!=="live";
     el("expand-player").hidden = !preview; el("playing-title").textContent = title; playerStatus(pendingResume ? "Retomando de " + clock(pendingResume) + "…" : "Preparando reprodução…");
     el("confirm-av").disabled = true; el("confirm-av").hidden = kind !== "local" && !el("home").hidden ? false : !el("library").hidden;
     el("player-favorite").hidden = true; el("next-episode").hidden = true;
@@ -126,11 +127,18 @@
   el("back").addEventListener("click", playbackBack); el("expand-player").addEventListener("click", fullscreen);
   function toggle() { if (video.paused) { var result = video.play(); if (result && result.catch) result.catch(function () { playerStatus("Não foi possível iniciar a reprodução."); }); } else video.pause(); hud(); }
   el("play-pause").addEventListener("click", toggle);
+  function seekWindow(){
+    if(!video.seekable.length)return null;
+    var start=video.seekable.start(0),end=video.seekable.end(video.seekable.length-1);
+    return isFinite(start)&&isFinite(end)&&end>start?{start:start,end:end}:null;
+  }
   function seek(delta) { if (!video.seekable.length) { playerStatus("Esta fonte não oferece avanço ou retrocesso agora."); return; } try { video.currentTime = Math.max(video.seekable.start(0), Math.min(video.seekable.end(video.seekable.length - 1), video.currentTime + delta)); } catch (error) { playerStatus("Não foi possível mudar a posição."); } hud(); }
   el("seek-back").addEventListener("click", function () { seek(-10); }); el("seek-forward").addEventListener("click", function () { seek(10); });
-  el("timeline").addEventListener("change", function () { if (isFinite(video.duration) && video.duration > 0) { try { video.currentTime = Number(this.value) * video.duration / 1000; } catch (error) { playerStatus("Esta fonte não permite buscar essa posição."); } } hud(); });
+  el("timeline").addEventListener("change", function () {var range=seekWindow();if(range){try{video.currentTime=range.start+Number(this.value)*(range.end-range.start)/1000;}catch(error){playerStatus("Esta fonte não permite buscar essa posição.");}}hud();});
   el("play-speed").addEventListener("change", function () { try { video.playbackRate = Number(this.value); } catch (error) { playerStatus("Velocidade não suportada nesta fonte."); } hud(); });
-  function exitSeek(){seekMode=false;el("timeline").setAttribute("aria-valuetext",clock(video.currentTime));player.classList.remove("seeking");el("seek-help").textContent="↑ Progresso · OK na barra para ajustar · ↓ Controles";}
+  el("channel-previous").addEventListener("click",function(){library.zap(-1,playingKey);});
+  el("channel-next").addEventListener("click",function(){library.zap(1,playingKey);});
+  function exitSeek(){seekMode=false;el("timeline").setAttribute("aria-valuetext",clock(video.currentTime));player.classList.remove("seeking");el("seek-help").textContent=currentKind==="live"?"OK mostra os controles · ↑/↓ trocam canal com controles ocultos · Retrocesso depende da fonte":"↑ Progresso · OK na barra para ajustar · ↓ Controles";}
   function closeSettings(restore){el("player-settings").hidden=true;if(restore){hud();focus(el("player-settings-open"));}}
   el("player-settings-open").addEventListener("click",function(){exitSeek();el("player-settings").hidden=false;hud();focus(el("play-speed"));});
   el("player-settings-close").addEventListener("click",function(){closeSettings(true);});
@@ -162,7 +170,7 @@
   video.addEventListener("error", function () { clearTimeout(playbackDeadline); if(playback.error(video.error&&video.error.code))return; playerStatus(D.mediaError(video.error && video.error.code)); hud(); });
   video.addEventListener("pause", function () { playerStatus("Pausado");saveProgress(); el("play-pause").textContent = "Reproduzir"; }); video.addEventListener("play", function () { el("play-pause").textContent = "Pausar"; });
   video.addEventListener("loadedmetadata", function () { if (pendingResume && isFinite(video.duration) && pendingResume < video.duration - Math.min(10,Math.max(1,video.duration*0.03))) { try { video.currentTime = pendingResume; } catch (error) { playerStatus("Retomada indisponível nesta fonte."); } } pendingResume = 0; });
-  video.addEventListener("timeupdate", function () { if(Date.now()-lastSaved>10000)saveProgress(); el("time").textContent = clock(video.currentTime) + (isFinite(video.duration) ? " / " + clock(video.duration) : " · AO VIVO"); el("timeline").disabled = currentKind === "live" || !isFinite(video.duration) || !video.seekable.length; if (!el("timeline").disabled && document.activeElement !== el("timeline")) el("timeline").value = String(Math.floor(video.currentTime / video.duration * 1000)); });
+  video.addEventListener("timeupdate", function () { if(Date.now()-lastSaved>10000)saveProgress(); el("time").textContent = clock(video.currentTime) + (isFinite(video.duration) ? " / " + clock(video.duration) : " · AO VIVO"); var range=seekWindow();el("timeline").disabled=!range;if(range&&document.activeElement!==el("timeline"))el("timeline").value=String(Math.max(0,Math.min(1000,Math.floor((video.currentTime-range.start)/(range.end-range.start)*1000)))); });
   video.addEventListener("ended", function () { exitSeek();closeSettings(false);saveProgress(); if(!playback.ended())playerStatus("Reprodução concluída."); hud(); });
   player.addEventListener("mousemove", hud); player.addEventListener("click", hud);
   document.addEventListener("visibilitychange", function () { if (document.hidden) { saveProgress(); video.pause(); } });
@@ -171,8 +179,9 @@
   document.addEventListener("keydown", function (event) {
     var code = event.keyCode || event.which, active = document.activeElement;
     if (code === 461 || code === 27 || event.key === "GoBack") { event.preventDefault(); event.stopPropagation(); if (!event.repeat) playbackBack(); return; }
-    if(!player.hidden&&!preview&&currentKind==="live"&&el("player-settings").hidden&&!playback.scope()&&(code===38||code===40)){
-      event.preventDefault();event.stopPropagation();if(!event.repeat)library.zap(code===40?1:-1,playingKey);return;
+    var channelKey=event.key==="ChannelUp"||event.key==="ChannelDown"||code===427||code===428;
+    if(!player.hidden&&!preview&&currentKind==="live"&&el("player-settings").hidden&&!playback.scope()&&(channelKey||player.classList.contains("hud-hidden")&&(code===38||code===40))){
+      event.preventDefault();event.stopPropagation();if(!event.repeat)library.zap(channelKey?(event.key==="ChannelUp"||code===427?-1:1):code===40?1:-1,playingKey);return;
     }
     var hiddenHud = player.classList.contains("hud-hidden"); if (!player.hidden) hud();
     if (hiddenHud && !preview && !playback.scope() && (code === 13 || code >= 37 && code <= 40)) { event.preventDefault(); focus(el("play-pause")); return; }
@@ -200,5 +209,5 @@
   function connectionLabel(){var badge=document.querySelector(".session-badge");badge.textContent=navigator.onLine===false?"Sem conexão":"Sua biblioteca";badge.className=navigator.onLine===false?"session-badge offline":"session-badge";}
   window.addEventListener("online",connectionLabel);window.addEventListener("offline",connectionLabel);connectionLabel();
   window.nexReady = true; var styled = parseInt(window.getComputedStyle(document.querySelector(".brand")).fontSize, 10) >= 30;
-  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.2":"Versão 0.4.2 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
+  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.3":"Versão 0.4.3 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
 }());

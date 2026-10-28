@@ -141,7 +141,7 @@ async function main() {
         : action === "get_short_epg" ? {epg_listings:[{title:Buffer.from("Jornal sintético").toString("base64"),description:Buffer.from("Descrição de programação sintética").toString("base64"),start_timestamp:1700000000}]}
         : /categories$/.test(action) ? [{category_id:1,category_name:"Categoria A"},{category_id:2,category_name:"Categoria B"}]
         : action === "get_vod_info" ? {info:{plot:"Sinopse sintética para testar a interface.",genre:"Teste",duration:"00:00:08"},movie_data:{stream_id:Number(url.searchParams.get("vod_id")),container_extension:"mp4",direct_source:base+"/media/player-av.mp4"}}
-        : action === "get_series_info" ? {info:{plot:"Série sintética, sem conteúdo comercial."},episodes:{1:Array.from({length:60},(_,i)=>({id:i+1,title:"Episódio sintético "+(i+1),episode_num:i+1,container_extension:"mp4",info:{movie_image:"https://fixture.example/poster.svg"}})),2:[{id:99,title:"Outra temporada",container_extension:"mp4"}]}}
+        : action === "get_series_info" ? {info:{plot:"Série sintética, sem conteúdo comercial."},episodes:{1:Array.from({length:60},(_,i)=>({id:i+1,title:"Episódio sintético "+(i+1),episode_num:i+1,container_extension:"mp4",info:{movie_image:"https://fixture.example/poster.svg"}})),2:[{id:99,title:"Outra temporada",container_extension:"mp4"}],3:[],4:[],5:[],6:[],7:[],8:[]}}
         : action === "get_series" ? {"1":{series_id:1,name:"Série sintética",cover:"https://fixture.example/poster.svg",category_id:"1"}}
         : action === "get_live_streams" ? {streams:[{stream_id:2,name:"Canal sintético",stream_icon:"https://fixture.example/logos/one.svg",category_id:"1",direct_source:base+"/media/player-av.mp4"},{stream_id:3,name:"Segundo canal de teste",stream_icon:"/logos/two.svg",category_id:"1",direct_source:base+"/media/player-av.mp4"},{stream_id:4,name:"Terceiro canal de teste",stream_icon:"//fixture.example/logos/three.svg",category_id:"2",direct_source:base+"/media/player-av.mp4"}]}
         : {data:catalog};
@@ -311,14 +311,28 @@ async function main() {
     assert.equal(await page.locator("#player").isVisible(),true);
     await page.locator("#catalog-list button").first().click();
     assert.equal(await page.locator("#player").evaluate(n=>n.classList.contains("is-preview")),false);
+    // HUD aberto: setas chegam ao progresso e Ajustes sem trocar canal.
+    await page.waitForFunction(()=>!document.getElementById("timeline").disabled);
+    await page.locator("#play-pause").focus();await page.keyboard.press("ArrowUp");
+    assert.equal(await page.evaluate(()=>document.activeElement.id),"timeline");
+    assert.equal(await page.locator("#playing-title").textContent(),"Canal sintético");
+    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"play-pause");
+    await page.locator("#player-settings-open").click();await page.keyboard.press("ArrowDown");
+    assert.equal(await page.locator("#playing-title").textContent(),"Canal sintético");await page.keyboard.press("Escape");
+    // Sem janela seekable não é oferecido retrocesso; a navegação continua funcionando.
+    await page.locator("video").evaluate(v=>{v._qaSeekable=Object.getOwnPropertyDescriptor(v,"seekable");Object.defineProperty(v,"seekable",{configurable:true,value:{length:0}});v.dispatchEvent(new Event("timeupdate"));});
+    await page.locator("#play-pause").focus();await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.id),"back");
+    assert.equal(await page.locator("#playing-title").textContent(),"Canal sintético");
+    await page.locator("video").evaluate(v=>{delete v.seekable;if(v._qaSeekable)Object.defineProperty(v,"seekable",v._qaSeekable);delete v._qaSeekable;v.dispatchEvent(new Event("timeupdate"));});
+    await page.waitForFunction(()=>document.getElementById("player").classList.contains("hud-hidden"),{},{timeout:8000});
     await page.keyboard.press("ArrowDown");
     await page.waitForFunction(()=>document.getElementById("playing-title").textContent==="Segundo canal de teste");
     assert.equal(await page.locator("#player").evaluate(n=>n.classList.contains("is-preview")),false);
-    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ChannelUp").catch(()=>page.locator("#player").dispatchEvent("keydown",{key:"ChannelUp",keyCode:427}));
     await page.waitForFunction(()=>document.getElementById("playing-title").textContent==="Canal sintético");
-    await page.keyboard.press("ArrowUp");
+    await page.locator("#channel-previous").click();
     await page.waitForFunction(()=>document.getElementById("playing-title").textContent==="Terceiro canal de teste");
-    await page.keyboard.press("ArrowDown");
+    await page.locator("#channel-next").click();
     await page.waitForFunction(()=>document.getElementById("playing-title").textContent==="Canal sintético");
 
     await page.keyboard.press("Escape");
@@ -334,12 +348,25 @@ async function main() {
     await page.locator("#catalog-list button").first().waitFor();
     await page.locator("#catalog-list button").first().click();
     await page.waitForFunction(() => document.querySelectorAll("#episode-list button").length===24);
+    assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-season")),"1");
+    for(let i=0;i<7;i++)await page.keyboard.press("ArrowRight");
+    assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-season")),"8");
+    assert.equal(await page.locator('#season-options button[aria-pressed="true"]').getAttribute("data-season"),"1");
+    await page.waitForFunction(()=>document.getElementById("season-options").scrollLeft>0);
+    await page.keyboard.press("Enter");assert.match(await page.locator("#season-current").textContent(),/Temporada 8/);
+    assert.equal(await page.locator("#episode-list button").count(),0);
+    await page.locator('#season-options button[data-season="1"]').focus();await page.keyboard.press("Enter");
+    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.classList.contains("episode-card")),true);
+    await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-season")),"1");
+    await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.id),"detail-play");
+    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-season")),"1");
+    await page.waitForTimeout(250);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-seasons-review.png")});
     await page.locator("#episode-next").click();
     assert.match(await page.locator("#episode-list button").first().textContent(),/25/);
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-series.png")});
-    await page.locator("#season-select").selectOption("2");
+    await page.locator('#season-options button[data-season="2"]').click();
     assert.match(await page.locator("#episode-list").textContent(),/Outra temporada/);
-    await page.locator("#season-select").selectOption("1");
+    await page.locator('#season-options button[data-season="1"]').click();
     await page.locator("#episode-list button").first().click();
     await page.waitForFunction(() => document.getElementById("video").currentTime>.1);
     await page.locator("#next-episode").click();
@@ -361,7 +388,7 @@ async function main() {
     await page.locator("video").evaluate(v=>{v.currentTime=4;});
     await page.waitForFunction(()=>!document.getElementById("video").seeking);
     await page.keyboard.press("Escape");
-    assert.equal(await page.locator("#season-select").inputValue(),"1");
+    assert.equal(await page.locator('#season-options button[aria-pressed="true"]').getAttribute("data-season"),"1");
     await page.locator("#lib-back").click();
     console.log("QA: series/autoplay");
     await page.locator("#lib-settings").click();

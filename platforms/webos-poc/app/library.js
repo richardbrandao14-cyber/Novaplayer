@@ -215,15 +215,21 @@
       if (detail.kind === "series") {
         detail.episodes = value && value.episodes || {};
         var keys = Object.keys(detail.episodes).filter(function (k) { return Array.isArray(detail.episodes[k]); }).sort(function (a,b) { return Number(a) - Number(b); });
-        el("season-select").textContent = "";
-        keys.forEach(function (k) { var option = document.createElement("option"); option.value = k; option.textContent = "Temporada " + k; el("season-select").appendChild(option); });
+
         season = keys.indexOf(season) !== -1 ? season : keys[0] || "";
         if(detail.resumeEpisode){keys.forEach(function(k){detail.episodes[k].forEach(function(ep,index){if(ep&&String(ep.id)===detail.resumeEpisode){season=k;episodePage=Math.floor(index/24);detail.resumeIndex=index;}});});}
-        el("season-select").value = season; renderEpisodes();
+        renderSeasonOptions(keys);renderEpisodes();
       }
+    }
+    function selectedSeason(){return el("season-options").querySelector('[aria-pressed="true"]')||el("season-options").querySelector("button");}
+    function renderSeasonOptions(keys){
+      var list=el("season-options");list.textContent="";
+      keys.forEach(function(k){var button=document.createElement("button"),title=document.createElement("strong"),count=document.createElement("small");button.className="season-option";button.setAttribute("data-nav","");button.setAttribute("data-season",k);button.setAttribute("aria-pressed",k===season?"true":"false");title.textContent="Temporada "+k;var total=detail.episodes[k].filter(function(ep){return ep&&typeof ep==="object";}).length;count.textContent=total+(total===1?" episódio":" episódios");button.appendChild(title);button.appendChild(count);button.addEventListener("click",function(){season=k;episodePage=0;detail.resumeEpisode="";delete detail.resumeIndex;renderEpisodes();});list.appendChild(button);});
     }
     function renderEpisodes() {
       var list = el("episode-list"), items = (detail && detail.episodes && detail.episodes[season] || []).filter(function (item) { return item && typeof item === "object"; }), pages = Math.max(1, Math.ceil(items.length / 24));
+      text("season-current",season?"Temporada "+season+" · "+items.length+(items.length===1?" episódio":" episódios"):"Temporadas não fornecidas pela fonte.");
+      var seasonButtons=el("season-options").querySelectorAll("button");for(var seasonIndex=0;seasonIndex<seasonButtons.length;seasonIndex++)seasonButtons[seasonIndex].setAttribute("aria-pressed",seasonButtons[seasonIndex].getAttribute("data-season")===season?"true":"false");
       episodePage = Math.max(0, Math.min(episodePage, pages - 1)); list.textContent = "";
       items.slice(episodePage * 24, episodePage * 24 + 24).forEach(function (episode, index) {
         var button = document.createElement("button"), picture = document.createElement("span"), title = document.createElement("strong"), description = document.createElement("small"), info = episode.info || {};
@@ -253,7 +259,7 @@
       if (!/^\d{1,20}$/.test(identifier)) { message("Identificador não fornecido pela fonte."); return; }
       hooks.request(D.api(hooks.config(), kind === "series" ? "get_series_info" : "get_vod_info", identifier), function (value) {
         if (generation !== detailGeneration || !detail) return;
-        detail.value = value; applyDetail(value); message("Escolha o que assistir.");
+        detail.value = value; applyDetail(value);if(kind==="series"&&document.activeElement===el("lib-back"))focus(selectedSeason());message("Escolha o que assistir.");
         window.NexTmdb.lookup(item, kind, value && value.info || {}, function (metadata) {
           if (generation !== detailGeneration || !detail || !metadata) return;
           var info = value && value.info || {};
@@ -339,7 +345,7 @@
       message("Favoritos salvos nesta TV para sua lista."); return !!favorites[k];
     }
     el("detail-favorite").addEventListener("click", function () { if (detail) toggleFavorite(detail.item, detail.kind); });
-    el("season-select").addEventListener("change", function () { season = this.value; episodePage = 0; if(detail){detail.resumeEpisode="";delete detail.resumeIndex;} renderEpisodes(); });
+
     ["episode-prev","episode-next"].forEach(function (button) { el(button).addEventListener("click", function () { episodePage += button === "episode-prev" ? -1 : 1; renderEpisodes(); focus(el("episode-list").querySelector("button")); }); });
     function liveFocus(){
       var identifier=liveKey.slice(5);
@@ -355,11 +361,22 @@
       liveKey=key(items[index],"live");state.page=Math.floor(index/pageSize);render();start(items[index],"live",name(items[index]),false);return true;
     }
     function remote(code,active){
+      if(detail&&detail.kind==="series"){
+        if(active===el("lib-back")&&code===40){focus(selectedSeason()||el("detail-play"));return true;}
+        if((active===el("detail-play")||active===el("detail-favorite"))&&code===40){focus(selectedSeason());return true;}
+        if(active&&active.classList.contains("season-option")){
+          var seasons=el("season-options").querySelectorAll("button"),seasonPosition=Array.prototype.indexOf.call(seasons,active);
+          if(code===37||code===39){focus(seasons[Math.max(0,Math.min(seasons.length-1,seasonPosition+(code===39?1:-1)))]);return true;}
+          if(code===38){focus(el("detail-play").disabled?el("lib-back"):el("detail-play"));return true;}
+          if(code===40){focus(el("episode-list").querySelector("button"));return true;}
+        }
+      }
+
       if(active===el("lib-search")){if(code===40){focus(el("catalog-list").querySelector("button"));return true;}if(code===38){focus(el("search-open"));return true;}return false;}
       if(active&&active.parentElement&&active.parentElement.classList.contains("feature-actions")){if(code===40){var selected=state.featureItem?el("catalog-list").querySelector('[data-content-id="'+id(state.featureItem,state.featureItem._nexKind||state.kind)+'"]'):null;focus(selected||el("catalog-list").querySelector("button"));return true;}}
       var side=document.querySelector(".tv-sidebar");
       if(side.contains(active)){
-        if(code===39&&active.tagName!=="INPUT"){var target=!el("details-view").hidden?(el("detail-play").disabled?el("episode-list").querySelector("button"):el("detail-play")):el("catalog-list").querySelector("button")||el("feature-open");focus(target);return true;}
+        if(code===39&&active.tagName!=="INPUT"){var target=!el("details-view").hidden?(detail&&detail.kind==="series"?selectedSeason():el("detail-play").disabled?el("episode-list").querySelector("button"):el("detail-play")):el("catalog-list").querySelector("button")||el("feature-open");focus(target);return true;}
         if(code===38||code===40){var buttons=side.querySelectorAll("[data-nav]"),visible=[];for(var i=0;i<buttons.length;i++)if(!buttons[i].hidden&&!buttons[i].disabled&&buttons[i].getClientRects().length)visible.push(buttons[i]);var index=visible.indexOf(active);focus(visible[Math.max(0,Math.min(visible.length-1,index+(code===40?1:-1)))]);return true;}
         if(code===37&&active.tagName!=="INPUT")return true;
       }
@@ -375,6 +392,7 @@
           var targetRow=rows[currentRow+(code===40?1:-1)];
           if(targetRow){focus(targetRow[Math.min(currentColumn,targetRow.length-1)]);return true;}
           if(code===38&&state.page===0&&!active.classList.contains("episode-card")){if(state.searchOpen)focus(el("lib-search"));else if(!el("feature").hidden)focus(el("feature-open"));return true;}
+          if(code===38&&active.classList.contains("episode-card")&&episodePage===0){focus(selectedSeason());return true;}
           var episodes=active.classList.contains("episode-card"),nextPage=code===40?(episodes?"episode-next":"page-next"):(episodes?"episode-prev":"page-prev");
           if(!el(nextPage).disabled){
             if(episodes){episodePage+=code===40?1:-1;renderEpisodes();}else{state.page+=code===40?1:-1;render();}

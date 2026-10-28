@@ -2,6 +2,8 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.3: ↑/↓ trocam canais somente com HUD oculto; HUD aberto e painéis usam as setas para navegação. ChannelUp/Down e botões próprios trocam explicitamente. Seek depende de janela seekable real. Temporadas em botões confirmados por OK, com foco inicial e ida/volta explícita aos episódios, rolagem horizontal e movimento reduzido. Não restaurar o select nativo nem o zap incondicional.
+
 - webOS 0.4.2: menu lateral principal/subcategorias, foco ordenado por controle, busca central e transições com movimento reduzido. ↑/↓ trocam somente TV em fullscreen fora de diálogos, seguindo filtro atual. Prévia sem recorte, HUD compacto e geometria explícita; validar imagem na LG física, não alegar correção só com Chromium. Não animar o plano de vídeo nativo.
 
 - UHD webOS autorizado: preservar fluxo original, indicador real de dimensões e amostra sintética 3840×2160. Não confundir canvas lógico da UI com decoder/saída 4K nem mudar manifesto para 3840 sem prova LG. Detalhes em docs/WEBOS_LIBRARY_CHECKPOINT.md.

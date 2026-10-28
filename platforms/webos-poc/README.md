@@ -1,10 +1,10 @@
-# NEX para LG webOS — 0.4.2
+# NEX para LG webOS — 0.4.3
 
 Edição de uso com fontes Xtream autorizadas. Alvo do proprietário: LG UM7510PSB, firmware 05.40.97. Canais reais e amostras locais de vídeo/áudio foram confirmados na versão anterior; esta atualização ainda precisa da confirmação física. Não fornece conteúdo, assinatura ou transcodificação.
 
 ## Atualizar sem programar
 
-Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.2_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
+Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.3_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
 
 ## Usar
 
@@ -29,7 +29,7 @@ Favoritos e progresso armazenam IDs/posições, não URLs, capas, senhas ou dado
 4. Deixe computador e TV na mesma rede. Anote o endereço IP e a passphrase mostrados pela TV **apenas para inserir no seu computador**. Não os publique nem envie senhas no chat.
 5. No Windows, obtenha o **webOS Dev Manager** em https://github.com/webosbrew/dev-manager-desktop/releases/latest. É uma ferramenta comunitária, não um aplicativo oficial da LG. Escolha o instalador Windows x64 `.msi`.
 6. Abra o gerenciador e adicione a TV em **Developer Mode**, usando o IP e a passphrase da tela da TV. O perfil de desenvolvimento normalmente usa SSH porta 9922; o gerenciador orienta os campos.
-7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.2_all.ipk` deste pacote.
+7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.3_all.ipk` deste pacote.
 8. Abra **NEX** pela TV ou pelo gerenciador. Não abra o `.ipk` como executável Windows e não use pen drive como instalador genérico.
 
 Developer Mode é temporário e exige atenção à sessão/renovação indicada na própria TV. Não fixamos duração em horas: conferir o comportamento atual no aparelho. Não é o fluxo de distribuição comercial definitiva.
@@ -112,3 +112,11 @@ Proprietário solicitou o pacote para instalar após a revisão visual. Inclui m
 ### Tela de entrada cinematográfica
 
 Banner decorativo original gerado para o NEX, incluído localmente em assets/login-cinema.png; não representa filmes fornecidos pelo app nem consulta catálogo antes do login. Formulário mantém campos e navegação existentes, com fundo escuro para leitura. O fundo é estático (sem vídeo ou animação contínua) e continua disponível offline. Não confundir a resolução da arte de entrada com a resolução original do vídeo reproduzido.
+
+### Correções 0.4.3 — TV ao vivo e temporadas
+
+Com HUD visível, ↑/↓ navegam nos controles, sem trocar canal. Com HUD oculto, ↑/↓ continuam trocando canal. OK mostra controles; teclas nativas ChannelUp/ChannelDown (quando enviadas pela TV) e botões Canal anterior/Próximo canal permitem troca explícita. Dentro de Ajustes/EPG, as setas pertencem ao painel. A barra só habilita busca quando o motor informa uma janela seekable válida, inclusive ao vivo; sua posição corresponde ao intervalo informado. Fontes sem buffer/timeshift não recebem retrocesso fictício.
+
+Temporadas em botões horizontais, com contagem de episódios da fonte. Ao abrir uma série, o foco vai à temporada selecionada após carregar os dados (sem roubar foco se o usuário já tiver navegado). ←/→ mudam o foco, OK confirma, ↓ entra nos episódios, ↑ da primeira linha de episódios retorna à temporada. A escolha não troca só por passar o foco. Rolagem horizontal acompanha o controle, sem scrollbar e com movimento reduzido respeitado. Temporadas vazias mantêm navegação para outras opções, sem episódios inventados.
+
+Testes: 26 unitários/contratos, lint, build e cenário Chromium completo passaram. Novas verificações incluem HUD aberto sem zap acidental, HUD oculto com zap, comandos explícitos de canal, fonte sem seekable, oito temporadas com overflow, confirmação/temporada vazia e ida/volta aos episódios. Controle físico, janela de reprodução da fonte real e visual na LG precisam de confirmação manual.

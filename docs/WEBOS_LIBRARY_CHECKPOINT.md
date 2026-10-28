@@ -72,3 +72,7 @@ Pedido “Ok me traga o app para instalar” autoriza envio do conjunto webOS 0.
 ### Adição solicitada durante a entrega
 
 Proprietário pediu banner de cinema no login antes de receber o pacote. Incluída arte original local (geração de imagem; arquivo original em workspace/generated_images, cópia em app/assets/login-cinema.png), sem títulos reais ou indicação de catálogo fornecido. Sem credenciais TMDB embutidas ou acesso remoto obrigatório antes do login. Teste de imagem carregada acrescentado ao cenário Chromium.
+
+## 0.4.3 — conflitos das setas e seleção de temporadas
+
+Relato físico do proprietário: ↑/↓ trocavam canal antes de alcançar os controles; temporadas não recebiam foco. Correção: zap por setas somente com HUD oculto, comandos/botões próprios para troca explícita e controles com HUD aberto. Range usa limites seekable reais e fica desabilitado quando ausentes. Temporadas deixam select nativo e passam a botões com confirmação por OK, foco inicial após carregamento, caminhos explícitos hero↔temporadas↔episódios e rolagem horizontal ES5. Não altera URLs de reprodução, autenticação, histórico ou schema de persistência. Teste Chromium distingue a simulação de ausência de seekable do teste físico LG. Entrega continua sendo IPK de desenvolvimento.
