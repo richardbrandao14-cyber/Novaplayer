@@ -1,0 +1,43 @@
+name: webOS TV proof of concept
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'platforms/webos-poc/**'
+      - '.github/workflows/webos-poc.yml'
+      - 'src-tauri/tests/fixtures/player-av.mp4'
+      - 'src-tauri/tests/fixtures/player-hls/**'
+      - 'LICENSE'
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            platforms/webos-poc/package-lock.json
+      - run: npm ci
+      - run: npm --prefix platforms/webos-poc ci --ignore-scripts
+      - run: npm --prefix platforms/webos-poc test
+      - run: npx eslint platforms/webos-poc/app platforms/webos-poc/scripts platforms/webos-poc/tests
+      - run: npm --prefix platforms/webos-poc run build
+      - run: npx playwright install --with-deps chromium
+      - run: node platforms/webos-poc/scripts/smoke.cjs
+        env:
+          NOVA_CHROMIUM_PATH: ''
+      - run: cp platforms/webos-poc/README.md platforms/webos-poc/dist/LEIA-ME.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEX-webOS-PoC
+          path: |
+            platforms/webos-poc/dist/*.ipk
+            platforms/webos-poc/dist/SHA256SUMS.txt
+            platforms/webos-poc/dist/LEIA-ME.md
+            platforms/webos-poc/dist/nex-webos-browser.png
+          if-no-files-found: error
+          retention-days: 7

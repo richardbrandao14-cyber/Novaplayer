@@ -1,0 +1,14 @@
+{
+  "id": "com.nex.poc.webos",
+  "version": "0.1.0",
+  "vendor": "NEX",
+  "type": "web",
+  "main": "index.html",
+  "title": "NEX TV · Teste",
+  "icon": "icon.png",
+  "largeIcon": "large-icon.png",
+  "appDescription": "Prova de reprodução webOS para fontes autorizadas.",
+  "resolution": "1920x1080",
+  "bgColor": "#0b0c0e",
+  "requiredACG": []
+}

@@ -2,6 +2,8 @@
 
 ## Autoridade e escopo
 
+- Autorização adicional: prova de conceito LG webOS isolada em platforms/webos-poc, alvo informado UM7510PSB/firmware 05.40.97. Só pacote .ipk de desenvolvimento, controle remoto e teste direto de mídia; não migrar produção Windows, publicar em loja ou presumir teste físico. Regras/instalação em platforms/webos-poc/README.md. Preservar alterações Windows em andamento fora do commit dessa prova.
+
 - Direção visual atual autorizada: NEX, assinatura laranja e cantos arredondados, abertura breve não bloqueante e banners adaptativos baseados nas imagens fornecidas. Ler seção NEX em DESIGN_SYSTEM.md e src/ui/nex.css. Preservar identificador Tauri, productName técnico, storage/diretórios e contratos nativos; título/ícone visíveis NEX. Não confundir rebrand visual com migração. Não inventar “Em alta”, lançamentos ou personalização; IA externa/paga não foi integrada. Recomendações locais, próximo episódio com contagem e pular abertura com marcadores confiáveis ficam para etapa funcional posterior.
 
 - Correção atual autorizada: favoritos de TV persistidos com filtro próprio; HUD deve funcionar por clique/roda, não somente desenhar. `input-default-bindings=yes` habilita vínculos fracos de scripts; o OSC também exige entrada de mouse válida e host com SS_NOTIFY/HTCLIENT; `input-builtin-bindings=no` impede atalhos padrão indesejados. Testar HTCLIENT/movimento da janela e estado de pausa/volume por hit-testing do OSC; mpv --wid desabilita o filho com EnableWindow(...,0); habilitar sua entrada na criação/recriação. A regressão deve comprovar estado desabilitado original → habilitado e usar WM_LBUTTONDOWN/UP, sem substituir os botões por keydown/keyup da API do mpv. Não confundir com clique manual no Tauri/WebView2. Capas com até quatro downloads/dois processamentos, cache compartilhado e prioridades; preservar proteções de URL/TLS.
@@ -17,7 +19,7 @@
 
 ## Implementação
 
-- Único alvo do produto no momento: Windows 10/11 x64. Não criar builds, instaladores ou compatibilidade desktop Linux/macOS. Linux cloud/CI pode executar ferramentas, testes web e testes do núcleo Rust sem WebView (`--no-default-features`); validação da aplicação nativa e proteção Windows ocorre no Windows.
+- Alvo de produção: Windows 10/11 x64; a PoC webOS acima é a exceção isolada autorizada. Não criar builds, instaladores ou compatibilidade desktop Linux/macOS. Linux cloud/CI pode executar ferramentas, testes web e testes do núcleo Rust sem WebView (`--no-default-features`); validação da aplicação nativa e proteção Windows ocorre no Windows.
 
 - Seguir ARCHITECTURE.md, DESIGN_SYSTEM.md e TESTING.md. Registrar desvios justificados.
 - Estabilidade, tipagem rigorosa, módulos pequenos, contratos explícitos e testes proporcionais à mudança.

@@ -1,3 +1,11 @@
+# Prova LG webOS — isolada
+
+Alvo informado UM7510PSB/firmware 05.40.97; versão webOS ainda não confirmada. CLI LG 3.2.6 empacotou .ipk. Seis testes Node cobrem URLs, credenciais codificadas/erros sanitizados, limites e episódios, sintaxe ES5, manifesto sem privilégios e ausência de persistência/injeção de HTML. ESLint do alvo passou. Smoke Chromium decodificou MP4 H.264/AAC local, verificou pausa/retorno/foco/setas, três fluxos com fonte simulada, campos limpos, storage vazio e layout 1920/1280. Não confirma HLS, codecs do provedor, áudio audível ou aparelho LG. Detalhes em platforms/webos-poc/README.md.
+
+A cópia de trabalho Windows contém melhorias interrompidas por mudança de foco do proprietário; não fazem parte do commit/pacote webOS. Uma execução incidental da suíte Windows/frontend nesta cópia falhou por componente ContentPreview ainda ausente dessa etapa inacabada. Não foi removido teste nem declarado esse estado aprovado. A PoC tem código/build/testes independentes e os commits selecionam apenas o alvo novo e sua documentação/configuração de lint.
+
+---
+
 # NEX · verificação visual atual
 
 37 testes frontend e 17 cenários de navegação Chromium aprovados; TypeScript, lint e build Vite aprovados. Cenários cobrem busca durante abertura sem bloqueio, foco por teclado, movimento reduzido, banner adaptativo, séries/TV com dados sintéticos e largura de 900/1100/1440 px, além dos fluxos funcionais anteriores. Refinamento CSS final reconferido no cenário visual dedicado. Capturas da abertura pausam apenas a animação da página de inspeção em 350 ms, sem mudar produção. fmt Rust aprovado. [CI web/core/Windows](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40257997772) aprovada para `accff6ca68439ab239778e9ee5f4333b7d05f9bc`: 37 testes frontend, 17 cenários Chromium, núcleo Rust, quatro provas explícitas libmpv, suíte Windows/DPAPI, fmt/Clippy e build Tauri. Evidência do novo executável no checkpoint; teste manual no PC continua pendente.
