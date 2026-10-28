@@ -1,0 +1,3 @@
+platforms/webos-poc/fixtures/*.mp4 binary
+platforms/webos-poc/fixtures/hls/*.ts binary
+platforms/webos-poc/fixtures/hls/*.m3u8 text eol=lf

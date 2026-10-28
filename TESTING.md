@@ -1,3 +1,9 @@
+# webOS 0.1.1 — inicialização/controle
+
+Relato físico: 0.1.0 exibiu tela preta/botões sem resposta na LG; causa exata ainda não estabelecida. Regressão com CSS/JS externos bloqueados falhou no pacote antigo e passou após bundle inline com CSP SHA-256. O teste usa OK por keydown sem clique automático, verifica “JavaScript OK · Estilo OK”, decodifica referência 720p H.264/AAC e preserva pausa/retorno/foco e fluxos de fonte simulada. Seis testes Node/ES5 e lint aprovados. Referência media/HLS da TV agora é específica deste alvo, sem alterar fixtures Windows. Tentativa file:// no Chromium foi bloqueada pela política deste ambiente; não foi tratada como validação de origem file: ou de aparelho real. Pacote LG corrigido e resultado físico permanecem sujeitos à CI/retorno do proprietário.
+
+---
+
 # Prova LG webOS — isolada
 
 Alvo informado UM7510PSB/firmware 05.40.97; versão webOS ainda não confirmada. CLI LG 3.2.6 empacotou .ipk. Seis testes Node cobrem URLs, credenciais codificadas/erros sanitizados, limites e episódios, sintaxe ES5, manifesto sem privilégios e ausência de persistência/injeção de HTML. ESLint do alvo passou. Smoke Chromium decodificou MP4 H.264/AAC local, verificou pausa/retorno/foco/setas, três fluxos com fonte simulada, campos limpos, storage vazio e layout 1920/1280. Não confirma HLS, codecs do provedor, áudio audível ou aparelho LG. Detalhes em platforms/webos-poc/README.md.

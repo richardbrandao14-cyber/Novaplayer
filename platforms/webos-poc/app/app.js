@@ -1,14 +1,15 @@
 (function () {
   "use strict";
   var D = window.NexDomain, video = document.getElementById("video"), player = document.getElementById("player");
-  var disabledHome = [];
+  var disabledHome = [], playbackDeadline;
+  function localMedia(name) { var page = window.location.href.split("#")[0].split("?")[0]; return page.slice(0, page.lastIndexOf("/") + 1) + name; }
   var config = null, activeRequest = null, requestGeneration = 0, currentKind = "local", returnFocus = null, confirmed = {live:false,movie:false,series:false};
   function el(id) { return document.getElementById(id); }
   function status(text) { el("status").textContent = text; }
   function playerStatus(text) { el("player-status").textContent = text; }
   function clock(value) { value = isFinite(value) ? Math.max(0, Math.floor(value)) : 0; return Math.floor(value / 60) + ":" + (value % 60 < 10 ? "0" : "") + value % 60; }
   function focus(node) { if (node) { node.focus(); if (node.scrollIntoViewIfNeeded) node.scrollIntoViewIfNeeded(false); } }
-  function clearVideo() { video.pause(); video.removeAttribute("src"); video.load(); }
+  function clearVideo() { clearTimeout(playbackDeadline); video.pause(); video.removeAttribute("src"); video.load(); }
   function stop() {
     clearVideo(); player.hidden = true; el("home").removeAttribute("aria-hidden");
     disabledHome.forEach(function (entry) { entry.node.disabled = entry.disabled; }); disabledHome = [];
@@ -24,6 +25,9 @@
     el("playing-title").textContent = title; playerStatus("Preparando reprodução…");
     el("confirm-av").disabled = true;
     video.src = url; video.load();
+    playbackDeadline = setTimeout(function () {
+      playerStatus("O vídeo não iniciou. Estado de mídia " + video.readyState + "/" + video.networkState + ". Informe esse texto ao suporte.");
+    }, 12000);
     var promise = video.play();
     if (promise && promise.catch) promise.catch(function () { playerStatus("Pressione Reproduzir. Se persistir, confira fonte, rede e formato."); });
     focus(el("play-pause"));
@@ -106,8 +110,8 @@
     try { var url = D.httpUrl(el("direct-url").value.trim()).href; el("direct-url").value = ""; play(url, "Conteúdo da sua fonte", el("direct-kind").value); }
     catch (error) { status(error.message); }
   });
-  el("local-test").addEventListener("click", function () { play("media/player-av.mp4", "Teste local · Imagem sintética e áudio", "local"); });
-  el("local-hls").addEventListener("click", function () { play("media/hls/index.m3u8", "Teste HLS local · Compatibilidade do aparelho", "local"); });
+  el("local-test").addEventListener("click", function () { play(localMedia("media/player-av.mp4"), "Teste local · Imagem sintética e áudio", "local"); });
+  el("local-hls").addEventListener("click", function () { play(localMedia("media/hls/index.m3u8"), "Teste HLS local · Compatibilidade do aparelho", "local"); });
   el("source-focus").addEventListener("click", function () { focus(el("server")); });
   el("back").addEventListener("click", stop);
   function toggle() { if (video.paused) { var result = video.play(); if (result && result.catch) result.catch(function () { playerStatus("Não foi possível iniciar. Confira a fonte e o formato."); }); } else video.pause(); }
@@ -123,9 +127,9 @@
     el("checks").textContent = "TV: " + (confirmed.live ? "OK" : "pendente") + " · Filme: " + (confirmed.movie ? "OK" : "pendente") + " · Episódio: " + (confirmed.series ? "OK" : "pendente");
     stop(); status("Confirmação manual registrada nesta sessão. Teste o próximo tipo.");
   });
-  video.addEventListener("playing", function () { el("confirm-av").disabled = currentKind === "local" || video.videoWidth === 0; playerStatus("Reproduzindo. Confirme imagem e áudio na TV."); });
+  video.addEventListener("playing", function () { clearTimeout(playbackDeadline); el("confirm-av").disabled = currentKind === "local" || video.videoWidth === 0; playerStatus("Reproduzindo. Confirme imagem e áudio na TV."); });
   video.addEventListener("waiting", function () { playerStatus("Aguardando dados da transmissão…"); });
-  video.addEventListener("error", function () { playerStatus(D.mediaError(video.error && video.error.code)); });
+  video.addEventListener("error", function () { clearTimeout(playbackDeadline); playerStatus(D.mediaError(video.error && video.error.code)); });
   video.addEventListener("pause", function () { el("play-pause").textContent = "Reproduzir"; });
   video.addEventListener("play", function () { el("play-pause").textContent = "Pausar"; });
   video.addEventListener("loadedmetadata", function () { playerStatus("Vídeo reconhecido: " + video.videoWidth + " × " + video.videoHeight + ". Confira o áudio na TV."); });
@@ -140,6 +144,9 @@
   }
   document.addEventListener("keydown", function (event) {
     var code = event.keyCode || event.which, active = document.activeElement;
+    if (code === 13 && active && active.tagName === "BUTTON" && !active.disabled) {
+      event.preventDefault(); if (!event.repeat) active.click(); return;
+    }
     if (code === 461 || code === 27) { if (!player.hidden) { event.preventDefault(); stop(); } return; }
     if (!player.hidden && (code === 415 || code === 19 || code === 10252)) {
       event.preventDefault();
@@ -161,5 +168,8 @@
     }
     if (best) { event.preventDefault(); focus(best); }
   });
+  window.nexReady = true;
+  var styled = parseInt(window.getComputedStyle(document.querySelector(".brand")).fontSize, 10) >= 30;
+  el("initialization-status").textContent = "Versão 0.1.1 · JavaScript OK · " + (styled ? "Estilo OK" : "Estilo não carregado");
   focus(el("local-test"));
 }());

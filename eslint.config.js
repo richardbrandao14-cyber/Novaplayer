@@ -7,6 +7,7 @@ export default ts.config(
     ignores: [
       "dist/**",
       "platforms/webos-poc/dist/**",
+      "platforms/webos-poc/fixtures/**", // mídia MPEG-TS, não TypeScript.
       "node_modules/**",
       "src-tauri/target/**",
       "src-tauri/tests/fixtures/**", // .ts aqui é MPEG-TS binário, não TypeScript.

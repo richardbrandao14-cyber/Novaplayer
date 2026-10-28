@@ -50,6 +50,7 @@
     return ({1:"Reprodução interrompida.",2:"Falha de rede durante a reprodução.",3:"A TV não conseguiu decodificar este conteúdo.",4:"Formato, codec ou endereço não aceito pelo player."})[code] || "Não foi possível reproduzir. Confira a fonte e a compatibilidade do aparelho.";
   }
   var exported = {httpUrl:httpUrl,base:base,api:api,stream:stream,records:records,episodes:episodes,mediaError:mediaError};
-  if (typeof module !== "undefined" && module.exports) module.exports = exported;
+  if (typeof window !== "undefined") window.NexDomain = exported;
+  else if (typeof module !== "undefined" && module.exports) module.exports = exported;
   else root.NexDomain = exported;
 }(this));

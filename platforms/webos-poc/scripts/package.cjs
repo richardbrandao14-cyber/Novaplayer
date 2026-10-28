@@ -10,16 +10,54 @@ fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(app, { recursive: true });
 fs.cpSync(path.join(root, "app"), app, { recursive: true });
 fs.copyFileSync(path.join(repo, "LICENSE"), path.join(app, "LICENSE"));
+// Recursos locais embutidos: o runtime da TV não precisa resolvê-los pela origem file:.
+const inlineFiles = ["boot.js", "domain.js", "app.js"];
+const css = fs
+  .readFileSync(path.join(app, "style.css"), "utf8")
+  .replace(/\r\n?/g, "\n");
+let html = fs.readFileSync(path.join(app, "index.html"), "utf8");
+const hashes = [];
+for (const name of inlineFiles) {
+  const code = fs
+    .readFileSync(path.join(app, name), "utf8")
+    .replace(/\r\n?/g, "\n");
+  if (/<\/script/i.test(code))
+    throw new Error("Código não pode fechar a tag script.");
+  hashes.push(
+    "'sha256-" +
+      crypto.createHash("sha256").update(code).digest("base64") +
+      "'",
+  );
+  html = html.replace(
+    '<script src="' + name + '"></script>',
+    "<script>" + code + "</script>",
+  );
+}
+const styleHash =
+  "'sha256-" + crypto.createHash("sha256").update(css).digest("base64") + "'";
+const policy =
+  "default-src 'none'; script-src " +
+  hashes.join(" ") +
+  "; style-src " +
+  styleHash +
+  "; img-src 'self' file: data:; media-src 'self' file: http: https:; connect-src http: https:; object-src 'none'; base-uri 'none'; form-action 'none'";
+html = html.replace(/content="default-src [^"]+"/, 'content="' + policy + '"');
+html = html.replace(
+  '<link rel="stylesheet" href="style.css">',
+  "<style>" + css + "</style>",
+);
+fs.writeFileSync(path.join(app, "index.html"), html);
+for (const name of [...inlineFiles, "style.css"])
+  fs.unlinkSync(path.join(app, name));
+
 fs.mkdirSync(path.join(app, "media/hls"), { recursive: true });
 fs.copyFileSync(
-  path.join(repo, "src-tauri/tests/fixtures/player-av.mp4"),
+  path.join(root, "fixtures/tv-av.mp4"),
   path.join(app, "media/player-av.mp4"),
 );
-fs.cpSync(
-  path.join(repo, "src-tauri/tests/fixtures/player-hls"),
-  path.join(app, "media/hls"),
-  { recursive: true },
-);
+fs.cpSync(path.join(root, "fixtures/hls"), path.join(app, "media/hls"), {
+  recursive: true,
+});
 // APPDATA é suportado pela CLI; estado isolado só neste processo filho.
 const cliState = path.join(root, "node_modules/.nex-cli-state");
 fs.mkdirSync(cliState, { recursive: true });

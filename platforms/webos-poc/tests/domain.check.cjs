@@ -60,7 +60,7 @@ test("scripts da TV usam sintaxe ES5 e manifest não pede serviços privilegiado
   const fs = require("node:fs");
   const path = require("node:path");
   const acorn = require("acorn");
-  for (const name of ["domain.js", "app.js"])
+  for (const name of ["boot.js", "domain.js", "app.js"])
     acorn.parse(fs.readFileSync(path.join(__dirname, "../app", name), "utf8"), {
       ecmaVersion: 5,
     });

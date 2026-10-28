@@ -49,7 +49,18 @@ async function main() {
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
     const base = "http://127.0.0.1:" + server.address().port;
+    // Regressão: nenhum CSS/JS externo pode ser necessário para iniciar na TV.
+    await page.route(/\.(css|js)(\?|$)/, (route) => route.abort());
     await page.goto(base);
+    assert.equal(
+      await page.evaluate(() => window.nexReady === true),
+      true,
+      "Pacote precisa iniciar sem carregar JS/CSS externos",
+    );
+    assert.match(
+      await page.locator("#initialization-status").textContent(),
+      /JavaScript OK.*Estilo OK/,
+    );
     await page
       .getByRole("button", { name: "Testar vídeo e som", exact: true })
       .focus();
@@ -58,15 +69,15 @@ async function main() {
       await page.evaluate(() => document.activeElement.id),
       "local-hls",
     );
-    await page
-      .getByRole("button", { name: "Testar vídeo e som", exact: true })
-      .click();
+    await page.locator("#local-test").focus();
+    // Simular OK que entrega somente keydown, sem clique automático do navegador.
+    await page.locator("#local-test").dispatchEvent("keydown", { keyCode: 13 });
     await page.waitForFunction(
       () => document.getElementById("video").currentTime > 0.1,
     );
     assert.equal(
       await page.locator("video").evaluate((v) => v.videoWidth),
-      160,
+      1280,
     );
     assert.equal(
       await page.getByRole("button", { name: "Imagem e som OK" }).isEnabled(),
