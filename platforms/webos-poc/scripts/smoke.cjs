@@ -99,6 +99,7 @@ async function main() {
     assert.match(await page.locator("#video-quality").textContent(),/4K.*3840.*2160/);
     await page.keyboard.press("Escape");
     console.log("QA: startup/local playback");
+    await page.waitForFunction(()=>{const img=document.querySelector("#login-cinema img");return img.complete&&img.naturalWidth>1500;});
     await page.locator("#server").focus();
     await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"username");
     await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"password");

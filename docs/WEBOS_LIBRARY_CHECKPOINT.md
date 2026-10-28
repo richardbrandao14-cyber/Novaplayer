@@ -68,3 +68,7 @@ Defeito: handler global retornava para INPUT nas setas laterais; range consumia 
 ## Entrega autorizada pelo proprietário
 
 Pedido “Ok me traga o app para instalar” autoriza envio do conjunto webOS 0.4.2 revisado e geração do ZIP/IPK de desenvolvimento. Manter o app ID para preservar dados; não criar Release, publicar loja ou misturar alterações Windows pendentes. Confirmar CI e informar que o teste físico LG é o próximo marco.
+
+### Adição solicitada durante a entrega
+
+Proprietário pediu banner de cinema no login antes de receber o pacote. Incluída arte original local (geração de imagem; arquivo original em workspace/generated_images, cópia em app/assets/login-cinema.png), sem títulos reais ou indicação de catálogo fornecido. Sem credenciais TMDB embutidas ou acesso remoto obrigatório antes do login. Teste de imagem carregada acrescentado ao cenário Chromium.

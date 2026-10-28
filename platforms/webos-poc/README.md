@@ -108,3 +108,7 @@ TV utiliza a imagem fornecida no registro, com prioridade para stream_icon; acei
 ### Entrega 0.4.2
 
 Proprietário solicitou o pacote para instalar após a revisão visual. Inclui menu lateral/subcategorias, busca dedicada, banner com ações, Minha lista, logos da fonte e player com Ajustes e saída explícita da barra de progresso. Testes locais: 26 testes, lint, pacote IPK e cenário Chromium com catálogo de 50 mil registros e reprodução sintética HD/4K aprovados. Teste físico da atualização na LG continua pendente.
+
+### Tela de entrada cinematográfica
+
+Banner decorativo original gerado para o NEX, incluído localmente em assets/login-cinema.png; não representa filmes fornecidos pelo app nem consulta catálogo antes do login. Formulário mantém campos e navegação existentes, com fundo escuro para leitura. O fundo é estático (sem vídeo ou animação contínua) e continua disponível offline. Não confundir a resolução da arte de entrada com a resolução original do vídeo reproduzido.
