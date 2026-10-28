@@ -163,5 +163,5 @@
   function connectionLabel(){var badge=document.querySelector(".session-badge");badge.textContent=navigator.onLine===false?"Sem conexão":"Sua biblioteca";badge.className=navigator.onLine===false?"session-badge offline":"session-badge";}
   window.addEventListener("online",connectionLabel);window.addEventListener("offline",connectionLabel);connectionLabel();
   window.nexReady = true; var styled = parseInt(window.getComputedStyle(document.querySelector(".brand")).fontSize, 10) >= 30;
-  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.0":"Versão 0.4.0 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
+  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.1":"Versão 0.4.1 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
 }());

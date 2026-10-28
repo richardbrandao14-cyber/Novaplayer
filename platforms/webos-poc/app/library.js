@@ -221,6 +221,14 @@
       hooks.request(D.api(hooks.config(), kind === "series" ? "get_series_info" : "get_vod_info", identifier), function (value) {
         if (generation !== detailGeneration || !detail) return;
         detail.value = value; applyDetail(value); message("Escolha o que assistir.");
+        window.NexTmdb.lookup(item, kind, value && value.info || {}, function (metadata) {
+          if (generation !== detailGeneration || !detail || !metadata) return;
+          var info = value && value.info || {};
+          if (!info.plot && !info.description && !item.plot && metadata.overview) text("detail-description", metadata.overview);
+          var artwork = window.NexTmdb.image(metadata.backdrop_path);
+          if (artwork) image(el("detail-art"), artwork);
+          message("Escolha o que assistir. Metadados complementares: TMDB.");
+        });
       });
     }
     function start(item, kind, title, preview) {
@@ -253,6 +261,11 @@
     el("load-series").addEventListener("click", function () { enter("series"); });
     el("lib-home").addEventListener("click", function () { stack = []; enter("movie", true); stack = []; });
     el("lib-continue").addEventListener("click",function(){enter("movie",false,false,true);});
+    el("tmdb-connect").addEventListener("click",function(){
+      var input=el("tmdb-token"),value=input.value;input.value="";text("tmdb-status","Conectando ao TMDB…");
+      window.NexTmdb.configure(value,function(ok){text("tmdb-status",ok?"TMDB conectado nesta sessão. Abra um filme ou série para consultar seus dados.":"Não foi possível conectar ao TMDB. Verifique token, conexão e permissão de acesso à API.");});
+    });
+    el("tmdb-disconnect").addEventListener("click",function(){window.NexTmdb.clear();el("tmdb-token").value="";text("tmdb-status","TMDB desconectado.");});
     el("lib-settings").addEventListener("click",function(){remember();hooks.stopPreview();cancel();state={kind:"movie",settings:true};detail=null;settingsView();focus(el("auto-next"));});
     el("settings-live-format").addEventListener("change",function(){hooks.shelf.format(this.value);el("live-format").value=this.value;});
     el("auto-next").addEventListener("change",function(){hooks.shelf.autoNext(this.checked);});

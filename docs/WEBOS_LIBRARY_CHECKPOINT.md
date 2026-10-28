@@ -44,3 +44,7 @@ UI muda de painel lateral/hero em cartão para navegação superior, fundo cinem
 Incluída amostra própria 3840×2160/24 fps, H.264 High 5.1 SDR e AAC, confirmada por ffprobe. Player mostra dimensões intrínsecas em loadedmetadata/resize/playing/timeupdate, sem rotular HD como UHD. URLs originais não são transcodificadas; HLS adaptativo continua sob controle nativo. Smoke exige avanço de tempo, dimensões 3840×2160 e quadros efetivamente apresentados, além do pacote. Isso comprova decodificação no Chromium, não painel/decoder físico LG.
 
 Interface permanece no canvas lógico 1920×1080 conhecido; não trocar appinfo por 3840 sem validar suporte no aparelho. Portal LG não pôde ser consultado por bloqueio 403 do proxy; nenhum valor de manifesto ou API proprietária foi inventado. HDR, HEVC/Dolby e 4K de todas as fontes não estão certificados.
+
+## 0.4.1 — compatibilidade visual e metadados opcionais
+
+Foto real do usuário mostra catálogo comprimido à esquerda. CSS usava inset (não suportado por navegadores antigos), fundos hex com alpha e clamp. Substituídos por posicionamento explícito, rgba e tamanhos responsivos tradicionais. Hipótese compatível com foto; confirmação visual LG ainda necessária. Token TMDB fornecido pelo usuário não foi persistido nem incorporado. Integração configurável por sessão, ID prioritário/pesquisa conservadora, falha independente do IPTV. Sem acesso real TMDB no ambiente: rede configurada não inclui api.themoviedb.org. Testes contratuais não comprovam acesso físico.

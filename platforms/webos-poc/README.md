@@ -1,10 +1,10 @@
-# NEX para LG webOS — 0.4.0
+# NEX para LG webOS — 0.4.1
 
 Edição de uso com fontes Xtream autorizadas. Alvo do proprietário: LG UM7510PSB, firmware 05.40.97. Canais reais e amostras locais de vídeo/áudio foram confirmados na versão anterior; esta atualização ainda precisa da confirmação física. Não fornece conteúdo, assinatura ou transcodificação.
 
 ## Atualizar sem programar
 
-Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.0_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
+Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.1_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
 
 ## Usar
 
@@ -29,7 +29,7 @@ Favoritos e progresso armazenam IDs/posições, não URLs, capas, senhas ou dado
 4. Deixe computador e TV na mesma rede. Anote o endereço IP e a passphrase mostrados pela TV **apenas para inserir no seu computador**. Não os publique nem envie senhas no chat.
 5. No Windows, obtenha o **webOS Dev Manager** em https://github.com/webosbrew/dev-manager-desktop/releases/latest. É uma ferramenta comunitária, não um aplicativo oficial da LG. Escolha o instalador Windows x64 `.msi`.
 6. Abra o gerenciador e adicione a TV em **Developer Mode**, usando o IP e a passphrase da tela da TV. O perfil de desenvolvimento normalmente usa SSH porta 9922; o gerenciador orienta os campos.
-7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.0_all.ipk` deste pacote.
+7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.1_all.ipk` deste pacote.
 8. Abra **NEX** pela TV ou pelo gerenciador. Não abra o `.ipk` como executável Windows e não use pen drive como instalador genérico.
 
 Developer Mode é temporário e exige atenção à sessão/renovação indicada na própria TV. Não fixamos duração em horas: conferir o comportamento atual no aparelho. Não é o fluxo de distribuição comercial definitiva.
@@ -53,7 +53,7 @@ Testes: domínio/ES5, 50 mil registros, URLs/credenciais codificadas, persistên
 
 Isso não certifica codecs, som audível, suporte de faixas no modelo LG, cofre no runtime da TV, CORS/TLS do provedor ou tecla física Voltar. Busca/retomada dependem da fonte; EPG e capas dependem de metadados fornecidos. Sem trailers inventados, detecção automática de abertura, serviços de IA, proxy, DRM ou publicação em loja. Detalhes em `docs/WEBOS_LIBRARY_CHECKPOINT.md`.
 
-## Correções e visual 0.4.0
+## Correções e visual 0.4.1
 
 Cadastro navega por ↑/↓ na ordem dos campos, sem depender da distância visual até Conectar. O catálogo é consultado antes das categorias; falha de categorias não impede acesso aos conteúdos. Respostas em arrays, envelopes conhecidos e mapas de IDs são aceitas; erros/zero registros ficam explícitos com nova tentativa. Isso não confirma a causa específica da tela vazia no provedor real.
 
@@ -62,3 +62,11 @@ Referências do proprietário aplicadas: menu superior, banner integrado à pág
 ### Interface e UHD
 
 A resolução lógica 1920×1080 da interface já funcional foi preservada. Ela não é uma configuração de redução do arquivo de vídeo. A reprodução usa o fluxo original e a camada de mídia da TV; reprodução/saída UHD física ainda precisa ser conferida na LG. O portal oficial LG ficou bloqueado (403 do proxy deste ambiente), portanto não presumimos que mudar o manifesto para 3840×2160 seja suportado neste modelo. Não há promessa de HDR, todos os codecs 4K ou transformação de HD em 4K.
+
+### Correção 0.4.1 e TMDB
+
+Layout com top/right/bottom/left e cores rgba para o navegador antigo da TV: sem dependência de inset, clamp ou hexadecimal com alpha. A resolução lógica da interface continua 1920×1080; reprodução original 4K permanece independente.
+
+Em Configurações → Imagens e sinopses · TMDB, informe seu token de leitura e selecione Conectar TMDB. Token somente em memória: não vai no código, IPK, logs ou armazenamento local; precisa ser informado em cada abertura. Desconectar elimina token e cache. Requisições HTTPS independentes com prazo de 10 segundos. O TMDB recebe o título consultado ou ID; não recebe acesso Xtream.
+
+Ao abrir detalhes de filme/série, usa ID TMDB fornecido pela lista; sem ID, aceita somente correspondência única de título exato e ano quando informado. Ambiguidade/falha mantém os dados da fonte. Banner do TMDB quando disponível e sinopse apenas se ausente na fonte. Não oferece vídeos, não altera links de reprodução e não adiciona títulos externos ao catálogo. Cache de até 32 consultas em memória. Sem chamadas reais validadas ao TMDB neste ambiente; testes usam respostas sintéticas. Validar token, CORS e HTTPS na LG física. Uso comercial requer conferir os termos/licença do TMDB antes da distribuição comercial.
