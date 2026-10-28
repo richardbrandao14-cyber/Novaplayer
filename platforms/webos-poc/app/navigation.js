@@ -10,13 +10,13 @@
     var from=container[property],start=null;
     if(!smooth||reduced()||Math.abs(from-target)<2){container[property]=target;return;}
     running.push(container);
-    function frame(now){if(start===null)start=now;var p=Math.min(1,(now-start)/200);container[property]=from+(target-from)*(1-Math.pow(1-p,3));if(p<1)container._nexScrollFrame=window.requestAnimationFrame(frame);else cancel(container);}
+    function frame(now){if(start===null)start=now;var p=Math.min(1,(now-start)/140);container[property]=from+(target-from)*(1-Math.pow(1-p,3));if(p<1)container._nexScrollFrame=window.requestAnimationFrame(frame);else cancel(container);}
     container._nexScrollFrame=window.requestAnimationFrame(frame);
   }
   function focus(node,smooth){
     if(!node||node.disabled||!node.getClientRects().length)return;
     var parents=[],parent=node.parentElement,container=null,horizontalContainer=null;
-    while(parent){parents.push({node:parent,top:parent.scrollTop,left:parent.scrollLeft});var overflow=window.getComputedStyle(parent).overflowY;if(!container&&(overflow==="auto"||overflow==="scroll")&&parent.scrollHeight>parent.clientHeight+1)container=parent;if(!horizontalContainer&&window.getComputedStyle(parent).overflowX==="auto"&&parent.scrollWidth>parent.clientWidth+1)horizontalContainer=parent;parent=parent.parentElement;}
+    while(parent){parents.push({node:parent,top:parent.scrollTop,left:parent.scrollLeft});var computed=window.getComputedStyle(parent),overflow=computed.overflowY;if(!container&&(overflow==="auto"||overflow==="scroll")&&parent.scrollHeight>parent.clientHeight+1)container=parent;if(!horizontalContainer&&computed.overflowX==="auto"&&parent.scrollWidth>parent.clientWidth+1)horizontalContainer=parent;parent=parent.parentElement;}
     node.focus();
     parents.forEach(function(saved){saved.node.scrollTop=saved.top;saved.node.scrollLeft=saved.left;});
     var root=document.scrollingElement||document.documentElement;

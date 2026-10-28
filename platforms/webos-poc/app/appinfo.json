@@ -1,6 +1,6 @@
 {
   "id": "com.nex.poc.webos",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "vendor": "NEX",
   "type": "web",
   "main": "index.html",

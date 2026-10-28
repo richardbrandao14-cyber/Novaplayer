@@ -1,4 +1,4 @@
-/* Persistência contém somente identificadores e preferências; nunca fontes ou credenciais. */
+/* Biblioteca por perfil local: IDs, progresso, preferências e nomes de perfis; nunca fontes ou credenciais. */
 (function (root) {
   "use strict";
   function fingerprint(value) {
@@ -26,12 +26,14 @@
     return h.map(function (n) { return ("00000000"+(n>>>0).toString(16)).slice(-8); }).join("");
   }
   function shelf(storage, report) {
-    var name = "", state;
+    var name = "", baseName="", profileData=null, state;
     function defaults() { return {version:1,favorites:{},watchlist:{},progress:{},settings:{autoNext:true,liveFormat:"m3u8"}}; }
     function validKey(key) { return /^(live|movie|series|episode):\d{1,20}$/.test(key); }
     function persist() { if (!name) return; try { storage.setItem(name,JSON.stringify(state)); } catch (error) { report("A TV não conseguiu salvar os dados. Libere espaço nas configurações do aparelho."); } }
-    function connect(config) {
-      name = "nex.shelf.v1." + fingerprint(config.server + "\n" + config.user); state = defaults();
+    function validName(value){return typeof value==="string"&&value.trim().length>0&&value.trim().length<=24&&!value.split("").some(function(c){return c.charCodeAt(0)<32||c.charCodeAt(0)===127;});}
+    function manifest(next){if(!next.baseFormat)next.baseFormat=profileData&&profileData.baseFormat||"m3u8";try{storage.setItem(baseName+".profiles",JSON.stringify(next));profileData=next;return true;}catch(error){report("Não foi possível salvar os perfis nesta TV.");return false;}}
+    function loadProfile(){
+      name=baseName+(profileData.active==="default"?"":".profile."+profileData.active);state=defaults();state.settings.liveFormat=profileData.baseFormat||"m3u8";
       try {
         var raw = storage.getItem(name); if (!raw || raw.length > 1024*1024) return;
         var value = JSON.parse(raw); if (!value || value.version !== 1) return;
@@ -42,14 +44,29 @@
         if (value.settings && typeof value.settings.autoNext === "boolean") state.settings.autoNext=value.settings.autoNext;
       } catch (error) { report("Não foi possível ler a biblioteca salva. Você pode continuar usando o app."); }
     }
-    return {connect:connect, favorites:function () { return state ? state.favorites : {}; }, progress:function () { return state ? state.progress : {}; },
+    function connect(config){
+      baseName="nex.shelf.v1."+fingerprint(config.server+"\n"+config.user);profileData={version:1,active:"default",profiles:[{id:"default",name:"Perfil 1"}]};
+      try{var raw=storage.getItem(baseName+".profiles");if(raw&&raw.length<=8192){var data=JSON.parse(raw),seen={};if(data&&data.version===1&&Array.isArray(data.profiles)&&data.profiles.length>0&&data.profiles.length<=5&&data.profiles.every(function(p){if(!p||!(/^(default|p[a-f0-9]{16})$/).test(p.id)||seen[p.id]||!validName(p.name))return false;seen[p.id]=true;return true;})&&seen.default&&seen[data.active])profileData={version:1,baseFormat:data.baseFormat==="ts"?"ts":"m3u8",active:data.active,profiles:data.profiles.map(function(p){return{id:p.id,name:p.name.trim()};})};}}
+      catch(error){report("Não foi possível ler os perfis salvos. O perfil original continua disponível.");}
+      loadProfile();profileData.baseFormat=state.settings.liveFormat;
+    }
+    function selectProfile(id){if(!profileData||!profileData.profiles.some(function(p){return p.id===id;}))return false;var next={version:1,active:id,profiles:profileData.profiles};if(!manifest(next))return false;loadProfile();return true;}
+    function createProfile(value){
+      if(!profileData||!validName(value)){report("Informe um nome de perfil com até 24 caracteres.");return "";}
+      if(profileData.profiles.length>=5){report("Esta lista já tem cinco perfis. Você pode renomear um perfil existente.");return "";}
+      if(profileData.profiles.some(function(p){return p.name.toLowerCase()===value.trim().toLowerCase();})){report("Já existe um perfil com esse nome.");return "";}
+      var id;do{id="p"+("00000000"+Date.now().toString(16)).slice(-8)+("00000000"+Math.floor(Math.random()*4294967296).toString(16)).slice(-8);}while(profileData.profiles.some(function(p){return p.id===id;}));
+      return manifest({version:1,active:profileData.active,profiles:profileData.profiles.concat([{id:id,name:value.trim()}])})?id:"";
+    }
+    function renameProfile(id,value){if(!profileData||!validName(value)||!profileData.profiles.some(function(p){return p.id===id;}))return false;if(profileData.profiles.some(function(p){return p.id!==id&&p.name.toLowerCase()===value.trim().toLowerCase();})){report("Já existe um perfil com esse nome.");return false;}return manifest({version:1,active:profileData.active,profiles:profileData.profiles.map(function(p){return{id:p.id,name:p.id===id?value.trim():p.name};})});}
+    return {connect:connect,profiles:function(){return profileData?profileData.profiles.map(function(p){return{id:p.id,name:p.name};}):[];},activeProfile:function(){return profileData?profileData.active:"";},selectProfile:selectProfile,createProfile:createProfile,renameProfile:renameProfile, favorites:function () { return state ? state.favorites : {}; }, progress:function () { return state ? state.progress : {}; },
       favorite:function (key, selected) { if (!state || !validKey(key)) return; if (selected) { if (Object.keys(state.favorites).length>=4000 && !state.favorites[key]) { report("Limite de quatro mil favoritos atingido."); return; } state.favorites[key]=true; } else delete state.favorites[key]; persist(); },
       watchlist:function(){return state?state.watchlist:{};},
       list:function(key,selected){if(!state||!validKey(key))return;if(selected){if(Object.keys(state.watchlist).length>=4000&&!state.watchlist[key]){report("Limite de quatro mil itens na Minha lista atingido.");return;}state.watchlist[key]=true;}else delete state.watchlist[key];persist();},
       save:function (key, position, duration, parentId) { if (!state || !validKey(key) || !isFinite(position) || position < 0) return; state.progress[key]={position:position,duration:isFinite(duration)?duration:0,parentId:/^\d{1,20}$/.test(String(parentId))?String(parentId):"",updatedAt:Date.now()}; var keys=Object.keys(state.progress); if (keys.length>2000) { keys.sort(function(a,b){return state.progress[a].updatedAt-state.progress[b].updatedAt;}); delete state.progress[keys[0]]; } persist(); },
       autoNext:function (value) { if (!state) return true; if (typeof value === "boolean") { state.settings.autoNext=value; persist(); } return state.settings.autoNext; },
-      format:function(value){if(!state)return "m3u8";if(value==="m3u8"||value==="ts"){state.settings.liveFormat=value;persist();}return state.settings.liveFormat;},
-      erase:function () { if (!state) return; var settings=state.settings;state=defaults();state.settings=settings;persist(); },disconnect:function () { name=""; state=null; }};
+      format:function(value){if(!state)return "m3u8";if(value==="m3u8"||value==="ts"){state.settings.liveFormat=value;if(profileData)profileData.baseFormat=value;persist();}return state.settings.liveFormat;},
+      erase:function () { if (!state) return; var settings=state.settings;state=defaults();state.settings=settings;persist(); },disconnect:function () { name="";baseName="";profileData=null; state=null; }};
   }
   var api={fingerprint:fingerprint,create:shelf};
   if (typeof window !== "undefined") { api.browser=function(report) { return shelf({getItem:function(k){return window.localStorage.getItem(k);},setItem:function(k,v){window.localStorage.setItem(k,v);}},report); }; window.NexShelf=api; } else if (typeof module !== "undefined") module.exports=api; else root.NexShelf=api;

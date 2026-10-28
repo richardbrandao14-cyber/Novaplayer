@@ -76,3 +76,11 @@ Proprietário pediu banner de cinema no login antes de receber o pacote. Incluí
 ## 0.4.3 — conflitos das setas e seleção de temporadas
 
 Relato físico do proprietário: ↑/↓ trocavam canal antes de alcançar os controles; temporadas não recebiam foco. Correção: zap por setas somente com HUD oculto, comandos/botões próprios para troca explícita e controles com HUD aberto. Range usa limites seekable reais e fica desabilitado quando ausentes. Temporadas deixam select nativo e passam a botões com confirmação por OK, foco inicial após carregamento, caminhos explícitos hero↔temporadas↔episódios e rolagem horizontal ES5. Não altera URLs de reprodução, autenticação, histórico ou schema de persistência. Teste Chromium distingue a simulação de ausência de seekable do teste físico LG. Entrega continua sendo IPK de desenvolvimento.
+
+## 0.4.4 — perfis locais, retomada e desempenho
+
+Autorizado pelo proprietário: até cinco perfis locais após login, biblioteca/progresso individual; Continue separado em Filmes/Séries, sem TV; corrigir lupa; melhorar desempenho. Pedido adicional inclui banner da série com episódio/progresso/tempo restante e escolha de reiniciar/retomar.
+
+Manifesto público de perfis por fingerprint da fonte/conta guarda somente ID local, nome escolhido e seleção. Perfil default mantém a chave original; os demais têm sufixo próprio. Credenciais não são duplicadas, permanecem no cofre existente. Nomes são textContent, até 24 caracteres, e arquivos/manifestos são limitados e validados. Falha de escrita impede a troca de perfil. Troca de perfil encerra a sessão de reprodução e limpa contexto de navegação/retomada, mantendo o catálogo público em cache.
+
+Montagem de Continue indexada por série, sem varrer até 2.000 progressos para cada título. Carregamento visual com três imagens em voo, prioridade/visibilidade/cancelamento. Testes Chromium exercitam cinco perfis e confirmação de retomada; testes unitários cobrem dados antigos intactos, isolamento e gravação indisponível. Medições e limites em WEBOS_PERFORMANCE.md. Sem publicação em loja, teste físico ou promessa de FPS.

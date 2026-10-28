@@ -23,3 +23,18 @@ test('Minha lista é distinta dos favoritos e persiste apenas IDs por conta',()=
  assert.deepEqual(shelf.watchlist(),{'movie:8':true});assert.deepEqual(shelf.favorites(),{'movie:9':true});
  const next=S.create(storage,()=>{});next.connect(config);assert.deepEqual(next.watchlist(),{'movie:8':true});next.connect({...config,user:'another-account'});assert.deepEqual(next.watchlist(),{});next.connect(config);next.erase();assert.deepEqual(next.watchlist(),{});
 });
+
+test('cinco perfis isolam favoritos, Minha lista, progresso e preferências sem migrar o perfil original',()=>{
+ const storage=memory(),shelf=S.create(storage,()=>{});shelf.connect(config);shelf.favorite('movie:12',true);shelf.list('series:7',true);shelf.save('episode:5',40,800,'7');shelf.autoNext(false);shelf.format('ts');
+ const legacyKey='nex.shelf.v1.'+S.fingerprint(config.server+'\n'+config.user);const legacy=storage.values[legacyKey];
+ const ids=[];for(let i=2;i<=5;i++)ids.push(shelf.createProfile('Pessoa '+i));assert.ok(ids.every(Boolean));assert.equal(shelf.profiles().length,5);assert.equal(shelf.createProfile('Sexto'),'');assert.equal(shelf.createProfile('Pessoa 2'),'');
+ for(const [index,id] of ids.entries()){assert.equal(shelf.selectProfile(id),true);assert.deepEqual(shelf.favorites(),{});assert.deepEqual(shelf.watchlist(),{});assert.deepEqual(shelf.progress(),{});assert.equal(shelf.format(),'ts');shelf.favorite('movie:'+index,true);shelf.list('series:'+index,true);shelf.save('movie:'+index,20+index,800,'');}
+ assert.equal(storage.values[legacyKey],legacy);assert.equal(shelf.selectProfile('default'),true);assert.equal(shelf.favorites()['movie:12'],true);assert.equal(shelf.progress()['episode:5'].position,40);assert.equal(shelf.autoNext(),false);
+ assert.equal(shelf.renameProfile('default','Principal'),true);assert.equal(shelf.renameProfile(ids[0],'Principal'),false);
+ shelf.selectProfile(ids[1]);const next=S.create(storage,()=>{});next.connect(config);assert.equal(next.activeProfile(),ids[1]);assert.deepEqual(next.favorites(),{'movie:1':true});assert.equal(next.progress()['movie:1'].position,21);next.erase();assert.deepEqual(next.favorites(),{});next.selectProfile('default');assert.equal(next.favorites()['movie:12'],true);
+ next.connect({...config,user:'outra-conta'});assert.equal(next.profiles().length,1);assert.deepEqual(next.favorites(),{});assert.ok(!JSON.stringify(storage.values).includes(config.password));
+});
+test('perfil inválido ou falha de gravação nunca troca os dados em memória',()=>{
+ const storage=memory(),messages=[],shelf=S.create(storage,x=>messages.push(x));shelf.connect(config);shelf.favorite('movie:1',true);assert.equal(shelf.selectProfile('../outro'),false);assert.equal(shelf.renameProfile('default','\n'),false);
+ storage.setItem=()=>{throw new Error('quota');};assert.equal(shelf.createProfile('Teste'),'');assert.equal(shelf.profiles().length,1);assert.equal(shelf.activeProfile(),'default');assert.equal(shelf.favorites()['movie:1'],true);assert.ok(messages.length);
+});

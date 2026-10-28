@@ -1,0 +1,19 @@
+/* Perfis locais por fonte: sem autenticação remota ou cópia de credenciais. */
+(function(){
+  "use strict";
+  window.NexProfiles=function(shelf,hooks){
+    var editing="";
+    function el(id){return document.getElementById(id);}
+    function focus(node){window.NexNavigation.focus(node,true);}
+    function render(){
+      var list=el("profile-list"),profiles=shelf.profiles();list.textContent="";
+      profiles.forEach(function(profile,index){if(profile.id===shelf.activeProfile())el("active-profile-label").textContent=profile.name;var button=document.createElement("button"),avatar=document.createElement("span"),name=document.createElement("strong"),badge=document.createElement("small");button.className="profile-card profile-color-"+index;button.setAttribute("data-nav","");button.setAttribute("data-profile",profile.id);button.setAttribute("aria-pressed",profile.id===shelf.activeProfile()?"true":"false");avatar.className="profile-avatar";avatar.textContent=profile.name.charAt(0).toUpperCase();name.textContent=profile.name;badge.textContent=profile.id===shelf.activeProfile()?"Perfil atual":"Entrar";button.appendChild(avatar);button.appendChild(name);button.appendChild(badge);button.addEventListener("click",function(){hooks.select(profile.id);});list.appendChild(button);});
+      el("profile-form").hidden=profiles.length>=5&&!editing;el("profile-name").value="";el("profile-submit").disabled=profiles.length>=5&&!editing;el("profile-rename").disabled=!profiles.length;el("profile-label").textContent=editing?"Novo nome do perfil":"Criar um perfil";el("profile-submit").textContent=editing?"Salvar nome":"Criar perfil";el("profile-cancel").hidden=!editing;el("profile-status").textContent=profiles.length+" de 5 perfis · Favoritos e progresso separados nesta TV.";
+    }
+    el("profile-form").addEventListener("submit",function(event){event.preventDefault();var value=el("profile-name").value.trim();if(!value||value.length>24){el("profile-status").textContent="Informe um nome com até 24 caracteres.";focus(el("profile-name"));return;}var result=editing?shelf.renameProfile(editing,value):shelf.createProfile(value);if(!result){el("profile-status").textContent="Não foi possível salvar. Confira nome repetido, limite de cinco perfis e espaço disponível na TV.";return;}editing="";render();focus(el("profile-list").querySelector('[data-profile="'+(typeof result==="string"?result:shelf.activeProfile())+'"]'));});
+    el("profile-rename").addEventListener("click",function(){editing=shelf.activeProfile();render();var profiles=shelf.profiles();for(var i=0;i<profiles.length;i++)if(profiles[i].id===editing)el("profile-name").value=profiles[i].name;focus(el("profile-name"));});
+    el("profile-cancel").addEventListener("click",function(){editing="";render();focus(el("profile-list").querySelector("button"));});
+    function remote(code,active){if(el("profiles-view").hidden)return false;var buttons=el("profile-list").querySelectorAll("button"),index=Array.prototype.indexOf.call(buttons,active);if(index>=0){if(code===37||code===39){focus(buttons[Math.max(0,Math.min(buttons.length-1,index+(code===39?1:-1)))]);return true;}if(code===40){focus(el("profile-name"));return true;}if(code===38)return true;}if(active===el("profile-name")&&code===38){focus(el("profile-list").querySelector('[aria-pressed="true"]'));return true;}return false;}
+    return {open:function(){editing="";render();focus(el("profile-list").querySelector('[aria-pressed="true"]'));},remote:remote};
+  };
+}());

@@ -2,6 +2,8 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.4 autorizado: até cinco perfis locais por fonte/conta. Exceção explícita de armazenamento público: IDs e nomes de perfil escolhidos pelo usuário, seleção e formato base; nunca credenciais. Perfil default preserva chave antiga; progresso/favoritos/Minha lista/preferências separados. Troca interrompe a reprodução antes de mudar perfil. Continue só filmes/séries, indexado por parentId, sem varrer todo progresso por série. Banner e diálogo de retomada usam apenas progresso/duração reais do perfil. Capas com três downloads visíveis/prioridade/cancelamento; sem reflow forçado do banner ou filtros pesados. Medidas Node não equivalem à TV.
+
 - webOS 0.4.3: ↑/↓ trocam canais somente com HUD oculto; HUD aberto e painéis usam as setas para navegação. ChannelUp/Down e botões próprios trocam explicitamente. Seek depende de janela seekable real. Temporadas em botões confirmados por OK, com foco inicial e ida/volta explícita aos episódios, rolagem horizontal e movimento reduzido. Não restaurar o select nativo nem o zap incondicional.
 
 - webOS 0.4.2: menu lateral principal/subcategorias, foco ordenado por controle, busca central e transições com movimento reduzido. ↑/↓ trocam somente TV em fullscreen fora de diálogos, seguindo filtro atual. Prévia sem recorte, HUD compacto e geometria explícita; validar imagem na LG física, não alegar correção só com Chromium. Não animar o plano de vídeo nativo.
