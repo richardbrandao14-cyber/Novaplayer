@@ -3,6 +3,7 @@
   "use strict";
   window.NexLibrary = function (hooks) {
     var D = window.NexDomain, state = null, stack = [], favorites = {}, filterGeneration = 0, filterTimer, queryTimer;
+    var catalogCache = {};
     var detail = null, detailGeneration = 0, season = "", episodePage = 0, pageSize = 48;
     function el(id) { return document.getElementById(id); }
     function text(id, value) { el(id).textContent = value || ""; }
@@ -94,12 +95,13 @@
         state.categories = [{category_id:"live",category_name:"TV ao vivo"},{category_id:"movie",category_name:"Filmes"},{category_id:"series",category_name:"Séries"}];
         browse(); filter(false); focus(el("lib-favorites")); return;
       }
+      if (catalogCache[kind]) { state.items = catalogCache[kind].items; state.categories = catalogCache[kind].categories; browse(); filter(false); focus(el(home ? "lib-home" : kind === "live" ? "load-live" : kind === "series" ? "load-series" : "load-movies")); return; }
       message("Carregando " + label(kind).toLowerCase() + "…");
       var captured = state, action = kind === "live" ? "get_live_streams" : kind === "series" ? "get_series" : "get_vod_streams";
       function catalog() {
         hooks.request(D.api(hooks.config(), action), function (value) {
           if (captured !== state) return;
-          state.items = D.records(value); browse(); filter(false);
+          state.items = D.records(value); catalogCache[kind] = {items:state.items,categories:state.categories}; browse(); filter(false);
         });
       }
       hooks.request(D.api(hooks.config(), kind === "live" ? "get_live_categories" : kind === "series" ? "get_series_categories" : "get_vod_categories"), function (value) {
@@ -208,7 +210,7 @@
     el("season-select").addEventListener("change", function () { season = this.value; episodePage = 0; renderEpisodes(); });
     ["episode-prev","episode-next"].forEach(function (button) { el(button).addEventListener("click", function () { episodePage += button === "episode-prev" ? -1 : 1; renderEpisodes(); focus(el("episode-list").querySelector("button")); }); });
     return {enter:function () { stack = []; enter("movie", true); stack = []; }, back:back, message:message, cancel:cancel,
-      clear:function () { cancel(); state = null; detail = null; stack = []; favorites = {}; el("library").hidden = true; el("home").hidden = false; el("catalog-list").textContent = ""; el("episode-list").textContent = ""; },
+      clear:function () { cancel(); state = null; detail = null; stack = []; favorites = {}; catalogCache = {}; el("library").hidden = true; el("home").hidden = false; el("catalog-list").textContent = ""; el("episode-list").textContent = ""; },
       sourceBack:function () { if (!state) return false; el("home").hidden = true; el("library").hidden = false; if (detail) detailView(); else browse(); focus(el("lib-source")); return true; }};
   };
 }());

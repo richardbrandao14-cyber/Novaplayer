@@ -203,6 +203,7 @@ async function main() {
     assert.equal(await page.evaluate(()=>document.getElementById("library").scrollWidth<=innerWidth),true);
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-library-720.png")});
     await page.setViewportSize({width:1920,height:1080});
+    assert.equal(requests.filter(action=>action==="get_vod_streams").length,1,"Navegar não deve duplicar catálogos grandes na memória");
     assert.ok(requests.includes("get_vod_info") && requests.includes("get_series_info"));
     await page.locator("#lib-source").click();
     await page.locator("#clear-source").click();
