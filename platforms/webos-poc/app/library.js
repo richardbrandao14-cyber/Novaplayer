@@ -180,7 +180,7 @@
       if (stack.length) {
         var previous = stack.pop(); state = previous.state; detail = previous.detail; season = previous.season; episodePage = previous.episodePage;
         el("home").hidden = true; el("library").hidden = false;
-        if (detail) detailView(); else browse();
+        if (detail) detailView(); else { if (state.favorites) state.items = Object.keys(favorites).map(function (k) { return favorites[k]; }); browse(); if (state.favorites) filter(true); }
         message("Use as setas e OK para escolher."); el("library").scrollTop = state.scroll || 0;
         focus(state.focus && document.documentElement.contains(state.focus) ? state.focus : el("lib-back"));
       } else if (state && !state.home) enter("movie", true, false);

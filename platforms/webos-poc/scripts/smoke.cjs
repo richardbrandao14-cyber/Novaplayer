@@ -158,6 +158,10 @@ async function main() {
     assert.equal(await page.locator("#lib-search").inputValue(),"Filme sintético 50000");
     await page.locator("#lib-favorites").click();
     assert.equal(await page.locator("#catalog-list button").count(),1);
+    await page.locator("#catalog-list button").first().click();
+    await page.locator("#detail-favorite").click();
+    await page.locator("#lib-back").click();
+    assert.equal(await page.locator("#catalog-list button").count(),0);
     // TV: prévia lateral, segundo clique amplia, Voltar retorna à prévia e depois catálogo.
     await page.locator("#load-live").click();
     await page.getByRole("button",{name:/Canal sintético/}).waitFor();
