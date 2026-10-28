@@ -23,7 +23,7 @@
   function api(config, action, id) {
     var url = base(config.server) + "/player_api.php?username=" + encodeURIComponent(config.user) + "&password=" + encodeURIComponent(config.password);
     if (action) url += "&action=" + encodeURIComponent(action);
-    if (id) url += (action === "get_vod_info" ? "&vod_id=" : "&series_id=") + encodeURIComponent(id);
+    if (id) url += (action === "get_vod_info" ? "&vod_id=" : action === "get_short_epg" ? "&stream_id=" : "&series_id=") + encodeURIComponent(id);
     return url;
   }
   function stream(config, kind, item, liveFormat) {
@@ -48,10 +48,23 @@
     });
     return result;
   }
+  function epg(value) {
+    function decode(text) {
+      text=typeof text === "string" ? text : "";
+      if (!/^[A-Za-z0-9+/]*={0,2}$/.test(text) || text.length%4) return text;
+      try { return decodeURIComponent(escape(atob(text))); } catch(error) { return text; }
+    }
+    var rows=value && value.epg_listings;
+    if (!Array.isArray(rows)) return [];
+    return rows.filter(function(row){return row && typeof row === "object";}).slice(0,40).map(function(row){
+      var start=Number(row.start_timestamp)*1000;
+      return {title:decode(row.title)||"Título não fornecido",description:decode(row.description),start:isFinite(start)&&start>0?start:0};
+    });
+  }
   function mediaError(code) {
     return ({1:"Reprodução interrompida.",2:"Falha de rede durante a reprodução.",3:"A TV não conseguiu decodificar este conteúdo.",4:"Formato, codec ou endereço não aceito pelo player."})[code] || "Não foi possível reproduzir. Confira a fonte e a compatibilidade do aparelho.";
   }
-  var exported = {httpUrl:httpUrl,base:base,api:api,stream:stream,records:records,episodes:episodes,mediaError:mediaError};
+  var exported = {httpUrl:httpUrl,base:base,api:api,stream:stream,records:records,episodes:episodes,epg:epg,mediaError:mediaError};
   if (typeof window !== "undefined") window.NexDomain = exported;
   else if (typeof module !== "undefined" && module.exports) module.exports = exported;
   else root.NexDomain = exported;

@@ -63,7 +63,7 @@ test("scripts da TV usam sintaxe ES5 e manifest não pede serviços privilegiado
   const fs = require("node:fs");
   const path = require("node:path");
   const acorn = require("acorn");
-  for (const name of ["boot.js", "domain.js", "library.js", "app.js"])
+  for (const name of ["boot.js", "domain.js", "storage.js", "vault.js", "playback.js", "library.js", "app.js"])
     acorn.parse(fs.readFileSync(path.join(__dirname, "../app", name), "utf8"), {
       ecmaVersion: 5,
     });
@@ -72,7 +72,7 @@ test("scripts da TV usam sintaxe ES5 e manifest não pede serviços privilegiado
   assert.equal(info.disableBackHistoryAPI, true);
   assert.deepEqual(info.requiredACG, []);
 });
-test("app não grava credenciais, não usa HTML do provedor nem código remoto", () => {
+test("interface não expõe credenciais em armazenamento aberto, HTML do provedor ou código remoto", () => {
   const fs = require("node:fs");
   const source = ["app.js", "library.js"].map(name => fs.readFileSync(
     require("node:path").join(__dirname, "../app", name), "utf8"
@@ -86,4 +86,10 @@ test("app não grava credenciais, não usa HTML do provedor nem código remoto",
     "utf8",
   );
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/i);
+});
+
+test("EPG decodifica dados fornecidos e preserva ausência de horário",()=>{
+ const rows=D.epg({epg_listings:[{title:Buffer.from("Jornal da fonte").toString("base64"),description:Buffer.from("Descrição real da fixture").toString("base64"),start_timestamp:"1700000000"},{title:"Título direto"}]});
+ assert.equal(rows[0].title,"Jornal da fonte");assert.equal(rows[0].start,1700000000000);assert.equal(rows[1].start,0);assert.deepEqual(D.epg({}),[]);
+ const url=new URL(D.api(config,"get_short_epg","12"));assert.equal(url.searchParams.get("stream_id"),"12");
 });

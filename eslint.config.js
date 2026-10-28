@@ -29,7 +29,7 @@ export default ts.config(
     languageOptions: {
       ecmaVersion: 5,
       sourceType: "script",
-      globals: { ...globals.browser, module: "readonly" },
+      globals: { ...globals.browser, module: "readonly", Promise: "readonly" },
     },
     rules: {
       "no-unused-vars": ["error", { caughtErrors: "none" }],

@@ -188,3 +188,7 @@ Resultado final NOVA Cinema: [CI](https://github.com/richardbrandao14-cyber/Nova
 ## Biblioteca webOS 0.2.0
 
 Marco e limitações em [WEBOS_LIBRARY_CHECKPOINT.md](docs/WEBOS_LIBRARY_CHECKPOINT.md). Canais reais foram confirmados pelo proprietário na versão anterior. Nesta entrega: domínio ES5, lint, IPK e Chromium com 50 mil registros, busca/paginação/categorias, filmes/séries, próximo episódio, favoritos de canais, imagens remotas decodificadas, HUD e evento cancelável Voltar passaram. Isso não certifica nova UI, tecla física, filmes/séries ou desempenho na LG. Credenciais/favoritos/progresso permanecem somente na sessão. Não executar/afirmar testes Windows a partir deste marco isolado.
+
+## Continuidade webOS 0.3.0
+
+Favoritos/progresso/preferências agora persistem por IDs, acesso pode ser cifrado por senha e EPG/seletores de faixas/reconexão/contagem de próximo foram implementados. 16 testes de domínio, storage, cifra e contratos; lint, IPK e smoke Chromium com recarga real aprovados. O smoke usa Range HTTP válido e verifica retomada de filme/episódio. Faixas de áudio em jsdom são contrato simulado; TextTrack e decodificação MP4 são reais no Chromium; suporte físico/cofre/legendas/áudio LG ainda não certificados. Instruções atuais em platforms/webos-poc/README.md, substituindo os limites históricos da PoC.

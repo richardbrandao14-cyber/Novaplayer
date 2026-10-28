@@ -29,11 +29,12 @@ const server = http.createServer((req, res) => {
       res.writeHead(404).end();
       return;
     }
-    res.writeHead(200, {
-      "Content-Type": types[path.extname(file)] || "application/octet-stream",
-      "Content-Length": bytes.length,
-    });
-    res.end(bytes);
+    const range = /bytes=(\d+)-(\d*)/.exec(req.headers.range || "");
+    const start=range?Number(range[1]):0,end=range&&range[2]?Math.min(Number(range[2]),bytes.length-1):bytes.length-1;
+    if(start>=bytes.length||end<start){res.writeHead(416,{"Content-Range":"bytes */"+bytes.length}).end();return;}
+    const headers={"Content-Type":types[path.extname(file)]||"application/octet-stream","Content-Length":end-start+1,"Accept-Ranges":"bytes"};
+    if(range)headers["Content-Range"]="bytes "+start+"-"+end+"/"+bytes.length;
+    res.writeHead(range?206:200,headers);res.end(bytes.subarray(start,end+1));
   });
 });
 async function main() {
@@ -93,6 +94,7 @@ async function main() {
       await page.evaluate(() => document.activeElement.id),
       "local-test",
     );
+    console.log("QA: startup/local playback");
     // Validação por OK sem depender da validação nativa de URL do navegador.
     await page.locator("#connect-source").focus();
     await page.locator("#connect-source").dispatchEvent("keydown", { keyCode: 13 });
@@ -108,27 +110,37 @@ async function main() {
     await page.locator("#connect-source").dispatchEvent("keydown", { keyCode: 13 });
     assert.match(await page.locator("#source-status").textContent(), /Não foi possível iniciar/);
     await page.evaluate(() => { XMLHttpRequest.prototype.open = window.originalOpen; delete window.originalOpen; });
+    console.log("QA: form validation");
     const media = fs.readFileSync(path.join(root, "media/player-av.mp4"));
     const catalog = Array.from({length:50000}, (_,i) => ({stream_id:i+1, name:"Filme sintético " + (i+1), category_id:String(i%2+1), container_extension:"mp4",direct_source:base+"/media/player-av.mp4", stream_icon:"https://fixture.example/poster.svg"}));
     const requests = [];
     await page.route(/https?:\/\/fixture\.example\//, async (route) => {
       const url = new URL(route.request().url());
       if (url.pathname === "/poster.svg") { await route.fulfill({contentType:"image/svg+xml",body:'<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600"><rect width="400" height="600" fill="#322316"/><circle cx="270" cy="180" r="170" fill="#ae4a10"/><path d="M0 600 400 100 400 600" fill="#16191f"/><text x="32" y="490" fill="#fff" font-size="40">NEX · TESTE</text></svg>'}); return; }
-      if (url.pathname !== "/player_api.php") { await route.fulfill({contentType:"video/mp4",body:media}); return; }
+      if (url.pathname !== "/player_api.php") {
+        const range=/bytes=(\d+)-(\d*)/.exec(route.request().headers().range||"");const start=range?Number(range[1]):0,end=range&&range[2]?Math.min(Number(range[2]),media.length-1):media.length-1;
+        const headers={"Accept-Ranges":"bytes"};if(range)headers["Content-Range"]="bytes "+start+"-"+end+"/"+media.length;
+        await route.fulfill({status:range?206:200,contentType:"video/mp4",headers,body:media.subarray(start,end+1)}); return;
+      }
       const action = url.searchParams.get("action"); requests.push(action);
       const value = !action ? {user_info:{auth:1,status:"Active"}}
+        : action === "get_short_epg" ? {epg_listings:[{title:Buffer.from("Jornal sintético").toString("base64"),description:Buffer.from("Descrição de programação sintética").toString("base64"),start_timestamp:1700000000}]}
         : /categories$/.test(action) ? [{category_id:1,category_name:"Categoria A"},{category_id:2,category_name:"Categoria B"}]
-        : action === "get_vod_info" ? {info:{plot:"Sinopse sintética para testar a interface.",genre:"Teste",duration:"00:00:08"},movie_data:{stream_id:2,container_extension:"mp4",direct_source:base+"/media/player-av.mp4"}}
+        : action === "get_vod_info" ? {info:{plot:"Sinopse sintética para testar a interface.",genre:"Teste",duration:"00:00:08"},movie_data:{stream_id:Number(url.searchParams.get("vod_id")),container_extension:"mp4",direct_source:base+"/media/player-av.mp4"}}
         : action === "get_series_info" ? {info:{plot:"Série sintética, sem conteúdo comercial."},episodes:{1:Array.from({length:60},(_,i)=>({id:i+1,title:"Episódio sintético "+(i+1),episode_num:i+1,container_extension:"mp4",info:{movie_image:"https://fixture.example/poster.svg"}})),2:[{id:99,title:"Outra temporada",container_extension:"mp4"}]}}
         : action === "get_series" ? [{series_id:1,name:"Série sintética",cover:"https://fixture.example/poster.svg",category_id:"1"}]
         : action === "get_live_streams" ? [{stream_id:2,name:"Canal sintético",category_id:"1",direct_source:base+"/media/player-av.mp4"}]
         : catalog;
       await route.fulfill({contentType:"application/json",headers:{"Access-Control-Allow-Origin":"*"},body:JSON.stringify(value)});
     });
+    console.log("QA: provider fixture ready");
+    await page.locator("#remember-access").check();
+    await page.locator("#vault-create").fill("unlock fixture secret");
     await page.locator("#server").fill("https://fixture.example");
     await page.locator("#connect-source").focus();
     await page.locator("#connect-source").dispatchEvent("keydown", { keyCode: 13 });
     await page.waitForFunction(() => document.getElementById("page-count").textContent.includes("50000"));
+    console.log("QA: authentication/catalog");
     assert.equal(await page.locator("#password").inputValue(), "");
     assert.equal(await page.locator("#catalog-list button").count(),48);
     await page.locator("#page-next").click();
@@ -146,6 +158,14 @@ async function main() {
     await page.waitForFunction(() => document.getElementById("video").currentTime>.1);
     await page.locator("#play-pause").click();
     assert.equal(await page.locator("video").evaluate(v=>v.paused),true);
+    await page.locator("video").evaluate(v=>{v.currentTime=6;});
+    await page.waitForFunction(()=>!document.getElementById("video").seeking&&document.getElementById("video").currentTime>=5.8);
+    await page.locator("video").evaluate(v=>{const track=v.addTextTrack("subtitles","Português de teste","pt");track.addCue(new VTTCue(0,8,"NEX · legenda sintética"));});
+    await page.waitForFunction(()=>!document.getElementById("subtitle-track").disabled);
+    await page.locator("#subtitle-track").selectOption("0");
+    assert.equal(await page.locator("video").evaluate(v=>v.textTracks[0].mode),"showing");
+    await page.locator("#subtitle-track").selectOption("-1");
+    assert.equal(await page.locator("video").evaluate(v=>v.textTracks[0].mode),"disabled");
     // HUD oculta em cinco segundos e teclado o revela sem acionar botão oculto.
     await page.waitForFunction(() => document.getElementById("player").classList.contains("hud-hidden"),{},{timeout:8000});
     await page.keyboard.press("ArrowRight");
@@ -162,6 +182,7 @@ async function main() {
     await page.locator("#detail-favorite").click();
     await page.locator("#lib-back").click();
     assert.equal(await page.locator("#catalog-list button").count(),0);
+    console.log("QA: movie/subtitles/favorites");
     // TV: prévia lateral, segundo clique amplia, Voltar retorna à prévia e depois catálogo.
     await page.locator("#load-live").click();
     await page.getByRole("button",{name:/Canal sintético/}).waitFor();
@@ -171,18 +192,26 @@ async function main() {
     assert.equal(await page.locator("#lib-search").isEnabled(),true);
     await page.locator("#player-favorite").click();
     assert.match(await page.locator("#player-favorite").textContent(), /Favoritado/);
+    await page.locator("#show-epg").click();
+    await page.waitForFunction(()=>document.getElementById("epg-list").textContent.includes("Jornal sintético"));
+    await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-epg.png")});
+    await page.keyboard.press("Escape");
+    assert.equal(await page.locator("#epg-panel").isVisible(),false);
+    assert.equal(await page.locator("#player").isVisible(),true);
     await page.locator("#catalog-list button").first().click();
     assert.equal(await page.locator("#player").evaluate(n=>n.classList.contains("is-preview")),false);
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("#player").evaluate(n=>n.classList.contains("is-preview")),true);
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("#player").isVisible(),false);
+    console.log("QA: live/EPG");
     await page.locator("#load-series").click();
     await page.locator("#catalog-list button").first().waitFor();
     await page.locator("#catalog-list button").first().click();
     await page.waitForFunction(() => document.querySelectorAll("#episode-list button").length===24);
     await page.locator("#episode-next").click();
     assert.match(await page.locator("#episode-list button").first().textContent(),/25/);
+    await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-series.png")});
     await page.locator("#season-select").selectOption("2");
     assert.match(await page.locator("#episode-list").textContent(),/Outra temporada/);
     await page.locator("#season-select").selectOption("1");
@@ -191,9 +220,26 @@ async function main() {
     await page.locator("#next-episode").click();
     assert.match(await page.locator("#playing-title").textContent(), /Episódio sintético 2/);
     await page.waitForFunction(() => document.getElementById("video").currentTime>.1);
+    await page.locator("video").evaluate(v=>{v.currentTime=7.8;});
+    await page.locator("#next-prompt").waitFor({state:"visible"});
+    await page.locator("#next-cancel").click();
+    assert.equal(await page.locator("#next-prompt").isVisible(),false);
+    await page.locator("#next-episode").click();
+    await page.waitForFunction(()=>document.getElementById("video").currentTime>.1);
+    await page.locator("video").evaluate(v=>{v.currentTime=7.8;});
+    await page.locator("#next-prompt").waitFor({state:"visible"});
+    await page.waitForFunction(()=>document.getElementById("playing-title").textContent.includes("Episódio sintético 4"),{},{timeout:15000});
+    await page.waitForFunction(()=>document.getElementById("video").currentTime>.1);
+    await page.locator("#play-pause").click();
+    await page.locator("video").evaluate(v=>{v.currentTime=4;});
+    await page.waitForFunction(()=>!document.getElementById("video").seeking);
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("#season-select").inputValue(),"1");
     await page.locator("#lib-back").click();
+    console.log("QA: series/autoplay");
+    await page.locator("#lib-settings").click();
+    await page.locator("#auto-next").uncheck();
+    await page.locator("#settings-live-format").selectOption("ts");
     await page.locator("#lib-home").click();
     await page.waitForFunction(() => document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#lib-status").evaluate(n=>n.textContent="PRÉVIA CHROMIUM · Catálogo sintético · Teste físico deste visual pendente");
@@ -205,11 +251,46 @@ async function main() {
     await page.setViewportSize({width:1920,height:1080});
     assert.equal(requests.filter(action=>action==="get_vod_streams").length,1,"Navegar não deve duplicar catálogos grandes na memória");
     assert.ok(requests.includes("get_vod_info") && requests.includes("get_series_info"));
+    console.log("QA: screenshots");
+    const storedBeforeReload=await page.evaluate(()=>JSON.stringify(localStorage));
+    for(const secret of ["fixture-user","fixture-password","https://fixture.example","unlock fixture secret"])assert.ok(!storedBeforeReload.includes(secret));
+    await page.reload();
+    assert.equal(await page.locator("#vault-login").isVisible(),true);
+    await page.locator("#vault-password").fill("wrong password");
+    await page.locator("#vault-unlock").click();
+    await page.waitForFunction(()=>document.getElementById("vault-status").textContent.includes("incorreta"));
+    await page.locator("#vault-password").fill("unlock fixture secret");
+    await page.locator("#vault-unlock").click();
+    await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
+    console.log("QA: vault reload");
+    await page.locator("#lib-favorites").click();
+    await page.waitForFunction(()=>document.getElementById("catalog-list").textContent.includes("Canal sintético"));
+    await page.locator("#lib-continue").click();
+    await page.waitForFunction(()=>/conteúdos|Nenhum conteúdo/.test(document.getElementById("lib-status").textContent));
+    assert.equal(await page.locator("#catalog-list button").count(),2);
+    await page.getByRole("button",{name:/Filme sintético 50000/}).click();
+    assert.match(await page.locator("#detail-play").textContent(),/Continuar/);
+    await page.locator("#detail-play").click();
+    await page.waitForFunction(()=>document.getElementById("video").currentTime>=5.5);
+    await page.locator("#play-pause").click();
+    await page.keyboard.press("Escape");
+    await page.locator("#lib-back").click();
+    await page.getByRole("button",{name:/Série sintética/}).click();
+    await page.waitForFunction(()=>document.querySelectorAll("#episode-list button").length>0);
+    await page.locator("#detail-play").click();
+    await page.waitForFunction(()=>document.getElementById("video").currentTime>=3.8);
+    assert.match(await page.locator("#playing-title").textContent(),/Episódio sintético 4/);
+    await page.locator("#play-pause").click();
+    await page.keyboard.press("Escape");
+    await page.locator("#lib-settings").click();
+    assert.equal(await page.locator("#auto-next").isChecked(),false);
+    assert.equal(await page.locator("#settings-live-format").inputValue(),"ts");
+    await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-settings.png")});
     await page.locator("#lib-source").click();
     await page.locator("#clear-source").click();
     assert.equal(await page.locator("#username").inputValue(),"");
     assert.equal(await page.locator("#library").isVisible(),false);
-    assert.equal(await page.evaluate(()=>localStorage.length+sessionStorage.length),0);
+    assert.ok(await page.evaluate(()=>localStorage.length>=2));
     assert.deepEqual(errors,[]);
     await page.reload();
     assert.equal(await page.locator("#test-tools").isVisible(), false);
@@ -228,7 +309,7 @@ async function main() {
       true,
     );
     console.log(
-      "PASS: MP4 H.264/AAC decoded in Chromium; pause/back/focus, 50k complete catalog/search/category/pagination, movie/series/live preview/fullscreen/back/remote HUD, no persisted credentials, 1920/1280 layout. TV/audio listening/HLS real remain manual.",
+      "PASS: MP4 H.264/AAC decoded in Chromium; pause/back/focus, 50k complete catalog/search/category/pagination, movie/series/live preview/fullscreen/back/remote HUD, encrypted access reload, durable favorites/resume, EPG, captions and next-episode countdown, 1920/1280 layout. TV/audio listening/HLS real remain manual.",
     );
   } finally {
     await browser.close();
@@ -236,7 +317,7 @@ async function main() {
   }
 }
 main().catch((error) => {
-  console.error(error.message);
+  console.error(error.stack);
   server.close();
   process.exitCode = 1;
 });

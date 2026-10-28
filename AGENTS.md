@@ -2,7 +2,9 @@
 
 ## Autoridade e escopo
 
-- Atualização autorizada webOS: após confirmar teste real de canais, proprietário pediu biblioteca de uso com UI cinematográfica, catálogo sem corte em 40, Voltar interno e entrada flexível do servidor. Implementação isolada 0.2.0; critérios e limites em docs/WEBOS_LIBRARY_CHECKPOINT.md. Não publicar loja; não confundir testes Chromium com TV física. Proteger credenciais, sem armazenamento web persistente.
+- Escopo webOS 0.3.0 autorizado pelo pedido de app funcional: persistir IDs de favoritos/progresso/preferências por lista (sem metadados ou URLs); acesso opcional somente cifrado AES-GCM por WebCrypto nativo e senha de desbloqueio não persistida. A proibição abaixo refere-se a credenciais em texto aberto; sem WebCrypto não criar fallback. EPG/áudio/legendas condicionados à fonte e APIs reais; manter diferenças entre contrato jsdom, mídia Chromium e teste LG. Critérios em docs/WEBOS_LIBRARY_CHECKPOINT.md.
+
+- Atualização autorizada webOS: após confirmar teste real de canais, proprietário pediu biblioteca de uso com UI cinematográfica, catálogo sem corte em 40, Voltar interno e entrada flexível do servidor. Implementação isolada 0.2.0; critérios e limites em docs/WEBOS_LIBRARY_CHECKPOINT.md. Não publicar loja; não confundir testes Chromium com TV física. Proteger credenciais; persistência somente nos termos do marco 0.3.0 acima.
 
 - Autorização adicional: prova de conceito LG webOS isolada em platforms/webos-poc, alvo informado UM7510PSB/firmware 05.40.97. Só pacote .ipk de desenvolvimento, controle remoto e teste direto de mídia; não migrar produção Windows, publicar em loja ou presumir teste físico. Regras/instalação em platforms/webos-poc/README.md. Preservar alterações Windows em andamento fora do commit dessa prova.
 

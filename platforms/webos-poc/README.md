@@ -1,8 +1,24 @@
-# NEX TV — prova de conceito webOS
+# NEX para LG webOS — 0.3.0
 
-Alvo informado: LG UM7510PSB, firmware 05.40.97. Firmware não é a versão webOS; compatibilidade só será confirmada na TV. Este é um aplicativo de teste separado do NEX Windows, não a edição completa para TV.
+Edição de uso com fontes Xtream autorizadas. Alvo do proprietário: LG UM7510PSB, firmware 05.40.97. Canais reais e amostras locais de vídeo/áudio foram confirmados na versão anterior; esta atualização ainda precisa da confirmação física. Não fornece conteúdo, assinatura ou transcodificação.
 
-Inclui navegação por setas/OK/Voltar, vídeo sintético H.264/AAC embutido, amostra HLS local, URL direta e fluxo Xtream para escolher canal, filme, série/episódio. Catálogo limitado a 40 registros por resposta (8 MB/25 s). Sem proxy, DRM, transcodificação, libmpv ou credenciais embutidas. Não muda o endereço .ts para .m3u8 automaticamente: formato de TV é uma escolha explícita e precisa existir no servidor.
+## Atualizar sem programar
+
+Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.3.0_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
+
+## Usar
+
+- Cadastre servidor, usuário e senha. Aceita HTTP, HTTPS e `servidor:porta`; sem prefixo assume HTTP. O esquema explícito não sofre downgrade. Xtream não usa protocolos arbitrários.
+- Para lembrar o acesso, marque **Lembrar meu acesso com proteção** e crie uma senha de desbloqueio com pelo menos oito caracteres. Guarde essa senha: não existe recuperação remota. Ao reabrir, informe somente essa senha. O cofre usa WebCrypto nativo; se o motor do aparelho não o disponibilizar, o recurso fica indisponível e o acesso não é gravado em texto aberto.
+- Início, TV ao vivo, Filmes e Séries usam somente o conteúdo da sua fonte. Busca na seção completa, categorias e páginas substituem o antigo corte em 40 registros.
+- TV: primeiro clique abre prévia; segundo amplia. Voltar retorna à prévia e depois ao catálogo. **Programação** consulta o EPG oferecido pelo provedor sem parar o vídeo.
+- Filme abre detalhes; série abre temporadas e episódios com as imagens fornecidas. **Continuar assistindo** e **Favoritos** sobrevivem ao fechamento, separados por lista.
+- O próximo episódio começa após contagem de dez segundos ao terminar. **Cancelar** interrompe a contagem; a preferência fica em **Configurações**.
+- Player: pausa, posição quando a fonte permite busca, velocidade, reiniciar, próximo episódio, áudio/legendas quando expostos pela TV. O volume usa o controle da TV. HUD some após cinco segundos e reaparece com interação.
+- Falha de rede: até três tentativas automáticas, com espera crescente e botão para tentar novamente. Erro de codec não cria loop automático.
+- Configurações permite atualizar catálogo, escolher HLS/MPEG-TS e apagar favoritos/progresso da lista com confirmação. **Minha fonte** troca ou desconecta o acesso; **Esquecer acesso salvo** remove o cofre sem apagar a biblioteca.
+
+Favoritos e progresso armazenam IDs/posições, não URLs, capas, senhas ou dados do servidor. O cofre opcional contém somente cifra autenticada AES-GCM, sal e IV; sua senha de desbloqueio não é armazenada. Criptografia não substitui uma senha forte. Histórico e favoritos não são sincronizados com outros aparelhos.
 
 ## Instalação na TV — sem programação
 
@@ -12,72 +28,26 @@ Inclui navegação por setas/OK/Voltar, vídeo sintético H.264/AAC embutido, am
 4. Deixe computador e TV na mesma rede. Anote o endereço IP e a passphrase mostrados pela TV **apenas para inserir no seu computador**. Não os publique nem envie senhas no chat.
 5. No Windows, obtenha o **webOS Dev Manager** em https://github.com/webosbrew/dev-manager-desktop/releases/latest. É uma ferramenta comunitária, não um aplicativo oficial da LG. Escolha o instalador Windows x64 `.msi`.
 6. Abra o gerenciador e adicione a TV em **Developer Mode**, usando o IP e a passphrase da tela da TV. O perfil de desenvolvimento normalmente usa SSH porta 9922; o gerenciador orienta os campos.
-7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.1.1_all.ipk` deste pacote.
-8. Abra **NEX TV · Teste** pela TV ou pelo gerenciador. Não abra o `.ipk` como executável Windows e não use pen drive como instalador genérico.
+7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.3.0_all.ipk` deste pacote.
+8. Abra **NEX** pela TV ou pelo gerenciador. Não abra o `.ipk` como executável Windows e não use pen drive como instalador genérico.
 
 Developer Mode é temporário e exige atenção à sessão/renovação indicada na própria TV. Não fixamos duração em horas: conferir o comportamento atual no aparelho. Não é o fluxo de distribuição comercial definitiva.
 
-## Ordem dos testes
+## Validação e build
 
-- Use volume baixo. Selecione **Testar vídeo e som**: deve aparecer imagem sintética com um tom de áudio. A amostra é sintética em 1280×720, H.264 Constrained Baseline e AAC-LC estéreo 48 kHz; não é uma obra real.
-- Pause/reproduza e use **Voltar**. O foco deve retornar ao botão anterior.
-- Experimente **Testar HLS local**. Falha nesse arquivo local, isoladamente, não determina se HLS da Internet funciona.
-- Conecte sua fonte Xtream diretamente na TV ou informe uma URL autorizada. Teste um canal, um filme e um episódio. Selecione **Imagem e som OK** somente quando você confirmar ambos.
-- Ao acabar, use **Limpar dados**. O app não grava credenciais, histórico ou confirmações em armazenamento permanente. Dados existem em memória até limpar/encerrar a sessão. Colocar o app em segundo plano pausa o vídeo; encerrar remove o estado.
-- Relate apenas: tipo de teste, imagem/som, mensagem genérica e comportamento do controle. Não envie URL completa, senha ou token.
-
-Consultas diretas podem ser bloqueadas por CORS, TLS ou particularidades do provedor. Codecs/áudio/HLS precisam ser testados no modelo real. Nenhum servidor intermediário foi contratado ou ativado.
-
-## Build reproduzível
-
-Na raiz deste repositório, com Node 24:
+Na raiz, Node 24 e Chromium/Playwright:
 
 ```sh
+npm ci
 npm --prefix platforms/webos-poc ci --ignore-scripts
 npm --prefix platforms/webos-poc test
+npx eslint platforms/webos-poc/app platforms/webos-poc/scripts platforms/webos-poc/tests
 npm --prefix platforms/webos-poc run build
-```
-
-CLI oficial LG `@webos-tools/cli` 3.2.6 fixada em package-lock.json, sem execução de scripts de instalação. O estado da CLI é isolado em node_modules/.nex-cli-state usando APPDATA apenas no processo filho; HOME/USERPROFILE/perfil do usuário não são alterados. App usa JS de sintaxe ES5 e APIs de mídia web; não leva dependências npm para a TV. A pasta dist contém `.ipk` e SHA256SUMS.txt. A ferramenta oficial só é usada no empacotamento, não é incorporada ao app.
-
-Smoke de navegador, após `npm ci` na raiz (ferramenta Playwright já usada pelo projeto) e build acima:
-
-```sh
 NOVA_CHROMIUM_PATH=/usr/bin/chromium node platforms/webos-poc/scripts/smoke.cjs
 ```
 
-O smoke verifica decodificação MP4 no Chromium, pausa/retorno/foco, catálogo e três tipos de reprodução com servidor simulado, campos limpos e ausência de storage persistente. Isso NÃO verifica áudio audível, CORS do provedor, HLS nem execução no webOS. A prova só estará concluída após teste físico na LG.
+No CI, Playwright instala seu Chromium e `NOVA_CHROMIUM_PATH` fica vazio. CLI oficial LG 3.2.6 fixada; estado APPDATA isolado no processo filho, sem mudar HOME/perfil. Scripts/CSS locais são embutidos com hashes CSP; dependências npm de QA/empacotamento não vão à TV.
 
-A edição Windows e suas alterações em andamento permanecem separadas. Não há publicação na loja, instalador comercial ou adaptação completa da biblioteca NEX nesta entrega.
+Testes: domínio/ES5, 50 mil registros, URLs/credenciais codificadas, persistência/isolamento/corrupção/quota, cofre real (senha errada e cifra alterada), contrato de áudio/legendas e reconexão limitada/cancelamento. Chromium testa MP4 sintético, controles remotos simulados, filtros/paginação, capas decodificadas, EPG, legendas com TextTrack real, contagem automática, cofre após recarga e retomada real de filme/episódio. O servidor de QA implementa HTTP Range para não confundir ausência de busca com falha de persistência. Capturas usam exclusivamente dados/arte sintéticos.
 
-
-## Revisão 0.1.1 — inicialização e diagnóstico
-
-O proprietário relatou tela preta, botões sem visual e teste local sem resposta na LG. A causa exata ainda não foi confirmada no aparelho. O teste anterior verificava somente a origem HTTP no Chromium; uma tentativa file:// neste ambiente foi bloqueada pela política do navegador.
-
-Mitigação: o empacotador embute CSS e os três scripts no HTML, com CSP SHA-256 (sem unsafe-inline/unsafe-eval ou JavaScript remoto). As referências a arquivos CSS/JS são eliminadas do pacote; mídia local permite file: explicitamente. Exportação do domínio prefere window, sem depender de this/module do runtime. Indicador de versão/inicialização distingue scripts e estilo; erros só mostram linha numérica, nunca URL/token. Reprodução tem timeout de diagnóstico de 12 s. O OK do controle recebe tratamento explícito por keydown, sem depender do clique automático do navegador. A amostra local foi substituída por referência HD adequada a decoders de TV; isso não prova suporte deste modelo.
-
-Regressão: com CSS/JS externos bloqueados, o pacote 0.1.0 falhou em iniciar; o pacote 0.1.1 iniciou, confirmou estilo e reproduziu MP4 no Chromium. Isso verifica a mitigação, não estabelece que essa foi a única causa na LG. Ao atualizar, feche o aplicativo antes de instalar o .ipk 0.1.1. Ao abrir, confirme “Versão 0.1.1 · JavaScript OK · Estilo OK”.
-
-
-Pacote corrigido: [webOS 0.1.1](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40717793626/artifacts/12829516444), ZIP 2,71 MB, SHA-256 `dfbfa1f6b39460486a9ddf2feecd9ab2279d46b719d80b81c63393d62bc782d8`. [CI](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40717793626) para revisão `0c4571c`: seis testes, lint, empacotamento oficial e smoke com bloqueio de CSS/JS externos/OK por keydown/reprodução HD aprovados. Ainda não confirmado no aparelho do proprietário. O artefato 0.1.0 relatado como falho é histórico.
-
-### Correção 0.1.2 — conexão sem silêncio
-
-O proprietário confirmou interface, vídeo e áudio locais da versão 0.1.1 na LG. A conexão Xtream real ainda não foi confirmada. A versão 0.1.2 coloca o estado da operação junto ao botão Conectar, substitui a validação nativa de formulário por mensagens explícitas (incluindo protocolo HTTP/HTTPS obrigatório), trata exceções síncronas de abertura/envio de XHR e limpa o catálogo anterior ao reconectar. Não altera CORS/TLS nem presume acesso do provedor.
-
-Validação local: seis testes de domínio, lint, IPK e Chromium aprovados; regressão de OK sem clique nativo, endereço incompleto, credenciais ausentes, XHR recusado e três fluxos sintéticos de catálogo/reprodução. Pacote: `com.nex.poc.webos_0.1.2_all.ipk`. Conexão real e esta atualização na TV ainda exigem teste físico.
-
-### Visual 0.1.3
-
-Laranja quente #FF6A00; cadastro como foco inicial, campos grandes, ações arredondadas e ferramentas de teste recolhidas. Catálogo aparece após autenticação confirmada. Ícones TV e Windows alinhados à nova cor. Foco remoto preservado; teste de vídeo acessível em “Abrir ferramentas de teste”. Chromium, domínio, lint e empacotamento validados; revisão física deste visual na LG pendente. Não comprova conexão real com provedor.
-
-## Versão 0.2.0 — biblioteca NEX
-
-Após conectar, use o menu para Início, TV ao vivo, Filmes, Séries ou Favoritos. O catálogo completo recebido pode ser pesquisado e paginado; o limite de 40 foi removido. TV abre em prévia e amplia no segundo clique. Filmes abrem detalhes; séries abrem temporadas e episódios. Voltar curto navega internamente e não solicita saída na tela inicial.
-
-Servidor aceita `servidor:porta`, `http://servidor` e `https://servidor`. Sem prefixo, assume HTTP; informe HTTPS quando seu provedor usar esse protocolo. Xtream não usa protocolos arbitrários. Não coloque dados de acesso em mensagens ao suporte.
-
-Instale `com.nex.poc.webos_0.2.0_all.ipk` pelo Dev Manager após fechar a versão anterior. A versão aparece na tela inicial e no menu. Para testes locais, abra “Abrir ferramentas de teste”. Favoritos e retomada são mantidos só enquanto o app fica aberto. Nesta edição, o acesso deve ser informado novamente após encerrar.
-
-Evidências/limites e recursos ainda pendentes em `docs/WEBOS_LIBRARY_CHECKPOINT.md` do repositório. O proprietário confirmou canais na versão anterior; teste de filmes, séries, novo visual e Voltar físico ainda é necessário na LG.
+Isso não certifica codecs, som audível, suporte de faixas no modelo LG, cofre no runtime da TV, CORS/TLS do provedor ou tecla física Voltar. Busca/retomada dependem da fonte; EPG e capas dependem de metadados fornecidos. Sem trailers inventados, detecção automática de abertura, serviços de IA, proxy, DRM ou publicação em loja. Detalhes em `docs/WEBOS_LIBRARY_CHECKPOINT.md`.
