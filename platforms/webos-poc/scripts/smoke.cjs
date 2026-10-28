@@ -90,6 +90,26 @@ async function main() {
       await page.evaluate(() => document.activeElement.id),
       "local-test",
     );
+    // Formulário deve responder ao OK mesmo com URL inválida (sem validação nativa invisível).
+    await page.locator("#server").fill("servidor-sem-protocolo");
+    await page.locator("#connect-source").focus();
+    await page.locator("#connect-source").dispatchEvent("keydown", { keyCode: 13 });
+    assert.match(await page.locator("#source-status").textContent(), /começando com http/);
+    await page.locator("#server").fill("https://fixture.example");
+    await page.locator("#connect-source").focus();
+    await page.locator("#connect-source").dispatchEvent("keydown", { keyCode: 13 });
+    assert.match(await page.locator("#source-status").textContent(), /usuário e senha/);
+    // Abertura síncrona de XHR pode ser recusada pelo runtime; deve produzir erro visível.
+    await page.locator("#username").fill("fixture-user");
+    await page.locator("#password").fill("fixture-password");
+    await page.evaluate(() => {
+      window.originalOpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function () { throw new Error("fixture"); };
+    });
+    await page.locator("#connect-source").focus();
+    await page.locator("#connect-source").dispatchEvent("keydown", { keyCode: 13 });
+    assert.match(await page.locator("#source-status").textContent(), /Não foi possível iniciar/);
+    await page.evaluate(() => { XMLHttpRequest.prototype.open = window.originalOpen; delete window.originalOpen; });
     const media = fs.readFileSync(path.join(root, "media/player-av.mp4"));
     await page.route("https://fixture.example/**", async (route) => {
       const url = new URL(route.request().url());
@@ -136,7 +156,8 @@ async function main() {
       .fill("https://fixture.example");
     await page.getByLabel("Usuário", { exact: true }).fill("fixture-user");
     await page.getByLabel("Senha", { exact: true }).fill("fixture-password");
-    await page.getByRole("button", { name: "Conectar", exact: true }).click();
+    await page.locator("#connect-source").focus();
+    await page.locator("#connect-source").dispatchEvent("keydown", { keyCode: 13 });
     await page.waitForFunction(
       () => !document.getElementById("load-live").disabled,
     );

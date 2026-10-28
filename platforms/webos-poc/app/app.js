@@ -5,7 +5,7 @@
   function localMedia(name) { var page = window.location.href.split("#")[0].split("?")[0]; return page.slice(0, page.lastIndexOf("/") + 1) + name; }
   var config = null, activeRequest = null, requestGeneration = 0, currentKind = "local", returnFocus = null, confirmed = {live:false,movie:false,series:false};
   function el(id) { return document.getElementById(id); }
-  function status(text) { el("status").textContent = text; }
+  function status(text) { el("status").textContent = text; el("source-status").textContent = text; }
   function playerStatus(text) { el("player-status").textContent = text; }
   function clock(value) { value = isFinite(value) ? Math.max(0, Math.floor(value)) : 0; return Math.floor(value / 60) + ":" + (value % 60 < 10 ? "0" : "") + value % 60; }
   function focus(node) { if (node) { node.focus(); if (node.scrollIntoViewIfNeeded) node.scrollIntoViewIfNeeded(false); } }
@@ -35,7 +35,9 @@
   function request(url, callback) {
     if (activeRequest) activeRequest.abort();
     var generation = ++requestGeneration, xhr = new XMLHttpRequest(), ended = false;
-    activeRequest = xhr; xhr.open("GET", url, true); xhr.timeout = 25000;
+    activeRequest = xhr;
+    try { xhr.open("GET", url, true); xhr.timeout = 25000; }
+    catch (error) { activeRequest = null; status("Não foi possível iniciar a consulta. Confira o endereço HTTP ou HTTPS do servidor."); return; }
     function fail(message) { if (generation === requestGeneration && !ended) { ended = true; activeRequest = null; status(message); } }
     xhr.onprogress = function (event) { if (event.loaded > 8 * 1024 * 1024) { fail("Resposta grande demais para esta prova (limite 8 MB). Use uma URL direta."); xhr.abort(); } };
     xhr.onerror = function () { fail("Não foi possível consultar a fonte. Pode ser rede, TLS ou bloqueio CORS do servidor."); };
@@ -47,7 +49,7 @@
       try { var parsed = JSON.parse(xhr.responseText); ended = true; activeRequest = null; callback(parsed); }
       catch (error) { status("A resposta não pôde ser usada nesta prova. Confira o formato da fonte."); }
     };
-    xhr.send(null);
+    try { xhr.send(null); } catch (error) { fail("A TV bloqueou a consulta. Confira endereço, rede e permissões do servidor."); }
   }
   function showList(items, kind, episodes) {
     var list = el("catalog-list"); list.textContent = "";
@@ -88,9 +90,11 @@
     event.preventDefault();
     var next;
     try {
+      if (!/^https?:\/\//i.test(el("server").value.trim())) throw new Error("Informe o servidor completo, começando com http:// ou https://, conforme seu provedor.");
       next = {server:D.base(el("server").value.trim()),user:el("username").value.trim(),password:el("password").value};
       if (!next.user || !next.password) throw new Error("Informe usuário e senha.");
     } catch (error) { status(error.message); return; }
+    el("catalog-list").textContent = "";
     config = null; ["load-live","load-movies","load-series"].forEach(function (id) { el(id).disabled = true; });
     status("Verificando acesso à fonte…");
     request(D.api(next), function (value) {
@@ -170,6 +174,6 @@
   });
   window.nexReady = true;
   var styled = parseInt(window.getComputedStyle(document.querySelector(".brand")).fontSize, 10) >= 30;
-  el("initialization-status").textContent = "Versão 0.1.1 · JavaScript OK · " + (styled ? "Estilo OK" : "Estilo não carregado");
+  el("initialization-status").textContent = "Versão 0.1.2 · JavaScript OK · " + (styled ? "Estilo OK" : "Estilo não carregado");
   focus(el("local-test"));
 }());

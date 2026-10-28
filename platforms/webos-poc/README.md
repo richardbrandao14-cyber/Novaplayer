@@ -61,3 +61,9 @@ Regressão: com CSS/JS externos bloqueados, o pacote 0.1.0 falhou em iniciar; o 
 
 
 Pacote corrigido: [webOS 0.1.1](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40717793626/artifacts/12829516444), ZIP 2,71 MB, SHA-256 `dfbfa1f6b39460486a9ddf2feecd9ab2279d46b719d80b81c63393d62bc782d8`. [CI](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40717793626) para revisão `0c4571c`: seis testes, lint, empacotamento oficial e smoke com bloqueio de CSS/JS externos/OK por keydown/reprodução HD aprovados. Ainda não confirmado no aparelho do proprietário. O artefato 0.1.0 relatado como falho é histórico.
+
+### Correção 0.1.2 — conexão sem silêncio
+
+O proprietário confirmou interface, vídeo e áudio locais da versão 0.1.1 na LG. A conexão Xtream real ainda não foi confirmada. A versão 0.1.2 coloca o estado da operação junto ao botão Conectar, substitui a validação nativa de formulário por mensagens explícitas (incluindo protocolo HTTP/HTTPS obrigatório), trata exceções síncronas de abertura/envio de XHR e limpa o catálogo anterior ao reconectar. Não altera CORS/TLS nem presume acesso do provedor.
+
+Validação local: seis testes de domínio, lint, IPK e Chromium aprovados; regressão de OK sem clique nativo, endereço incompleto, credenciais ausentes, XHR recusado e três fluxos sintéticos de catálogo/reprodução. Pacote: `com.nex.poc.webos_0.1.2_all.ipk`. Conexão real e esta atualização na TV ainda exigem teste físico.
