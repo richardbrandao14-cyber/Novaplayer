@@ -425,6 +425,9 @@ async function main() {
     await page.locator("#lib-continue").click();
     await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===2);
     assert.equal(await page.locator('#continue-types button[data-continue-type="live"]').count(),0);
+    await page.locator("#lib-continue").focus();await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.hasAttribute("data-continue-type")),true);
+    await page.keyboard.press("ArrowRight");await page.keyboard.press("Enter");await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===1);await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.classList.contains("tv-card")),true);await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-continue-type")),"movie");
+
     await page.locator('#continue-types button[data-continue-type="movie"]').click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===1);assert.match(await page.locator("#catalog-list").textContent(),/Filme/);
     await page.locator('#continue-types button[data-continue-type="series"]').click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===1);assert.match(await page.locator("#catalog-list").textContent(),/Série/);
     await page.locator('#continue-types button[data-continue-type=""]').click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===2);
@@ -446,6 +449,7 @@ async function main() {
     await page.locator("#detail-play").focus();await page.waitForTimeout(200);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-series-progress.png")});
     await page.locator("#detail-play").click();assert.equal(await page.locator("#resume-choice").isVisible(),true);assert.match(await page.locator("#resume-choice-time").textContent(),/assistidos/);
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-resume-choice.png")});
+    await page.keyboard.press("ArrowLeft");assert.equal(await page.evaluate(()=>document.activeElement.id),"resume-start");await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"resume-continue");
     await page.keyboard.press("Escape");assert.equal(await page.locator("#resume-choice").isVisible(),false);assert.equal(await page.locator("#player").isVisible(),false);
     await page.locator("#detail-play").click();await page.locator("#resume-continue").click();
     await page.waitForFunction(()=>document.getElementById("video").currentTime>=3.8);
@@ -462,7 +466,7 @@ async function main() {
     await page.locator("#lib-profiles").click();
     for(let i=2;i<=5;i++){await page.locator("#profile-name").fill("Pessoa "+i);await page.locator("#profile-submit").click();}
     assert.equal(await page.locator("#profile-list button").count(),5);assert.equal(await page.locator("#profile-submit").isDisabled(),true);
-    await page.locator("#profile-rename").click();await page.locator("#profile-name").fill("Principal");await page.locator("#profile-submit").click();
+    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"profile-rename");await page.keyboard.press("Enter");await page.locator("#profile-name").fill("Principal");await page.locator("#profile-submit").click();
     await page.waitForTimeout(200);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-profiles.png")});
     await page.locator("#profile-list button").nth(1).click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#lib-favorites").click();assert.equal(await page.locator("#catalog-list button").count(),0);
