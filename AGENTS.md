@@ -2,6 +2,8 @@
 
 ## Autoridade e escopo
 
+- Atualização autorizada webOS: após confirmar teste real de canais, proprietário pediu biblioteca de uso com UI cinematográfica, catálogo sem corte em 40, Voltar interno e entrada flexível do servidor. Implementação isolada 0.2.0; critérios e limites em docs/WEBOS_LIBRARY_CHECKPOINT.md. Não publicar loja; não confundir testes Chromium com TV física. Proteger credenciais, sem armazenamento web persistente.
+
 - Autorização adicional: prova de conceito LG webOS isolada em platforms/webos-poc, alvo informado UM7510PSB/firmware 05.40.97. Só pacote .ipk de desenvolvimento, controle remoto e teste direto de mídia; não migrar produção Windows, publicar em loja ou presumir teste físico. Regras/instalação em platforms/webos-poc/README.md. Preservar alterações Windows em andamento fora do commit dessa prova.
 
 - Direção visual atual autorizada: NEX, assinatura laranja e cantos arredondados, abertura breve não bloqueante e banners adaptativos baseados nas imagens fornecidas. Ler seção NEX em DESIGN_SYSTEM.md e src/ui/nex.css. Preservar identificador Tauri, productName técnico, storage/diretórios e contratos nativos; título/ícone visíveis NEX. Não confundir rebrand visual com migração. Não inventar “Em alta”, lançamentos ou personalização; IA externa/paga não foi integrada. Recomendações locais, próximo episódio com contagem e pular abertura com marcadores confiáveis ficam para etapa funcional posterior.

@@ -3,10 +3,10 @@
   window.nexReady = false;
   window.addEventListener("error", function (event) {
     var node = document.getElementById("initialization-status");
-    if (node) node.textContent = "Versão 0.1.3 · Falha de JavaScript · linha " + (Number(event.lineno) || 0) + ". Informe esse texto ao suporte.";
+    if (node) node.textContent = "Versão 0.2.0 · Falha de JavaScript · linha " + (Number(event.lineno) || 0) + ". Informe esse texto ao suporte.";
   });
   window.setTimeout(function () {
     var node = document.getElementById("initialization-status");
-    if (!window.nexReady && node) node.textContent = "Versão 0.1.3 · A interface não iniciou. Informe esse texto ao suporte.";
+    if (!window.nexReady && node) node.textContent = "Versão 0.2.0 · A interface não iniciou. Informe esse texto ao suporte.";
   }, 8000);
 }());

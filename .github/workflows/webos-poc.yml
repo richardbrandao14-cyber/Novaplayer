@@ -38,6 +38,6 @@ jobs:
             platforms/webos-poc/dist/*.ipk
             platforms/webos-poc/dist/SHA256SUMS.txt
             platforms/webos-poc/dist/LEIA-ME.md
-            platforms/webos-poc/dist/nex-webos-browser.png
+            platforms/webos-poc/dist/nex-webos-*.png
           if-no-files-found: error
           retention-days: 7

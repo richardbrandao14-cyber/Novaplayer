@@ -184,3 +184,7 @@ Novo gate Windows explícito: janela de teste + HWND filho + renderer gráfico r
 Teste manual agrupado: extrair ZIP completo; conferir `nova-player.exe`, `libmpv-2.dll` e `nova-hud.lua` juntos; abrir Horizon existente; testar um clique em canal/filme/episódio, HUD, áudio/legendas/velocidade, espaço/setas/M/F/Esc, voltar à mesma temporada, trocar conteúdo, redimensionar, tela cheia e fechar. Não gerar instalador nem Release.
 
 Resultado final NOVA Cinema: [CI](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40165447010) aprovada para `94bd633003c50b4e98b556bff0ce2e259da13840`; três provas de reprodução Windows, suites e build passaram. Artefato `12588251735` (82,4 MB). A correção do servidor de fixtures trata headers TCP completos e herança do modo não bloqueante no Windows. Nenhum teste removido/ignorado para liberar build; os testes marcados como ignorados nas suites comuns são executados explicitamente no gate.
+
+## Biblioteca webOS 0.2.0
+
+Marco e limitações em [WEBOS_LIBRARY_CHECKPOINT.md](docs/WEBOS_LIBRARY_CHECKPOINT.md). Canais reais foram confirmados pelo proprietário na versão anterior. Nesta entrega: domínio ES5, lint, IPK e Chromium com 50 mil registros, busca/paginação/categorias, filmes/séries, próximo episódio, favoritos de canais, imagens remotas decodificadas, HUD e evento cancelável Voltar passaram. Isso não certifica nova UI, tecla física, filmes/séries ou desempenho na LG. Credenciais/favoritos/progresso permanecem somente na sessão. Não executar/afirmar testes Windows a partir deste marco isolado.

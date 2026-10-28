@@ -1,14 +1,15 @@
 {
   "id": "com.nex.poc.webos",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "vendor": "NEX",
   "type": "web",
   "main": "index.html",
-  "title": "NEX TV · Teste",
+  "title": "NEX",
   "icon": "icon.png",
   "largeIcon": "large-icon.png",
-  "appDescription": "Prova de reprodução webOS para fontes autorizadas.",
+  "appDescription": "Biblioteca NEX para fontes Xtream autorizadas. Versão de desenvolvimento.",
   "resolution": "1920x1080",
   "bgColor": "#0b0c0e",
-  "requiredACG": []
+  "requiredACG": [],
+  "disableBackHistoryAPI": true
 }

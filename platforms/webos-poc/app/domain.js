@@ -14,6 +14,8 @@
     return u;
   }
   function base(value) {
+    value = String(value || "").trim();
+    if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value) && !/^(javascript|data|file|ftp):/i.test(value)) value = "http://" + value;
     var u = httpUrl(value);
     if (u.search || u.hash) throw new Error("Informe somente o endereço do servidor, sem parâmetros.");
     return (u.protocol + "//" + u.host + u.pathname).replace(/\/player_api\.php\/?$/i, "").replace(/\/+$/, "");
@@ -21,7 +23,7 @@
   function api(config, action, id) {
     var url = base(config.server) + "/player_api.php?username=" + encodeURIComponent(config.user) + "&password=" + encodeURIComponent(config.password);
     if (action) url += "&action=" + encodeURIComponent(action);
-    if (id) url += "&series_id=" + encodeURIComponent(id);
+    if (id) url += (action === "get_vod_info" ? "&vod_id=" : "&series_id=") + encodeURIComponent(id);
     return url;
   }
   function stream(config, kind, item, liveFormat) {
@@ -34,14 +36,14 @@
   }
   function records(value) {
     if (!Array.isArray(value)) throw new Error("O servidor não forneceu uma lista válida.");
-    return value.slice(0, 40);
+    return value.filter(function (item) { return item && typeof item === "object"; });
   }
   function episodes(value) {
     if (!value || !value.episodes || typeof value.episodes !== "object") throw new Error("A fonte não forneceu episódios.");
     var result = [], keys = Object.keys(value.episodes).sort(function (a, b) { return Number(a) - Number(b); });
     keys.forEach(function (key) {
       if (Array.isArray(value.episodes[key])) value.episodes[key].forEach(function (episode) {
-        if (result.length < 40) result.push(episode);
+        if (episode && typeof episode === "object") result.push(episode);
       });
     });
     return result;

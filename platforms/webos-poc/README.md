@@ -71,3 +71,13 @@ Validação local: seis testes de domínio, lint, IPK e Chromium aprovados; regr
 ### Visual 0.1.3
 
 Laranja quente #FF6A00; cadastro como foco inicial, campos grandes, ações arredondadas e ferramentas de teste recolhidas. Catálogo aparece após autenticação confirmada. Ícones TV e Windows alinhados à nova cor. Foco remoto preservado; teste de vídeo acessível em “Abrir ferramentas de teste”. Chromium, domínio, lint e empacotamento validados; revisão física deste visual na LG pendente. Não comprova conexão real com provedor.
+
+## Versão 0.2.0 — biblioteca NEX
+
+Após conectar, use o menu para Início, TV ao vivo, Filmes, Séries ou Favoritos. O catálogo completo recebido pode ser pesquisado e paginado; o limite de 40 foi removido. TV abre em prévia e amplia no segundo clique. Filmes abrem detalhes; séries abrem temporadas e episódios. Voltar curto navega internamente e não solicita saída na tela inicial.
+
+Servidor aceita `servidor:porta`, `http://servidor` e `https://servidor`. Sem prefixo, assume HTTP; informe HTTPS quando seu provedor usar esse protocolo. Xtream não usa protocolos arbitrários. Não coloque dados de acesso em mensagens ao suporte.
+
+Instale `com.nex.poc.webos_0.2.0_all.ipk` pelo Dev Manager após fechar a versão anterior. A versão aparece na tela inicial e no menu. Para testes locais, abra “Abrir ferramentas de teste”. Favoritos e retomada são mantidos só enquanto o app fica aberto. Nesta edição, o acesso deve ser informado novamente após encerrar.
+
+Evidências/limites e recursos ainda pendentes em `docs/WEBOS_LIBRARY_CHECKPOINT.md` do repositório. O proprietário confirmou canais na versão anterior; teste de filmes, séries, novo visual e Voltar físico ainda é necessário na LG.

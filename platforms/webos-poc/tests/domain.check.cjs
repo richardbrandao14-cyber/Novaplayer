@@ -14,6 +14,9 @@ test("URLs restritas a HTTP/HTTPS sem credenciais de domínio", () => {
     "broken",
   ])
     assert.throws(() => D.httpUrl(url));
+  assert.equal(D.base("example.com:8080"), "http://example.com:8080");
+  assert.equal(D.base(" https://example.com:443/ "), "https://example.com");
+  assert.throws(() => D.base("ftp://example.com"));
   assert.equal(D.base(config.server), "https://example.com:8080");
   assert.throws(() => D.base("https://example.com/?username=test"));
 });
@@ -37,8 +40,8 @@ test("Xtream codifica credenciais e preserva formato fornecido, sem inventar ext
     }),
   );
 });
-test("catálogo limitado e temporadas ordenadas sem inventar títulos", () => {
-  assert.equal(D.records(Array.from({ length: 60 }, (_, i) => i)).length, 40);
+test("catálogo completo de 50 mil registros e temporadas ordenadas sem inventar títulos", () => {
+  assert.equal(D.records(Array.from({ length: 50000 }, (_, i) => ({stream_id:i}))).length, 50000);
   assert.throws(() => D.records({ error: true }));
   assert.deepEqual(
     D.episodes({
@@ -60,20 +63,20 @@ test("scripts da TV usam sintaxe ES5 e manifest não pede serviços privilegiado
   const fs = require("node:fs");
   const path = require("node:path");
   const acorn = require("acorn");
-  for (const name of ["boot.js", "domain.js", "app.js"])
+  for (const name of ["boot.js", "domain.js", "library.js", "app.js"])
     acorn.parse(fs.readFileSync(path.join(__dirname, "../app", name), "utf8"), {
       ecmaVersion: 5,
     });
   const info = require("../app/appinfo.json");
   assert.equal(info.type, "web");
+  assert.equal(info.disableBackHistoryAPI, true);
   assert.deepEqual(info.requiredACG, []);
 });
 test("app não grava credenciais, não usa HTML do provedor nem código remoto", () => {
   const fs = require("node:fs");
-  const source = fs.readFileSync(
-    require("node:path").join(__dirname, "../app/app.js"),
-    "utf8",
-  );
+  const source = ["app.js", "library.js"].map(name => fs.readFileSync(
+    require("node:path").join(__dirname, "../app", name), "utf8"
+  )).join("\n");
   assert.doesNotMatch(
     source,
     /localStorage|sessionStorage|innerHTML|console\./,
