@@ -2,7 +2,7 @@
 
 ## Teste LG webOS
 
-A versão 0.1.0 foi reportada como não funcional na TV (tela preta e botões sem resposta). A revisão 0.1.1 embute estilo/scripts com hashes CSP, trata OK do controle explicitamente, inclui diagnóstico visível e amostra HD. A regressão passou no navegador; confirmação na LG ainda pendente.
+A versão 0.1.0 foi reportada como não funcional na TV (tela preta e botões sem resposta). A revisão 0.1.1 embute estilo/scripts com hashes CSP, trata OK do controle explicitamente, inclui diagnóstico visível e amostra HD. A regressão passou no navegador; confirmação na LG ainda pendente. **[Baixar webOS 0.1.1 de teste](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40717793626/artifacts/12829516444)** · [CI](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40717793626). Feche o app antes de atualizar e instale o arquivo `com.nex.poc.webos_0.1.1_all.ipk`.
 
 Prova isolada para a LG UM7510PSB, firmware informado 05.40.97: [instalação passo a passo](platforms/webos-poc/README.md). Gera `.ipk` com ferramenta oficial LG, teste local H.264/AAC, HLS local e fonte Xtream/URL direta. Seis testes de regras/compatibilidade, lint e smoke Chromium aprovados localmente. Execução física, áudio audível e fonte real na TV ainda não confirmados. Não é a edição completa NEX para webOS.
 
