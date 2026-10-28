@@ -67,3 +67,7 @@ Pacote corrigido: [webOS 0.1.1](https://github.com/richardbrandao14-cyber/Novapl
 O proprietário confirmou interface, vídeo e áudio locais da versão 0.1.1 na LG. A conexão Xtream real ainda não foi confirmada. A versão 0.1.2 coloca o estado da operação junto ao botão Conectar, substitui a validação nativa de formulário por mensagens explícitas (incluindo protocolo HTTP/HTTPS obrigatório), trata exceções síncronas de abertura/envio de XHR e limpa o catálogo anterior ao reconectar. Não altera CORS/TLS nem presume acesso do provedor.
 
 Validação local: seis testes de domínio, lint, IPK e Chromium aprovados; regressão de OK sem clique nativo, endereço incompleto, credenciais ausentes, XHR recusado e três fluxos sintéticos de catálogo/reprodução. Pacote: `com.nex.poc.webos_0.1.2_all.ipk`. Conexão real e esta atualização na TV ainda exigem teste físico.
+
+### Visual 0.1.3
+
+Laranja quente #FF6A00; cadastro como foco inicial, campos grandes, ações arredondadas e ferramentas de teste recolhidas. Catálogo aparece após autenticação confirmada. Ícones TV e Windows alinhados à nova cor. Foco remoto preservado; teste de vídeo acessível em “Abrir ferramentas de teste”. Chromium, domínio, lint e empacotamento validados; revisão física deste visual na LG pendente. Não comprova conexão real com provedor.

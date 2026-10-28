@@ -450,7 +450,7 @@ impl Engine {
             engine.option("osd-level", "1")?;
             engine.option("script-opts", concat!(
                 "osc-layout=floating,osc-vidscale=yes,osc-floatingwidth=700,osc-valign=0.8,osc-title=NEX,osc-floatingtitle=no,osc-windowcontrols=no,",
-                "osc-background_color=#111113,osc-held_element_color=#FF9B54,osc-timecode_color=#FF9B54,",
+                "osc-background_color=#111113,osc-held_element_color=#FF6A00,osc-timecode_color=#FF6A00,",
                 "osc-hidetimeout=5000,osc-fadeduration=0,osc-idlescreen=no,",
                 "osc-title_mbtn_left_command=,osc-title_mbtn_mid_command=,osc-title_mbtn_right_command=,",
                 "osc-menu_mbtn_left_command=script-message-to nova_hud settings,",

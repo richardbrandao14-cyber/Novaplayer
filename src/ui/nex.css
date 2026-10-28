@@ -1,7 +1,7 @@
 /* NEX / Obsidiana. Camada de identidade; geometria do vídeo nativo preservada. */
 :root {
-  --nex-accent: #ff9b54;
-  --nex-accent-soft: #ffb680;
+  --nex-accent: #ff6a00;
+  --nex-accent-soft: #ff9b50;
   --accent: var(--nex-accent);
   --color-primary: var(--nex-accent);
   --color-background: #0b0c0e;
@@ -137,9 +137,9 @@ body {
 }
 .nav-item.active,
 .cinema-shell .nav-item.active {
-  background: #ff9b5412;
+  background: #ff6a0012;
   color: var(--nex-accent-soft);
-  box-shadow: inset 0 0 0 1px #ff9b5418;
+  box-shadow: inset 0 0 0 1px #ff6a0018;
 }
 .nav-item.active::before,
 .cinema-shell .nav-item.active::before {
@@ -177,7 +177,7 @@ body {
 .global-search-trigger:hover,
 .cinema-shell .global-search-trigger:hover {
   background: #202125;
-  border-color: #ff9b5450;
+  border-color: #ff6a0050;
 }
 .global-search-trigger:focus-visible,
 .cinema-shell .global-search-trigger:focus-visible {
@@ -279,9 +279,9 @@ body {
 .button-primary:hover,
 .cinema-watch:hover,
 .browse-feature .cinema-watch:hover {
-  background: #ffb47f;
+  background: #ff8126;
   color: #24160c;
-  box-shadow: 0 5px 20px #ff9b5418;
+  box-shadow: 0 5px 20px #ff6a0018;
 }
 .button-secondary,
 .cinema-info {
@@ -377,7 +377,7 @@ select,
   font-weight: 650;
 }
 .browse-categories button.active:hover {
-  background: #ffb47f;
+  background: #ff8126;
 }
 .cinema-home {
   padding: 26px 32px 0;
@@ -473,7 +473,7 @@ select,
   border: 1px solid #ffffff12;
   border-radius: 28px;
   background:
-    radial-gradient(ellipse at 90% 10%, #ff9b5410, transparent 55%), #141518;
+    radial-gradient(ellipse at 90% 10%, #ff6a0010, transparent 55%), #141518;
 }
 .cinema-welcome h1 {
   letter-spacing: -0.055em;
@@ -492,7 +492,7 @@ select,
   background: #ffffff08;
 }
 .live-channel-row.active {
-  background: #ff9b5414;
+  background: #ff6a0014;
 }
 .live-favorite.active,
 .live-library-tabs button.active {
@@ -649,12 +649,12 @@ select,
   color: #24160c;
 }
 .detail-page-actions .cinema-watch:hover {
-  background: #ffb47f;
+  background: #ff8126;
   color: #24160c;
 }
 .detail-page-actions .detail-save.active {
-  background: #ff9b5415;
-  border-color: #ff9b5440;
+  background: #ff6a0015;
+  border-color: #ff6a0040;
   color: var(--nex-accent-soft);
 }
 .series-episode-scene {
@@ -669,21 +669,21 @@ select,
 }
 .series-episode-play {
   border-radius: 50%;
-  background: #ff9b54e8;
+  background: #ff6a00e8;
   color: #24160c;
 }
 .live-channel-row {
   border-radius: 13px;
 }
 .live-channel-row.active {
-  background: #ff9b5412;
-  border-color: #ff9b5430;
+  background: #ff6a0012;
+  border-color: #ff6a0030;
 }
 .live-library-tabs button {
   border-radius: 12px;
 }
 .live-library-tabs button.active {
-  background: #ff9b5412;
+  background: #ff6a0012;
   color: var(--nex-accent-soft);
 }
 .live-favorite {
@@ -692,7 +692,7 @@ select,
 }
 .live-favorite:hover,
 .live-favorite.active {
-  background: #ff9b5412;
+  background: #ff6a0012;
   color: var(--nex-accent-soft);
 }
 .live-preview-head,

@@ -61,6 +61,9 @@ async function main() {
       await page.locator("#initialization-status").textContent(),
       /JavaScript OK.*Estilo OK/,
     );
+    await page.locator("#toggle-tools").focus();
+    await page.locator("#toggle-tools").dispatchEvent("keydown", { keyCode: 13 });
+    assert.equal(await page.locator("#test-tools").isVisible(), true);
     await page
       .getByRole("button", { name: "Testar vídeo e som", exact: true })
       .focus();
@@ -187,7 +190,7 @@ async function main() {
       "TV: OK · Filme: OK · Episódio: OK",
     );
     await page
-      .getByRole("button", { name: "Limpar dados", exact: true })
+      .getByRole("button", { name: "Limpar", exact: true })
       .click();
     assert.equal(
       await page.getByLabel("Usuário", { exact: true }).inputValue(),
@@ -199,6 +202,7 @@ async function main() {
     );
     assert.deepEqual(errors, []);
     await page.reload();
+    assert.equal(await page.locator("#test-tools").isVisible(), false);
     await page.locator("#environment").evaluate((node) => {
       node.textContent = "PRÉVIA CHROMIUM · Ainda não testado na TV";
     });

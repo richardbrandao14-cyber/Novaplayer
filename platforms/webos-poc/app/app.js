@@ -82,7 +82,7 @@
   function clearSource() {
     requestGeneration++; if (activeRequest) activeRequest.abort(); activeRequest = null; config = null;
     el("source-form").reset(); el("direct-url").value = ""; el("catalog-list").textContent = "";
-    el("catalog-title").textContent = "Sua fonte aparecerá aqui";
+    el("catalog-title").textContent = "Sua fonte aparecerá aqui"; el("catalog").hidden = true;
     ["load-live","load-movies","load-series"].forEach(function (id) { el(id).disabled = true; });
     status("Dados de acesso removidos desta sessão.");
   }
@@ -95,12 +95,13 @@
       if (!next.user || !next.password) throw new Error("Informe usuário e senha.");
     } catch (error) { status(error.message); return; }
     el("catalog-list").textContent = "";
+    el("catalog").hidden = true;
     config = null; ["load-live","load-movies","load-series"].forEach(function (id) { el(id).disabled = true; });
     status("Verificando acesso à fonte…");
     request(D.api(next), function (value) {
       var info = value && value.user_info;
       if (!info || !(info.auth === true || String(info.auth) === "1") || (info.status && String(info.status).toLowerCase() !== "active")) { status("A fonte não confirmou uma conta ativa. Confira os dados."); return; }
-      config = next; el("password").value = "";
+      config = next; el("password").value = ""; el("catalog").hidden = false;
       ["load-live","load-movies","load-series"].forEach(function (id) { el(id).disabled = false; });
       status("Fonte conectada. Teste um canal, um filme e um episódio."); focus(el("load-live"));
     });
@@ -116,6 +117,11 @@
   });
   el("local-test").addEventListener("click", function () { play(localMedia("media/player-av.mp4"), "Teste local · Imagem sintética e áudio", "local"); });
   el("local-hls").addEventListener("click", function () { play(localMedia("media/hls/index.m3u8"), "Teste HLS local · Compatibilidade do aparelho", "local"); });
+  el("toggle-tools").addEventListener("click", function () {
+    var open = el("test-tools").hidden; el("test-tools").hidden = !open;
+    el("toggle-tools").setAttribute("aria-expanded", String(open));
+    el("toggle-tools").textContent = open ? "Fechar ferramentas de teste" : "Abrir ferramentas de teste";
+  });
   el("source-focus").addEventListener("click", function () { focus(el("server")); });
   el("back").addEventListener("click", stop);
   function toggle() { if (video.paused) { var result = video.play(); if (result && result.catch) result.catch(function () { playerStatus("Não foi possível iniciar. Confira a fonte e o formato."); }); } else video.pause(); }
@@ -174,6 +180,6 @@
   });
   window.nexReady = true;
   var styled = parseInt(window.getComputedStyle(document.querySelector(".brand")).fontSize, 10) >= 30;
-  el("initialization-status").textContent = "Versão 0.1.2 · JavaScript OK · " + (styled ? "Estilo OK" : "Estilo não carregado");
-  focus(el("local-test"));
+  el("initialization-status").textContent = "Versão 0.1.3 · JavaScript OK · " + (styled ? "Estilo OK" : "Estilo não carregado");
+  focus(el("source-focus"));
 }());
