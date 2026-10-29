@@ -30,6 +30,8 @@ jobs:
       - run: node platforms/webos-poc/scripts/smoke.cjs
         env:
           NOVA_CHROMIUM_PATH: ''
+      - run: npm --prefix platforms/webos-poc run build:tv
+      - run: npm --prefix platforms/webos-poc run check:package
       - run: cp platforms/webos-poc/README.md platforms/webos-poc/dist/LEIA-ME.md
       - uses: actions/upload-artifact@v4
         with:
@@ -38,6 +40,11 @@ jobs:
             platforms/webos-poc/dist/*.ipk
             platforms/webos-poc/dist/SHA256SUMS.txt
             platforms/webos-poc/dist/LEIA-ME.md
-            platforms/webos-poc/dist/nex-webos-*.png
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEX-webOS-QA
+          path: platforms/webos-poc/dist/nex-webos-*.png
           if-no-files-found: error
           retention-days: 7

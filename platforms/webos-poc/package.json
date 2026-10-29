@@ -1,11 +1,13 @@
 {
   "name": "nex-webos-poc",
   "private": true,
-  "version": "0.4.6",
+  "version": "0.4.7",
   "scripts": {
-    "test": "node tests/domain.check.cjs && node tests/storage.check.cjs && node tests/vault.check.cjs && node tests/playback.check.cjs && node tests/tmdb.check.cjs && node tests/artwork.check.cjs && node tests/resume.check.cjs",
+    "test": "node tests/domain.check.cjs && node tests/storage.check.cjs && node tests/vault.check.cjs && node tests/playback.check.cjs && node tests/tmdb.check.cjs && node tests/artwork.check.cjs && node tests/resume.check.cjs && node tests/home.check.cjs",
     "build": "node scripts/package.cjs",
-    "benchmark": "node scripts/benchmark.cjs"
+    "benchmark": "node scripts/benchmark.cjs",
+    "build:tv": "node scripts/package.cjs --tv",
+    "check:package": "node scripts/check-package.cjs"
   },
   "devDependencies": {
     "@webos-tools/cli": "3.2.6",

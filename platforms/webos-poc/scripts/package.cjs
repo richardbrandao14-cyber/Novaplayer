@@ -4,18 +4,20 @@ const crypto = require("node:crypto");
 const { spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, "..");
 const repo = path.resolve(root, "../..");
+const tv=process.argv.includes("--tv");
 const dist = path.join(root, "dist");
-const app = path.join(dist, "app");
-fs.rmSync(dist, { recursive: true, force: true });
+const app = path.join(dist, tv?"tv-app":"app");
+fs.rmSync(tv?app:dist, { recursive: true, force: true });
 fs.mkdirSync(app, { recursive: true });
 fs.cpSync(path.join(root, "app"), app, { recursive: true });
 fs.copyFileSync(path.join(repo, "LICENSE"), path.join(app, "LICENSE"));
 // Recursos locais embutidos: o runtime da TV não precisa resolvê-los pela origem file:.
-const inlineFiles = ["boot.js", "domain.js", "storage.js", "vault.js", "quick-access.js", "playback.js", "tmdb.js", "navigation.js", "profiles.js", "artwork.js", "library.js", "resume.js", "app.js"];
+const inlineFiles = ["boot.js", "domain.js", "storage.js", "vault.js", "quick-access.js", "playback.js", "tmdb.js", "navigation.js", "profiles.js", "artwork.js", "home.js", "library.js", "resume.js", "icons.js", "app.js"];
 const css = fs
   .readFileSync(path.join(app, "style.css"), "utf8")
   .replace(/\r\n?/g, "\n");
 let html = fs.readFileSync(path.join(app, "index.html"), "utf8");
+if(tv)html=html.replace('<div class="test-local panel">','<div class="test-local panel" hidden>').replace('<div class="tools-heading">','<div class="tools-heading" hidden>');
 const hashes = [];
 for (const name of inlineFiles) {
   const code = fs
@@ -50,6 +52,7 @@ fs.writeFileSync(path.join(app, "index.html"), html);
 for (const name of [...inlineFiles, "style.css"])
   fs.unlinkSync(path.join(app, name));
 
+if(!tv){
 fs.mkdirSync(path.join(app, "media/hls"), { recursive: true });
 fs.copyFileSync(
   path.join(root, "fixtures/tv-av.mp4"),
@@ -59,6 +62,8 @@ fs.copyFileSync(path.join(root,"fixtures/tv-uhd.mp4"),path.join(app,"media/playe
 fs.cpSync(path.join(root, "fixtures/hls"), path.join(app, "media/hls"), {
   recursive: true,
 });
+}
+if(tv)for(const file of fs.readdirSync(dist))if(file.endsWith(".ipk"))fs.unlinkSync(path.join(dist,file));
 // APPDATA é suportado pela CLI; estado isolado só neste processo filho.
 const cliState = path.join(root, "node_modules/.nex-cli-state");
 fs.mkdirSync(cliState, { recursive: true });
@@ -79,4 +84,4 @@ fs.writeFileSync(
   path.join(dist, "SHA256SUMS.txt"),
   crypto.createHash("sha256").update(bytes).digest("hex") + "  " + name + "\n",
 );
-console.log("Pacote de teste: " + name + " (" + bytes.length + " bytes)");
+console.log((tv?"Pacote leve para TV: ":"Pacote QA: ") + name + " (" + bytes.length + " bytes)");

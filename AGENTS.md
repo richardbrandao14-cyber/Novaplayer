@@ -2,6 +2,9 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.7: Home com Novidades/Filmes/Séries/Ao vivo agora em até 12 cards por faixa; Novidades só added/date_added reais, seleção incremental/cancelável sem ordenar o catálogo inteiro; manter De volta às séries e catálogos completos nas seções. Imagens de episódios aceitam info objeto/JSON e alternativas reais, fallback limitado e placeholder, nunca frames inventados. Ícones via SVG DOM, sem innerHTML. Liquid glass leve com fallback sem backdrop-filter; sem blur em vídeo nem promessa de 120 Hz. Dono relatou Timeout na instalação e autorizou retirar amostras de mídia/ferramentas de teste do pacote TV: QA continua completo no repositório/CI. build:tv gera IPK leve com mesmo ID; check:package verifica arquivo e boot Chromium, não instalação física LG. Não remover testes nem fixtures do QA. Preservar alterações Windows.
+
+
 - webOS 0.4.6 autorizado: 12 avatares locais ilustrados, animações curtas/reduced-motion, edição de avatar/nome e reset de preferências preservando histórico/favoritos. Perfil separado no topo; preservar sua classe no highlight. Transporte centralizado. Home “De volta às séries” usa parentId/updatedAt do perfil e catálogo real, deduplicado até 12; não inventar sugestões. Acesso automático autorizado substitui senha recorrente: AES-GCM e CryptoKey não exportável no IndexedDB, nunca credenciais/chave bruta no localStorage. Não equivale a cofre nativo/PIN: quem usa a TV pode abrir. Migrar cofre antigo só após desbloqueio e gravação automática bem-sucedida; falha conserva cofre antigo e informa, sem fallback em texto aberto. Recomendações permanecem proposta, sem serviço externo.
 
 

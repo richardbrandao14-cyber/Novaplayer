@@ -1,5 +1,6 @@
 (function () {
   "use strict";
+  window.NexIcons.mount();
   var D = window.NexDomain, video = document.getElementById("video"), player = document.getElementById("player");
   var config = null, library, resumer, activeRequest = null, requestGeneration = 0, playbackDeadline, hudTimer;
   var disabledHome = [], currentKind = "local", returnFocus = null, preview = false, playingKey = "", playingParent = "", pendingResume = 0, lastSaved = 0, explicitRestart=false;
@@ -90,7 +91,7 @@
   function playbackIcon(){var playing=resumer&&resumer.pending()?resumer.wanted():!video.paused;var button=el("play-pause");button.textContent="";var holder=document.createElement("span");holder.className=playing?"pause-icon":"play-icon";holder.setAttribute("aria-hidden","true");button.appendChild(holder);button.setAttribute("aria-label",playing?"Pausar":"Reproduzir");button.title=playing?"Pausar":"Reproduzir";}
   resumer=window.NexResume(video,{done:function(){pendingResume=0;playbackIcon();playerStatus(resumer.wanted()?"Reproduzindo":"Pausado");},message:playerStatus,failed:function(message){playerStatus(message);hud();playbackIcon();}});
   playback=window.NexPlayback(video,{request:request,autoNext:function(){return shelf.autoNext();},activity:function(){clearTimeout(playbackDeadline);hud();}});
-  library = window.NexLibrary({shelf:shelf,config:function () { return config; },request:request,cancel:cancel,play:play,progress:function (key) { return shelf.progress()[key] ? shelf.progress()[key].position : 0; }, favorite:function (action, selected) { favoriteAction = action; el("player-favorite").hidden = !action; el("player-favorite").textContent = selected ? "♥ Favoritado" : "♡ Favoritar canal"; }, next:function (action) { nextAction = action; playback.next(action); el("next-episode").hidden = !action; },stopPreview:function () { if (!player.hidden) { stop(); el("library").classList.remove("with-preview"); return true; } return false; }});
+  library = window.NexLibrary({shelf:shelf,config:function () { return config; },request:request,cancel:cancel,play:play,progress:function (key) { return shelf.progress()[key] ? shelf.progress()[key].position : 0; }, favorite:function (action, selected) { favoriteAction = action; el("player-favorite").hidden = !action; window.NexIcons.set("player-favorite",selected ? "Favoritado" : "Favoritar canal"); }, next:function (action) { nextAction = action; playback.next(action); el("next-episode").hidden = !action; },stopPreview:function () { if (!player.hidden) { stop(); el("library").classList.remove("with-preview"); return true; } return false; }});
   function clearSource() {
     authGeneration++;
     stop(); cancel(); config = null; shelf.disconnect(); library.clear();
@@ -126,7 +127,7 @@
   el("local-hls").addEventListener("click", function () { play(localMedia("media/hls/index.m3u8"), "Teste HLS local", "local"); });
   el("toggle-tools").addEventListener("click", function () { var open = el("test-tools").hidden; el("test-tools").hidden = !open; this.setAttribute("aria-expanded", String(open)); this.textContent = open ? "Fechar ferramentas de teste" : "Abrir ferramentas de teste"; });
   el("source-focus").addEventListener("click", function () { el("new-source").hidden=false;el("vault-login").hidden=true;focus(el("server")); });
-  el("player-favorite").addEventListener("click", function () { if (favoriteAction) this.textContent = favoriteAction() ? "♥ Favoritado" : "♡ Favoritar canal"; hud(); });
+  el("player-favorite").addEventListener("click", function () { if (favoriteAction) window.NexIcons.set("player-favorite",favoriteAction() ? "Favoritado" : "Favoritar canal"); hud(); });
   el("next-episode").addEventListener("click", function () { if (nextAction) nextAction(); });
   el("back").addEventListener("click", playbackBack); el("expand-player").addEventListener("click", fullscreen);
   function toggle() { if(resumer.pending()){resumer.toggle();playbackIcon();hud();return;}if(resumer.failed()){resumer.retry();var retry=video.play();if(retry&&retry.catch)retry.catch(function(){playerStatus("Pressione reproduzir para tentar a retomada.");});playbackIcon();hud();return;} if (video.paused) { var result = video.play(); if (result && result.catch) result.catch(function () { playerStatus("Não foi possível iniciar a reprodução."); }); } else video.pause(); hud(); }
@@ -216,5 +217,5 @@
   window.addEventListener("online",connectionLabel);window.addEventListener("offline",connectionLabel);connectionLabel();
   var startupGeneration=authGeneration;if(quick.available()){el("vault-create").hidden=true;quick.open().then(function(next){if(!next||startupGeneration!==authGeneration)return;var generation=startupGeneration;try{next.server=D.base(next.server);if(!next.user||!next.password)throw new Error();if(generation===authGeneration)connect(next,false,"",true);}catch(error){status("Não foi possível abrir o acesso salvo. Conecte sua lista novamente.");}},function(){status("Não foi possível abrir o acesso automático. Conecte sua lista novamente.");});}
   window.nexReady = true; var styled = parseInt(window.getComputedStyle(document.querySelector(".brand")).fontSize, 10) >= 30;
-  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.6":"Versão 0.4.6 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
+  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.7":"Versão 0.4.7 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
 }());

@@ -43,6 +43,8 @@
       return httpUrl(value).href;
     }catch(error){return "";}
   }
+  function episodeInfo(episode){var info=episode&&episode.info;if(typeof info==="string"&&info.length<=65536){try{info=JSON.parse(info);}catch(error){info=null;}}return info&&typeof info==="object"&&!Array.isArray(info)?info:{};}
+  function episodeArt(episode,server){var info=episodeInfo(episode),result=[],fields=[info.movie_image,info.cover_big,info.thumbnail,info.thumb,info.cover,info.image,episode.movie_image,episode.cover_big,episode.thumbnail,episode.thumb,episode.cover,episode.image,episode.stream_icon];fields.forEach(function(value){(Array.isArray(value)?value.slice(0,4):[value]).forEach(function(raw){if(typeof raw!=="string"||/^(null|undefined|n\/a)$/i.test(raw.trim()))return;var url=imageUrl(raw,server);if(url&&result.indexOf(url)===-1)result.push(url);});});return result.slice(0,8);}
   function rootOf(u) { return (u.protocol+"//"+u.host+u.pathname.replace(/\/(?:player_api|panel_api|get|xmltv)\.php\/?$/i,"")).replace(/\/+$/,""); }
   function base(value) {
     var u=httpUrl(normalize(value));
@@ -139,7 +141,7 @@
   function mediaError(code) {
     return ({1:"Reprodução interrompida.",2:"Falha de rede durante a reprodução.",3:"A TV não conseguiu decodificar este conteúdo.",4:"Formato, codec ou endereço não aceito pelo player."})[code] || "Não foi possível reproduzir. Confira a fonte e a compatibilidade do aparelho.";
   }
-  var exported = {imageUrl:imageUrl,source:source,httpUrl:httpUrl,base:base,api:api,stream:stream,records:records,episodes:episodes,epg:epg,resolution:resolution,mediaError:mediaError};
+  var exported = {episodeInfo:episodeInfo,episodeArt:episodeArt,imageUrl:imageUrl,source:source,httpUrl:httpUrl,base:base,api:api,stream:stream,records:records,episodes:episodes,epg:epg,resolution:resolution,mediaError:mediaError};
   if (typeof window !== "undefined") window.NexDomain = exported;
   else if (typeof module !== "undefined" && module.exports) module.exports = exported;
   else root.NexDomain = exported;

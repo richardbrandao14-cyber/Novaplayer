@@ -121,11 +121,12 @@ async function main() {
     await page.evaluate(() => { XMLHttpRequest.prototype.open = window.originalOpen; delete window.originalOpen; });
     console.log("QA: form validation");
     const media = fs.readFileSync(path.join(root, "media/player-av.mp4"));
-    const catalog = Array.from({length:50000}, (_,i) => ({stream_id:i+1, name:"Filme sintético " + (i+1), category_id:String(i%2+1), container_extension:"mp4",direct_source:base+"/media/player-av.mp4", stream_icon:"https://fixture.example/poster.svg"}));
+    const catalog = Array.from({length:50000}, (_,i) => ({stream_id:i+1, name:"Filme sintético " + (i+1), category_id:String(i%2+1), added:String(1700000000+i), container_extension:"mp4",direct_source:base+"/media/player-av.mp4", stream_icon:"https://fixture.example/poster.svg"}));
     const requests = [];let failLive=true,emptySeries=true;
     await page.route(/https?:\/\/fixture\.example\//, async (route) => {
       const url = new URL(route.request().url());
       if (/^\/logos\//.test(url.pathname)) { await route.fulfill({contentType:"image/svg+xml",body:'<svg xmlns="http://www.w3.org/2000/svg" width="180" height="100"><rect width="180" height="100" rx="12" fill="#f3f1ed"/><text x="90" y="56" text-anchor="middle" font-size="22" fill="#17191e">TV · TESTE</text></svg>'}); return; }
+      if(url.pathname==="/missing-still.jpg"){await route.fulfill({status:404,body:"missing"});return;}
       if (url.pathname === "/poster.svg") { await route.fulfill({contentType:"image/svg+xml",body:'<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600"><rect width="400" height="600" fill="#322316"/><circle cx="270" cy="180" r="170" fill="#ae4a10"/><path d="M0 600 400 100 400 600" fill="#16191f"/><text x="32" y="490" fill="#fff" font-size="40">NEX · TESTE</text></svg>'}); return; }
       if (url.pathname !== "/player_api.php") {
         const range=/bytes=(\d+)-(\d*)/.exec(route.request().headers().range||"");const start=range?Number(range[1]):0,end=range&&range[2]?Math.min(Number(range[2]),media.length-1):media.length-1;
@@ -141,7 +142,7 @@ async function main() {
         : action === "get_short_epg" ? {epg_listings:[{title:Buffer.from("Jornal sintético").toString("base64"),description:Buffer.from("Descrição de programação sintética").toString("base64"),start_timestamp:1700000000}]}
         : /categories$/.test(action) ? [{category_id:1,category_name:"Categoria A"},{category_id:2,category_name:"Categoria B"}]
         : action === "get_vod_info" ? {info:{plot:"Sinopse sintética para testar a interface.",genre:"Teste",duration:"00:00:08"},movie_data:{stream_id:Number(url.searchParams.get("vod_id")),container_extension:"mp4",direct_source:base+"/media/player-av.mp4"}}
-        : action === "get_series_info" ? {info:{plot:"Série sintética, sem conteúdo comercial."},episodes:{1:Array.from({length:60},(_,i)=>({id:i+1,title:"Episódio sintético "+(i+1),episode_num:i+1,container_extension:"mp4",info:{movie_image:"https://fixture.example/poster.svg"}})),2:[{id:99,title:"Outra temporada",container_extension:"mp4"}],3:[],4:[],5:[],6:[],7:[],8:[]}}
+        : action === "get_series_info" ? {info:{plot:"Série sintética, sem conteúdo comercial."},episodes:{1:Array.from({length:60},(_,i)=>({id:i+1,title:"Episódio sintético "+(i+1),episode_num:i+1,container_extension:"mp4",info:i===0?{movie_image:"https://fixture.example/missing-still.jpg",thumbnail:"/poster.svg"}:i===1?JSON.stringify({movie_image:"//fixture.example/poster.svg"}):i===2?{movie_image:"null"}:{movie_image:"https://fixture.example/poster.svg"},thumbnail:i===2?"/poster.svg":undefined})),2:[{id:99,title:"Outra temporada",container_extension:"mp4"}],3:[],4:[],5:[],6:[],7:[],8:[]}}
         : action === "get_series" ? {"1":{series_id:1,name:"Série sintética",cover:"https://fixture.example/poster.svg",category_id:"1"}}
         : action === "get_live_streams" ? {streams:[{stream_id:2,name:"Canal sintético",stream_icon:"https://fixture.example/logos/one.svg",category_id:"1",direct_source:base+"/media/player-av.mp4"},{stream_id:3,name:"Segundo canal de teste",stream_icon:"/logos/two.svg",category_id:"1",direct_source:base+"/media/player-av.mp4"},{stream_id:4,name:"Terceiro canal de teste",stream_icon:"//fixture.example/logos/three.svg",category_id:"2",direct_source:base+"/media/player-av.mp4"}]}
         : {data:catalog};
@@ -157,6 +158,7 @@ async function main() {
     await page.locator("#connect-source").dispatchEvent("keydown", { keyCode: 13 });
     await page.locator('#profile-list button[data-profile="default"]').click();
     await page.waitForFunction(() => document.getElementById("page-count").textContent.includes("50000"));
+    await page.locator("#home-movies .home-card").first().waitFor();assert.deepEqual(await page.locator("#home-collections h2").allTextContents(),["Novidades","Filmes","Séries","Ao vivo agora"]);await page.locator("#load-movies").click();
     console.log("QA: authentication/catalog");assert.equal(await page.locator(".tv-sidebar> #lib-profiles.profile-entry").count(),1);
     const searchGeometry=await page.locator("#search-open").evaluate(node=>{const r=node.getBoundingClientRect(),parent=document.querySelector(".tv-sidebar").getBoundingClientRect();return {delta:Math.abs((r.left+r.right)/2-(parent.left+parent.right)/2),width:r.width};});
     assert.ok(searchGeometry.delta<2&&searchGeometry.width>=190);
@@ -193,7 +195,7 @@ async function main() {
     await page.locator("#page-next").click();
     assert.match(await page.locator("#page-count").textContent(),/49–96 de 50000/);
     await page.locator("#lib-category option[value=\"2\"]").waitFor({state:"attached"});
-    await page.locator("#load-movies").click();
+    await page.locator("#catalog-list button").first().focus();await page.keyboard.press("ArrowLeft");
     await page.locator('#sidebar-category-list button[data-category-id=""]').focus();
     await page.keyboard.press("ArrowDown");
     assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-category-id")),"1");
@@ -219,7 +221,7 @@ async function main() {
     await page.locator("#feature-favorite").click();
     await page.locator("#lib-watchlist").click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===1);assert.equal(await page.locator("#catalog-list button").count(),1);
     assert.equal(await page.locator("#catalog-list button").first().getAttribute("data-content-id"),"2");
-    await page.locator("#lib-home").click();
+    await page.locator("#load-movies").click();
     await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#search-open").click();
     await page.locator("#lib-search").fill("nenhum resultado zzz");
@@ -276,6 +278,7 @@ async function main() {
     assert.equal(await page.locator("#catalog-list button").count(),0);
     console.log("QA: movie/subtitles/favorites");
     // TV: prévia lateral, segundo clique amplia, Voltar retorna à prévia e depois catálogo.
+    failLive=true;
     await page.locator("#load-live").click();
     await page.locator("#catalog-retry").waitFor({state:"visible"});
     assert.match(await page.locator("#lib-status").textContent(),/HTTP 503/);
@@ -364,6 +367,8 @@ async function main() {
     assert.equal(await page.locator("#episode-list button").count(),0);
     await page.locator('#season-options button[data-season="1"]').focus();await page.keyboard.press("Enter");
     await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.classList.contains("episode-card")),true);
+    await page.waitForFunction(()=>Array.from(document.querySelectorAll("#episode-list button")).slice(0,3).every(button=>{const img=button.querySelector("img");return img&&img.complete&&img.naturalWidth>0;}));
+    assert.deepEqual(await page.locator("#episode-list button img").evaluateAll(images=>images.slice(0,3).map(img=>img.src)),["http://fixture.example/poster.svg","http://fixture.example/poster.svg","http://fixture.example/poster.svg"]);
     await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-season")),"1");
     await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.id),"detail-play");
     await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-season")),"1");
@@ -401,7 +406,7 @@ async function main() {
     await page.locator("#lib-settings").click();
     await page.locator("#auto-next").uncheck();
     await page.locator("#settings-live-format").selectOption("ts");
-    await page.locator("#lib-home").click();
+    await page.locator("#load-movies").click();
     await page.waitForFunction(() => document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#lib-status").evaluate(n=>n.textContent="PRÉVIA CHROMIUM · Catálogo sintético · Teste físico deste visual pendente");
     await page.waitForFunction(() => { const img=document.querySelector("#feature-art img"); return img && img.naturalWidth>0; });
@@ -445,7 +450,6 @@ async function main() {
     await page.keyboard.press("Escape");
     await page.locator("#lib-back").click();
     // A retomada também é descoberta entrando pela seção Séries, fora de Continue.
-    await page.locator("#lib-home").click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#load-series").click();await page.locator("#catalog-list button").first().focus();await page.keyboard.press("Enter");
     await page.waitForFunction(()=>document.querySelectorAll("#episode-list button").length>0);
     assert.equal(await page.locator("#series-progress").isVisible(),true);assert.match(await page.locator("#series-resume-title").textContent(),/Episódio sintético 4/);assert.match(await page.locator("#series-remaining").textContent(),/Faltam/);
@@ -471,7 +475,8 @@ async function main() {
     assert.equal(await page.locator("#auto-next").isChecked(),false);
     assert.equal(await page.locator("#settings-live-format").inputValue(),"ts");
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-settings.png")});
-    await page.locator("#lib-home").focus();await page.keyboard.press("Enter");await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));assert.equal(await page.locator("#lib-home").getAttribute("aria-current"),"page");await page.locator("#back-series-list button").waitFor();assert.match(await page.locator("#back-series").textContent(),/De volta às séries/);assert.equal(await page.locator("#back-series-list button").count(),1);await page.locator("#back-series-list button").focus();await page.waitForTimeout(180);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-home-recent.png")});await page.locator("#back-series-list button").focus();await page.keyboard.press("Enter");await page.waitForFunction(()=>document.getElementById("detail-title").textContent==="Série sintética");await page.keyboard.press("Escape");
+    await page.locator("#lib-home").focus();await page.keyboard.press("Enter");await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));await page.locator("#home-live .home-card").first().waitFor();await page.locator("#home-news .home-card").first().waitFor();assert.equal(await page.locator("#home-news .home-card").first().getAttribute("data-home-key"),"movie:50000");assert.equal(await page.locator("#lib-home").getAttribute("aria-current"),"page");await page.locator("#back-series-list button").waitFor();assert.match(await page.locator("#back-series").textContent(),/De volta às séries/);assert.equal(await page.locator("#back-series-list button").count(),1);await page.locator("#back-series-list button").focus();await page.waitForTimeout(180);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-home-recent.png")});
+    await page.locator("#home-news .home-card").first().focus();await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.parentElement.parentElement.id),"home-movies");await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.parentElement.parentElement.id),"home-series");await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.parentElement.parentElement.id),"home-live");await page.keyboard.press("Enter");await page.waitForFunction(()=>document.getElementById("video").currentTime>.1);assert.equal(await page.locator("#player").evaluate(node=>node.classList.contains("is-preview")),true);assert.match(await page.locator("#playing-title").textContent(),/Canal sintético/);await page.keyboard.press("Escape");await page.locator("#lib-home").focus();await page.keyboard.press("Enter");await page.locator("#back-series-list button").waitFor();await page.locator("#back-series-list button").focus();await page.keyboard.press("Enter");await page.waitForFunction(()=>document.getElementById("detail-title").textContent==="Série sintética");await page.keyboard.press("Escape");
     console.log("QA: profile isolation/home recent series");
     await page.locator("#lib-profiles").click();
     for(let i=2;i<=5;i++){await page.locator("#profile-add").click();await page.locator("#profile-name").fill("Pessoa "+i);await page.locator("#profile-submit").click();}
@@ -480,8 +485,7 @@ async function main() {
     await page.waitForTimeout(200);assert.equal(await page.locator("#profile-list .avatar-art").evaluateAll(nodes=>new Set(nodes.map(node=>getComputedStyle(node).backgroundPosition)).size),5);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-profiles.png")});
     await page.locator("#profile-list button").nth(1).click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#lib-favorites").click();assert.equal(await page.locator("#catalog-list button").count(),0);
-    await page.locator("#lib-continue").click();assert.equal(await page.locator("#catalog-list button").count(),0);await page.locator("#lib-home").click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));assert.equal(await page.locator("#back-series").isVisible(),false);
-    await page.locator("#lib-home").click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
+    await page.locator("#lib-continue").click();assert.equal(await page.locator("#catalog-list button").count(),0);await page.locator("#load-movies").click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));assert.equal(await page.locator("#back-series").isVisible(),false);
     await page.locator("#catalog-list button").nth(2).focus();await page.keyboard.press("Enter");await page.locator("#detail-favorite").click();
     await page.locator("#lib-profiles").click();await page.locator('#profile-list button[data-profile="default"]').click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     assert.equal(await page.locator("#active-profile-avatar").evaluate(node=>node.classList.contains("avatar-12")),true);assert.equal(await page.locator("#active-profile-label").textContent(),"Principal");await page.locator("#lib-favorites").click();assert.equal(await page.locator('#catalog-list button[data-content-id="3"]').count(),0);assert.equal(await page.locator('#catalog-list button[data-content-id="2"]').count(),1);

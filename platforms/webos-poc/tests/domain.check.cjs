@@ -63,7 +63,7 @@ test("scripts da TV usam sintaxe ES5 e manifest não pede serviços privilegiado
   const fs = require("node:fs");
   const path = require("node:path");
   const acorn = require("acorn");
-  for (const name of ["boot.js", "domain.js", "storage.js", "vault.js", "quick-access.js", "playback.js", "navigation.js", "profiles.js", "artwork.js", "tmdb.js", "library.js", "resume.js", "app.js"])
+  for (const name of ["boot.js", "domain.js", "storage.js", "vault.js", "quick-access.js", "playback.js", "navigation.js", "profiles.js", "artwork.js", "tmdb.js", "home.js", "library.js", "resume.js", "icons.js", "app.js"])
     acorn.parse(fs.readFileSync(path.join(__dirname, "../app", name), "utf8"), {
       ecmaVersion: 5,
     });
@@ -74,7 +74,7 @@ test("scripts da TV usam sintaxe ES5 e manifest não pede serviços privilegiado
 });
 test("interface não expõe credenciais em armazenamento aberto, HTML do provedor ou código remoto", () => {
   const fs = require("node:fs");
-  const source = ["app.js", "library.js"].map(name => fs.readFileSync(
+  const source = ["icons.js", "app.js", "library.js"].map(name => fs.readFileSync(
     require("node:path").join(__dirname, "../app", name), "utf8"
   )).join("\n");
   assert.doesNotMatch(
@@ -129,4 +129,8 @@ test("logos da fonte aceitam URL absoluta, relativa e protocolo herdado sem expo
  assert.equal(D.imageUrl("logos/canal.png","https://example.com/proxy"),"https://example.com/proxy/logos/canal.png");
  assert.equal(D.imageUrl("//cdn.example/logo.svg","https://example.com"),"https://cdn.example/logo.svg");
  for(const url of ["javascript:alert(1)","data:image/png,anything","file:///secret","https://user:password@example.com/a.png", "//user:password@example.com/a.png", "https://cdn.example/\nsecret", ""])assert.equal(D.imageUrl(url,"https://example.com"),"");
+});
+
+test("capas de episódios aceitam variantes reais, info JSON e alternativas seguras",()=>{
+ const host="https://example.com",episode={info:JSON.stringify({movie_image:"null",thumbnail:"/still.jpg",cover_big:"https://cdn.example/large.jpg"}),thumbnail:"//cdn.example/fallback.jpg",stream_icon:"javascript:alert(1)"};assert.deepEqual(D.episodeArt(episode,host),["https://cdn.example/large.jpg","https://example.com/still.jpg","https://cdn.example/fallback.jpg"]);assert.deepEqual(D.episodeArt({info:"{invalid",movie_image:["/one.jpg","/one.jpg","file:///bad"]},host),["https://example.com/one.jpg"]);assert.deepEqual(D.episodeInfo({info:"[]"}),{});assert.deepEqual(D.episodeArt({info:{movie_image:"undefined"}},host),[]);
 });
