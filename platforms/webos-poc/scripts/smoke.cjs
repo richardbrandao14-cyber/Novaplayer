@@ -136,7 +136,7 @@ async function main() {
       const action = url.searchParams.get("action"); requests.push(action);
       if(action==="get_live_streams"&&failLive){failLive=false;await route.fulfill({status:503,body:"Unavailable"});return;}
       if(action==="get_series"&&emptySeries){emptySeries=false;await route.fulfill({contentType:"application/json",headers:{"Access-Control-Allow-Origin":"*"},body:"[]"});return;}
-      if(action==="get_live_categories"){await route.fulfill({status:500,body:"Unavailable"});return;}
+      if(action==="get_live_categories"){await route.fulfill({contentType:"application/json",body:JSON.stringify([{category_id:"root",category_name:"Canais"},{category_id:"1",category_name:"Notícias",parent_id:"root"},{category_id:"2",category_name:"Outros",parent_id:"root"}])});return;}
       const value = !action ? {user_info:{auth:1,status:"Active"}}
         : action === "get_short_epg" ? {epg_listings:[{title:Buffer.from("Jornal sintético").toString("base64"),description:Buffer.from("Descrição de programação sintética").toString("base64"),start_timestamp:1700000000}]}
         : /categories$/.test(action) ? [{category_id:1,category_name:"Categoria A"},{category_id:2,category_name:"Categoria B"}]
@@ -217,7 +217,7 @@ async function main() {
     await page.locator("#feature-list").click();assert.match(await page.locator("#feature-list").textContent(),/Na minha lista/);
     await page.locator("#feature-favorite").click();assert.match(await page.locator("#feature-favorite").textContent(),/Favoritado/);
     await page.locator("#feature-favorite").click();
-    await page.locator("#lib-watchlist").click();assert.equal(await page.locator("#catalog-list button").count(),1);
+    await page.locator("#lib-watchlist").click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===1);assert.equal(await page.locator("#catalog-list button").count(),1);
     assert.equal(await page.locator("#catalog-list button").first().getAttribute("data-content-id"),"2");
     await page.locator("#lib-home").click();
     await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
@@ -227,7 +227,7 @@ async function main() {
     await page.locator("#lib-search").fill("Filme sintético 50000");
     await page.waitForFunction(() => document.querySelectorAll("#catalog-list button").length===1);
     assert.match(await page.locator("#catalog-list").textContent(),/50000/);
-    await page.locator("#catalog-list button").first().click();
+    await page.locator("#catalog-list button").first().focus();await page.keyboard.press("Enter");
     await page.waitForFunction(() => document.getElementById("detail-description").textContent.includes("Sinopse sintética"));
     await page.locator("#detail-favorite").click();
     await page.locator("#detail-play").click();
@@ -238,16 +238,13 @@ async function main() {
     await page.waitForFunction(()=>!document.getElementById("video").seeking&&document.getElementById("video").currentTime>=5.8);
     await page.locator("video").evaluate(v=>{const track=v.addTextTrack("subtitles","Português de teste","pt");track.addCue(new VTTCue(0,8,"NEX · legenda sintética"));});
     await page.waitForFunction(()=>!document.getElementById("subtitle-track").disabled);
-    // A barra não captura a navegação: sem OK, direita alcança Ajustes.
-    await page.locator("#play-pause").focus();
-    await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.id),"timeline");
-    await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"player-settings-open");
-    await page.keyboard.press("ArrowLeft");assert.equal(await page.evaluate(()=>document.activeElement.id),"seek-forward");
-    await page.keyboard.press("ArrowUp");await page.keyboard.press("Enter");
-    assert.equal(await page.locator("#player").evaluate(node=>node.classList.contains("seeking")),true);
+    // Setas ajustam a posição diretamente ao focar a barra, sem OK prévio.
+    assert.deepEqual(await page.locator(".player-bottom .actions button").evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length&&!n.hidden).slice(0,4).map(n=>n.id)),["seek-back","play-pause","seek-forward","player-settings-open"]);
+    assert.equal(await page.locator("#play-pause").textContent(),"");assert.equal(await page.locator("#play-pause").getAttribute("aria-label"),"Reproduzir");
+    await page.locator("#play-pause").focus();await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.id),"timeline");
     await page.keyboard.press("ArrowLeft");await page.waitForFunction(()=>document.getElementById("video").currentTime<.5);
-    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"play-pause");
-    assert.equal(await page.locator("#player").evaluate(node=>node.classList.contains("seeking")),false);
+    assert.equal(await page.evaluate(()=>document.activeElement.id),"timeline");await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"play-pause");
+    await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"seek-forward");await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"player-settings-open");
     await page.locator("video").evaluate(v=>{v.currentTime=6;});await page.waitForFunction(()=>!document.getElementById("video").seeking);
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-player-review.png")});
     await page.locator("#player-settings-open").click();assert.equal(await page.evaluate(()=>document.activeElement.id),"play-speed");
@@ -273,7 +270,7 @@ async function main() {
     assert.equal(await page.locator("#lib-search").inputValue(),"Filme sintético 50000");
     await page.locator("#lib-favorites").click();
     assert.equal(await page.locator("#catalog-list button").count(),1);
-    await page.locator("#catalog-list button").first().click();
+    await page.locator("#catalog-list button").first().focus();await page.keyboard.press("Enter");
     await page.locator("#detail-favorite").click();
     await page.locator("#lib-back").click();
     assert.equal(await page.locator("#catalog-list button").count(),0);
@@ -286,7 +283,7 @@ async function main() {
     await page.getByRole("button",{name:/Canal sintético/}).waitFor();
     await page.waitForFunction(()=>{const logos=document.querySelectorAll("#catalog-list .channel-logo img");return logos.length===3&&Array.from(logos).every(img=>img.complete&&img.naturalWidth>0);});
     assert.deepEqual(await page.locator("#catalog-list .channel-logo img").evaluateAll(images=>images.map(img=>img.src)),["https://fixture.example/logos/one.svg","http://fixture.example/logos/two.svg","http://fixture.example/logos/three.svg"]);
-    await page.locator("#catalog-list button").first().click();
+    await page.locator("#catalog-list button").first().focus();await page.keyboard.press("Enter");
     await page.waitForFunction(() => document.getElementById("video").currentTime>.1);
     assert.equal(await page.locator("#player").evaluate(n=>n.classList.contains("is-preview")),true);
     assert.equal(await page.locator("#lib-search").isEnabled(),true);
@@ -302,7 +299,9 @@ async function main() {
     await page.setViewportSize({width:1920,height:1080});
 
 
-    await page.locator("#player-favorite").click();
+    await page.locator("#catalog-list button").first().focus();await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"expand-player");
+    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"play-pause");await page.keyboard.press("Enter");assert.equal(await page.locator("video").evaluate(v=>v.paused),true);await page.keyboard.press("Enter");
+    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"player-favorite");await page.keyboard.press("Enter");
     assert.match(await page.locator("#player-favorite").textContent(), /Favoritado/);
     await page.locator("#show-epg").click();
     await page.waitForFunction(()=>document.getElementById("epg-list").textContent.includes("Jornal sintético"));
@@ -310,7 +309,7 @@ async function main() {
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("#epg-panel").isVisible(),false);
     assert.equal(await page.locator("#player").isVisible(),true);
-    await page.locator("#catalog-list button").first().click();
+    await page.locator("#catalog-list button").first().focus();await page.keyboard.press("ArrowRight");await page.keyboard.press("Enter");
     assert.equal(await page.locator("#player").evaluate(n=>n.classList.contains("is-preview")),false);
     // HUD aberto: setas chegam ao progresso e Ajustes sem trocar canal.
     await page.waitForFunction(()=>!document.getElementById("timeline").disabled);
@@ -340,14 +339,21 @@ async function main() {
     assert.equal(await page.locator("#player").evaluate(n=>n.classList.contains("is-preview")),true);
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("#player").isVisible(),false);
-    console.log("QA: live/EPG");
+    await page.locator('#sidebar-category-list [data-category-id="root"]').click();assert.equal(await page.locator('#sidebar-category-list [data-category-id="root"]').count(),0);assert.equal(await page.locator('#sidebar-category-list [data-category-id="1"]').count(),1);
+    await page.locator('#sidebar-category-list [data-category-id="1"]').click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===2);
+    await page.locator("#sidebar-main").click();assert.equal(await page.locator('#sidebar-category-list [data-category-id="root"]').count(),1);
+    await page.locator("#catalog-list button").first().focus();await page.keyboard.press("Escape");assert.equal(await page.evaluate(()=>document.activeElement.id),"load-live");
+    await page.locator("#lib-favorites").click();await page.locator("#favorite-tv-type").click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===1);assert.match(await page.locator("#catalog-list").textContent(),/Canal sintético/);
+    await page.locator('#continue-types [data-continue-type="series"]').click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===0);
+    await page.locator("#load-live").click();
+    console.log("QA: live/EPG/remote preview/favorite types/category hierarchy");
     await page.locator("#sidebar-main").click();
     await page.locator("#load-series").click();
     await page.locator("#catalog-retry").waitFor({state:"visible"});
     assert.match(await page.locator("#lib-status").textContent(),/zero registros/);
     await page.locator("#catalog-retry").click();
     await page.locator("#catalog-list button").first().waitFor();
-    await page.locator("#catalog-list button").first().click();
+    await page.locator("#catalog-list button").first().focus();await page.keyboard.press("Enter");
     await page.waitForFunction(() => document.querySelectorAll("#episode-list button").length===24);
     assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-season")),"1");
     for(let i=0;i<7;i++)await page.keyboard.press("ArrowRight");
@@ -424,7 +430,7 @@ async function main() {
     await page.waitForFunction(()=>document.getElementById("catalog-list").textContent.includes("Canal sintético"));
     await page.locator("#lib-continue").click();
     await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===2);
-    assert.equal(await page.locator('#continue-types button[data-continue-type="live"]').count(),0);
+    assert.equal(await page.locator('#continue-types button[data-continue-type="live"]').isVisible(),false);
     await page.locator("#lib-continue").focus();await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.hasAttribute("data-continue-type")),true);
     await page.keyboard.press("ArrowRight");await page.keyboard.press("Enter");await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===1);await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.classList.contains("tv-card")),true);await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-continue-type")),"movie");
 
@@ -443,7 +449,7 @@ async function main() {
     await page.locator("#lib-back").click();
     // A retomada também é descoberta entrando pela seção Séries, fora de Continue.
     await page.locator("#lib-home").click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
-    await page.locator("#load-series").click();await page.locator("#catalog-list button").first().click();
+    await page.locator("#load-series").click();await page.locator("#catalog-list button").first().focus();await page.keyboard.press("Enter");
     await page.waitForFunction(()=>document.querySelectorAll("#episode-list button").length>0);
     assert.equal(await page.locator("#series-progress").isVisible(),true);assert.match(await page.locator("#series-resume-title").textContent(),/Episódio sintético 4/);assert.match(await page.locator("#series-remaining").textContent(),/Faltam/);
     await page.locator("#detail-play").focus();await page.waitForTimeout(200);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-series-progress.png")});
@@ -451,9 +457,15 @@ async function main() {
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-resume-choice.png")});
     await page.keyboard.press("ArrowLeft");assert.equal(await page.evaluate(()=>document.activeElement.id),"resume-start");await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"resume-continue");
     await page.keyboard.press("Escape");assert.equal(await page.locator("#resume-choice").isVisible(),false);assert.equal(await page.locator("#player").isVisible(),false);
-    await page.locator("#detail-play").click();await page.locator("#resume-continue").click();
+    await page.locator("#detail-play").click();
+    // TV-like startup: unknown duration/window, then two ignored seek assignments.
+    await page.locator("video").evaluate(v=>{const proto=HTMLMediaElement.prototype,duration=Object.getOwnPropertyDescriptor(proto,"duration"),seekable=Object.getOwnPropertyDescriptor(proto,"seekable"),time=Object.getOwnPropertyDescriptor(proto,"currentTime");let ready=false,writes=0;Object.defineProperty(v,"duration",{configurable:true,get(){return ready?duration.get.call(v):NaN;}});Object.defineProperty(v,"seekable",{configurable:true,get(){return ready?seekable.get.call(v):{length:0};}});Object.defineProperty(v,"currentTime",{configurable:true,get(){return time.get.call(v);},set(value){writes++;if(writes>2)time.set.call(v,value);}});v._resumeTestRestore=()=>{delete v.duration;delete v.seekable;delete v.currentTime;};setTimeout(()=>{ready=true;v.dispatchEvent(new Event("durationchange"));v.dispatchEvent(new Event("progress"));},700);});
+    await page.locator("#resume-continue").click();await page.waitForTimeout(1000);
+    const protectedProgress=await page.evaluate(()=>{const key=Object.keys(localStorage).find(k=>/^nex\.shelf\.v1\.[a-f0-9]{64}$/.test(k));return JSON.parse(localStorage.getItem(key)).progress["episode:4"].position;});assert.ok(protectedProgress>=3.8);
+
     await page.waitForFunction(()=>document.getElementById("video").currentTime>=3.8);
     assert.match(await page.locator("#playing-title").textContent(),/Episódio sintético 4/);
+    await page.locator("video").evaluate(v=>{v._resumeTestRestore();delete v._resumeTestRestore;});
     await page.locator("#play-pause").click();await page.keyboard.press("Escape");
     await page.locator("#detail-play").click();await page.locator("#resume-start").click();
     await page.waitForFunction(()=>{const v=document.getElementById("video");return v.currentTime>.1&&v.currentTime<2;});
@@ -464,15 +476,15 @@ async function main() {
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-settings.png")});
     console.log("QA: profile isolation");
     await page.locator("#lib-profiles").click();
-    for(let i=2;i<=5;i++){await page.locator("#profile-name").fill("Pessoa "+i);await page.locator("#profile-submit").click();}
-    assert.equal(await page.locator("#profile-list button").count(),5);assert.equal(await page.locator("#profile-submit").isDisabled(),true);
-    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"profile-rename");await page.keyboard.press("Enter");await page.locator("#profile-name").fill("Principal");await page.locator("#profile-submit").click();
+    for(let i=2;i<=5;i++){await page.locator("#profile-add").click();await page.locator("#profile-name").fill("Pessoa "+i);await page.locator("#profile-submit").click();}
+    assert.equal(await page.locator("#profile-list button").count(),5);assert.equal(await page.locator("#profile-form").isVisible(),false);assert.equal(await page.locator(".tv-sidebar").isVisible(),false);assert.equal(await page.locator("#profile-submit").isDisabled(),true);
+    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"profile-manage");await page.keyboard.press("Enter");await page.locator("#profile-rename").click();await page.locator("#profile-name").fill("Principal");await page.locator("#profile-submit").click();
     await page.waitForTimeout(200);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-profiles.png")});
     await page.locator("#profile-list button").nth(1).click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#lib-favorites").click();assert.equal(await page.locator("#catalog-list button").count(),0);
     await page.locator("#lib-continue").click();assert.equal(await page.locator("#catalog-list button").count(),0);
     await page.locator("#lib-home").click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
-    await page.locator("#catalog-list button").nth(2).click();await page.locator("#detail-favorite").click();
+    await page.locator("#catalog-list button").nth(2).focus();await page.keyboard.press("Enter");await page.locator("#detail-favorite").click();
     await page.locator("#lib-profiles").click();await page.locator('#profile-list button[data-profile="default"]').click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     assert.equal(await page.locator("#active-profile-label").textContent(),"Principal");await page.locator("#lib-favorites").click();assert.equal(await page.locator('#catalog-list button[data-content-id="3"]').count(),0);assert.equal(await page.locator('#catalog-list button[data-content-id="2"]').count(),1);
     await page.locator("#lib-continue").click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===2);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-continue.png")});

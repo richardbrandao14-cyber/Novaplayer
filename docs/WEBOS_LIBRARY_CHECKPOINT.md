@@ -84,3 +84,12 @@ Autorizado pelo proprietário: até cinco perfis locais após login, biblioteca/
 Manifesto público de perfis por fingerprint da fonte/conta guarda somente ID local, nome escolhido e seleção. Perfil default mantém a chave original; os demais têm sufixo próprio. Credenciais não são duplicadas, permanecem no cofre existente. Nomes são textContent, até 24 caracteres, e arquivos/manifestos são limitados e validados. Falha de escrita impede a troca de perfil. Troca de perfil encerra a sessão de reprodução e limpa contexto de navegação/retomada, mantendo o catálogo público em cache.
 
 Montagem de Continue indexada por série, sem varrer até 2.000 progressos para cada título. Carregamento visual com três imagens em voo, prioridade/visibilidade/cancelamento. Testes Chromium exercitam cinco perfis e confirmação de retomada; testes unitários cobrem dados antigos intactos, isolamento e gravação indisponível. Medições e limites em WEBOS_PERFORMANCE.md. Sem publicação em loja, teste físico ou promessa de FPS.
+
+
+## 0.4.5 — controle, retomada confirmada e menus
+
+Relato físico: retomada começou no início; controles da prévia só funcionavam com mouse. A antiga atribuição única de currentTime descartava o alvo mesmo sem duração ou confirmação. Novo controlador espera metadados/janela, confirma a posição por eventos, repete atribuições ignoradas e limita a espera a 20 segundos. Durante espera/falha pausa e bloqueia sobrescrita do progresso. Reproduzir tenta novamente; Do início é decisão explícita. Testes simulam duração indisponível e duas buscas ignoradas; não equivalem a aprovação do decoder LG.
+
+Perfis redondos com gerenciamento separado, player em ícones e busca direta por setas na barra. Favoritos por tipo; Continue sem TV. Prévia acessível pelas setas/OK para ampliar, pausar e favoritar. TV mantém principais mais painel secundário; parent_id/parent_category_id fornecidos definem níveis, sem inventar agrupamentos pelos nomes. Voltar no catálogo leva o foco à categoria mãe; detalhes e player preservam retorno próprio. Menu de filmes/séries recolhe/expande sem alterar a geometria do catálogo. Sem dependências novas ou alterações no Windows.
+
+Validação desta revisão: 32 testes unitários/contratos, ESLint, pacote IPK e cenário completo Chromium aprovados; cenário cobre prévia por setas/OK, filtros favoritos, painel hierárquico, cinco perfis, retomada com duração atrasada e duas buscas ignoradas. Verificação física LG pendente, inclusive confirmação da retomada real e imagem da prévia no plano nativo.

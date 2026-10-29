@@ -3,11 +3,11 @@
   "use strict";
   window.NexLibrary = function (hooks) {
     var D = window.NexDomain, state = null, stack = [], favorites = {}, filterGeneration = 0, filterTimer, queryTimer;
-    var catalogCache = {}, featureTimer,featureCache={}, subMenu=false, liveKey="", searchContext=null, resumePending=null;
+    var catalogCache = {}, featureTimer,featureCache={}, subMenu=false, liveKey="", searchContext=null, resumePending=null, categoryParent="";
     var detail = null, detailGeneration = 0, season = "", episodePage = 0, pageSize = 48,profiles;
     function el(id) { return document.getElementById(id); }
     function text(id, value) { el(id).textContent = value || ""; }
-    function focus(node) { window.NexNavigation.focus(node,true); }
+    function focus(node) { if(node&&document.querySelector(".tv-sidebar").contains(node))compact(false);window.NexNavigation.focus(node,true); }
     function label(kind) { return kind === "live" ? "TV ao vivo" : kind === "series" ? "Séries" : "Filmes"; }
     function name(item) { return String(item.name || item.title || "Título não fornecido"); }
     function id(item, kind) { return String(kind === "series" ? item.series_id : item.stream_id); }
@@ -37,19 +37,29 @@
         if (selected) el(button).setAttribute("aria-current", "page"); else el(button).removeAttribute("aria-current");
       });
     }
+    function parentCategory(value){var entry=state.categories.filter(function(c){return String(c.category_id)===value;})[0];var parent=entry&&String(entry.parent_id||entry.parent_category_id||"");return parent&&parent!=="0"?parent:"";}
+    function mother(){return el(state&&state.home?"lib-home":state&&state.favorites?"lib-favorites":state&&state.continuing?"lib-continue":state&&state.watchlist?"lib-watchlist":state&&state.kind==="live"?"load-live":state&&state.kind==="series"?"load-series":"load-movies");}
+    function compact(value){el("library").classList.toggle("nav-auto",!!state&&state.kind!=="live"&&!state.settings);el("library").classList.toggle("nav-compact",!!value&&!!state&&state.kind!=="live"&&!state.settings);}
+    document.querySelector(".tv-sidebar").addEventListener("mouseenter",function(){compact(false);});
+    document.querySelector(".tv-sidebar").addEventListener("mouseleave",function(){compact(true);});
+    document.addEventListener("focusin",function(event){if(el("library").hidden||!el("profiles-view").hidden)return;compact(!document.querySelector(".tv-sidebar").contains(event.target));});
     function sidebar() {
       var show = subMenu && state && !state.home && !state.settings && !state.favorites && !state.watchlist && !state.continuing;
       el("sidebar-categories").hidden = !show;
-      ["load-live","load-movies","load-series"].forEach(function(button){el(button).hidden=!!show;});
+      el("library").classList.toggle("tv-category-menu",!!show&&state.kind==="live");
+      ["load-live","load-movies","load-series"].forEach(function(button){el(button).hidden=!!show&&state.kind!=="live";});
       if (!show) return;
-      text("sidebar-title",label(state.kind));
+      text("sidebar-title",categoryParent?(state.categories.filter(function(c){return String(c.category_id)===categoryParent;})[0]||{}).category_name||label(state.kind):label(state.kind));
+      text("sidebar-main",categoryParent?"← Categorias de TV":"← Menu principal");
       var list=el("sidebar-category-list"),oldFocus=document.activeElement,hadFocus=list.contains(oldFocus),oldValue=hadFocus?oldFocus.getAttribute("data-category-id"):null;list.textContent="";
-      [{category_id:"",category_name:"Todos os conteúdos"}].concat(state.categories).forEach(function(category){
+      var groups=state.categories;
+      if(state.kind==="live")groups=groups.filter(function(c){var parent=String(c.parent_id||c.parent_category_id||"");return categoryParent?parent===categoryParent:!parent||parent==="0"||!state.categories.some(function(other){return String(other.category_id)===parent;});});
+      [{category_id:"",category_name:categoryParent?"Todos nesta categoria":"Todos os conteúdos"}].concat(groups).forEach(function(category){
         var button=document.createElement("button"),value=String(category.category_id);
         button.textContent=category.category_name||"Categoria sem nome";button.setAttribute("data-nav","");button.setAttribute("data-category-id",value);
         button.className=state.category===value?"selected":"";
         if(state.category===value)button.setAttribute("aria-current","true");
-        button.addEventListener("click",function(){state.category=value;el("lib-category").value=value;filter(false);
+        button.addEventListener("click",function(){if(state.kind==="live"&&value&&state.categories.some(function(c){return String(c.parent_id||c.parent_category_id||"")===value;})){categoryParent=value;sidebar();focus(list.querySelector("button"));return;}state.category=value||categoryParent;el("lib-category").value=value;filter(false);
           var buttons=list.querySelectorAll("button");for(var i=0;i<buttons.length;i++){buttons[i].className=buttons[i]===button?"selected":"";buttons[i].removeAttribute("aria-current");}button.setAttribute("aria-current","true");
         });list.appendChild(button);
         if(hadFocus&&oldValue===value)focus(button);
@@ -61,11 +71,11 @@
       detail = null; el("settings-view").hidden = true; el("browse-view").hidden = false; el("details-view").hidden = true;
       el("search-open").disabled=false; el("search-panel").hidden=!state.searchOpen;
       el("lib-search").disabled = false; el("lib-search").value = state.query;
-      el("library").className = state.kind === "live" ? "live-library" : "";
+      el("library").className = state.kind === "live" ? "live-library" : "nav-auto";
       text("catalog-title", state.searchOpen ? "Resultados" : state.continuing ? "Continue" : state.watchlist ? "Minha lista" : state.favorites ? "Seus favoritos" : state.home ? "Explore seus filmes" : label(state.kind));
       text("section-label", state.continuing ? "DE ONDE VOCÊ PAROU" : state.favorites ? "SUA SELEÇÃO" : "DA SUA LISTA");
       var typeButtons=el("continue-types").querySelectorAll("button");for(var typeIndex=0;typeIndex<typeButtons.length;typeIndex++)typeButtons[typeIndex].setAttribute("aria-pressed",typeButtons[typeIndex].getAttribute("data-continue-type")===state.category?"true":"false");
-      el("continue-types").hidden=!state.continuing;categoriesSelect(); highlight(); render();
+      el("continue-types").hidden=!state.continuing&&!state.favorites;el("favorite-tv-type").hidden=!state.favorites;el("continue-types").setAttribute("aria-label",state.favorites?"Categorias de favoritos":"Categorias de Continue");categoriesSelect(); highlight(); render();
     }
     function categoriesSelect(){
       var select = el("lib-category"); select.textContent = "";
@@ -118,6 +128,7 @@
 
     }
 
+    function categoryMatches(item,current){var value=String(item.category_id||"");if(!current.category||value===current.category)return true;if(current.kind!=="live")return false;for(var depth=0;depth<current.categories.length;depth++){var entry=current.categories.filter(function(c){return String(c.category_id)===value;})[0];if(!entry)return false;value=String(entry.parent_id||entry.parent_category_id||"");if(!value)return false;if(value===current.category)return true;}return false;}
     function filter(restore) {
       var generation = ++filterGeneration, current = state, index = 0, result = [], query = state.query.toLowerCase();
       clearTimeout(filterTimer); message("Buscando no catálogo…");
@@ -126,7 +137,7 @@
         var end = Math.min(index + 1000, current.items.length);
         for (; index < end; index++) {
           var item = current.items[index];
-          if ((!current.category || String(item.category_id) === current.category || ((current.favorites || current.continuing) && item._nexKind === current.category)) && (!query || name(item).toLowerCase().indexOf(query) !== -1)) result.push(item);
+          if ((categoryMatches(item,current) || ((current.favorites || current.continuing) && item._nexKind === current.category)) && (!query || name(item).toLowerCase().indexOf(query) !== -1)) result.push(item);
         }
         if (index < current.items.length) filterTimer = setTimeout(chunk, 0);
         else { current.filtered = result; if (!restore) current.page = 0; render(); message(result.length ? result.length + " conteúdos · Use as setas e OK para escolher." : "Nenhum conteúdo encontrado. Tente outra busca ou categoria.");if(!current.items.length&&!current.favorites&&!current.watchlist&&!current.continuing){failed("A fonte respondeu com zero registros nesta seção. Você pode tentar carregar novamente.");} }
@@ -135,7 +146,7 @@
     }
     function enter(kind, home, favorite, continuing, watchlist) {
       if (!hooks.config()) return;
-      remember(); hooks.stopPreview(); cancel(); detail = null; subMenu=!home&&!favorite&&!continuing&&!watchlist;searchContext=null;
+      remember(); hooks.stopPreview(); cancel(); detail = null;categoryParent="";compact(false); subMenu=!home&&!favorite&&!continuing&&!watchlist;searchContext=null;
       state = {kind:kind,home:!!home,favorites:!!favorite,watchlist:!!watchlist,continuing:!!continuing,items:[],filtered:[],categories:[],category:"",query:"",page:0,scroll:0};
       el("home").hidden = true; el("library").hidden = false; browse(); el("library").scrollTop = 0;
       if (favorite || continuing || watchlist) {
@@ -261,7 +272,7 @@
     function detailView() {
       el("profiles-view").hidden=true;
       el("settings-view").hidden = true; el("browse-view").hidden = true; el("details-view").hidden = false; el("lib-search").disabled = true;el("search-open").disabled=true;el("search-panel").hidden=true;
-      el("library").className = ""; text("detail-title", name(detail.item)); text("detail-kind", label(detail.kind));
+      el("library").className = "nav-auto"; text("detail-title", name(detail.item)); text("detail-kind", label(detail.kind));
       el("seasons").hidden = detail.kind !== "series"; el("detail-play").disabled = detail.kind === "series";
       text("detail-play", detail.kind === "series" ? "▶︎ Assistir episódio" : hooks.progress(key(detail.item, detail.kind)) > 5 ? "▶︎ Continuar assistindo" : "▶︎ Assistir");
       text("detail-favorite", favorites[key(detail.item, detail.kind)] ? "♥ Favoritado" : "♡ Favoritar");
@@ -305,6 +316,7 @@
       if(resumePending){closeResume(true);return;}
       if(!el("profiles-view").hidden){state=null;enter("movie",true);stack=[];return;}
       if(state&&state.searchOpen&&!detail){closeSearch();return;}
+      if(state&&!detail&&!state.settings){if(categoryParent){categoryParent=parentCategory(categoryParent);sidebar();focus(el("sidebar-category-list").querySelector("button"));return;}if(!document.querySelector(".tv-sidebar").contains(document.activeElement)){subMenu=false;sidebar();compact(false);focus(mother());return;}}
       if(subMenu&&!detail&&document.querySelector(".tv-sidebar").contains(document.activeElement)){subMenu=false;sidebar();focus(el(state.kind==="live"?"load-live":state.kind==="series"?"load-series":"load-movies"));return;}
       cancel();
       if (stack.length) {
@@ -317,13 +329,13 @@
       else { message("Você está no início. Acesse Minha fonte para trocar ou desconectar sua lista."); focus(el("lib-home")); }
     }
     function showProfiles(){
-      if(!hooks.config())return;hooks.stopPreview();cancel();detail=null;state=null;stack=[];searchContext=null;subMenu=false;sidebar();el("home").hidden=true;el("library").hidden=false;el("library").className="";el("profiles-view").hidden=false;el("browse-view").hidden=true;el("details-view").hidden=true;el("settings-view").hidden=true;el("search-open").disabled=true;el("lib-search").disabled=true;el("library").scrollTop=0;profiles.open();highlight();message("Escolha seu perfil para continuar.");
+      if(!hooks.config())return;hooks.stopPreview();cancel();detail=null;state=null;stack=[];searchContext=null;subMenu=false;sidebar();el("home").hidden=true;el("library").hidden=false;el("library").className="profile-mode";el("profiles-view").hidden=false;el("browse-view").hidden=true;el("details-view").hidden=true;el("settings-view").hidden=true;el("search-open").disabled=true;el("lib-search").disabled=true;el("library").scrollTop=0;profiles.open();highlight();message("Escolha seu perfil para continuar.");
     }
-    profiles=window.NexProfiles(hooks.shelf,{select:function(id){hooks.stopPreview();cancel();if(!hooks.shelf.selectProfile(id)){text("profile-status","Não foi possível selecionar o perfil nesta TV.");return;}favorites=hooks.shelf.favorites();stack=[];state=null;detail=null;searchContext=null;liveKey="";el("live-format").value=hooks.shelf.format();var names=hooks.shelf.profiles();for(var i=0;i<names.length;i++)if(names[i].id===id)text("active-profile-label",names[i].name);enter("movie",true);stack=[];}});
+    profiles=window.NexProfiles(hooks.shelf,{select:function(id){hooks.stopPreview();cancel();if(!hooks.shelf.selectProfile(id)){el("profile-status").hidden=false;text("profile-status","Não foi possível selecionar o perfil nesta TV.");return;}favorites=hooks.shelf.favorites();stack=[];state=null;detail=null;searchContext=null;liveKey="";el("live-format").value=hooks.shelf.format();var names=hooks.shelf.profiles();for(var i=0;i<names.length;i++)if(names[i].id===id)text("active-profile-label",names[i].name);enter("movie",true);stack=[];}});
     el("lib-profiles").addEventListener("click",showProfiles);
-    var continueButtons=el("continue-types").querySelectorAll("button");for(var continueIndex=0;continueIndex<continueButtons.length;continueIndex++)continueButtons[continueIndex].addEventListener("click",function(){if(state&&state.continuing){state.category=this.getAttribute("data-continue-type");el("lib-category").value=state.category;filter(false);for(var i=0;i<continueButtons.length;i++)continueButtons[i].setAttribute("aria-pressed",continueButtons[i]===this?"true":"false");}});
+    var continueButtons=el("continue-types").querySelectorAll("button");for(var continueIndex=0;continueIndex<continueButtons.length;continueIndex++)continueButtons[continueIndex].addEventListener("click",function(){if(state&&(state.continuing||state.favorites)){state.category=this.getAttribute("data-continue-type");el("lib-category").value=state.category;filter(false);for(var i=0;i<continueButtons.length;i++)continueButtons[i].setAttribute("aria-pressed",continueButtons[i]===this?"true":"false");}});
     el("catalog-retry").addEventListener("click",function(){if(state){var previous=state;state=null;if(previous.favorites||previous.watchlist||previous.continuing)catalogCache={};else delete catalogCache[previous.kind];enter(previous.kind,previous.home,previous.favorites,previous.continuing,previous.watchlist);}});
-    el("sidebar-main").addEventListener("click",function(){subMenu=false;sidebar();focus(el(state.kind==="live"?"load-live":state.kind==="series"?"load-series":"load-movies"));});
+    el("sidebar-main").addEventListener("click",function(){if(categoryParent){categoryParent=parentCategory(categoryParent);sidebar();focus(el("sidebar-category-list").querySelector("button"));return;}subMenu=false;sidebar();focus(el(state.kind==="live"?"load-live":state.kind==="series"?"load-series":"load-movies"));});
     el("load-live").addEventListener("click", function () { enter("live"); });
     el("load-movies").addEventListener("click", function () { enter("movie"); });
     el("load-series").addEventListener("click", function () { enter("series"); });
@@ -396,7 +408,7 @@
     function remote(code,active){
       if(resumePending){var choices=[el("resume-start"),el("resume-continue"),el("resume-cancel")],choiceIndex=choices.indexOf(active);if(code>=37&&code<=40){focus(choices[Math.max(0,Math.min(choices.length-1,choiceIndex+((code===39||code===40)?1:-1)))]);return true;}return false;}
       if(profiles.remote(code,active))return true;
-      if(state&&state.continuing&&active&&active.hasAttribute("data-continue-type")){var typeTabs=el("continue-types").querySelectorAll("button"),tabIndex=Array.prototype.indexOf.call(typeTabs,active);if(code===37||code===39){focus(typeTabs[Math.max(0,Math.min(typeTabs.length-1,tabIndex+(code===39?1:-1)))]);return true;}if(code===40){focus(el("catalog-list").querySelector("button"));return true;}if(code===38){focus(el("lib-continue"));return true;}}
+      if(state&&(state.continuing||state.favorites)&&active&&active.hasAttribute("data-continue-type")){var typeTabs=Array.prototype.filter.call(el("continue-types").querySelectorAll("button"),function(button){return !button.hidden;}),tabIndex=typeTabs.indexOf(active);if(code===37||code===39){focus(typeTabs[Math.max(0,Math.min(typeTabs.length-1,tabIndex+(code===39?1:-1)))]);return true;}if(code===40){focus(el("catalog-list").querySelector("button"));return true;}if(code===38){focus(mother());return true;}}
 
       if(detail&&detail.kind==="series"){
         if(active===el("lib-back")&&code===40){focus(selectedSeason()||el("detail-play"));return true;}
@@ -413,9 +425,9 @@
       if(active&&active.parentElement&&active.parentElement.classList.contains("feature-actions")){if(code===40){var selected=state.featureItem?el("catalog-list").querySelector('[data-content-id="'+id(state.featureItem,state.featureItem._nexKind||state.kind)+'"]'):null;focus(selected||el("catalog-list").querySelector("button"));return true;}}
       var side=document.querySelector(".tv-sidebar");
       if(side.contains(active)){
-        if(code===39&&active.tagName!=="INPUT"){var target=!el("details-view").hidden?(detail&&detail.kind==="series"?selectedSeason():el("detail-play").disabled?el("episode-list").querySelector("button"):el("detail-play")):state&&state.continuing?el("continue-types").querySelector('[aria-pressed="true"]'):el("catalog-list").querySelector("button")||el("feature-open");focus(target);return true;}
+        if(code===39&&active.tagName!=="INPUT"){if(state&&state.kind==="live"&&subMenu&&!el("sidebar-categories").contains(active)){focus(el("sidebar-category-list").querySelector(".selected")||el("sidebar-category-list").querySelector("button"));return true;}var target=!el("details-view").hidden?(detail&&detail.kind==="series"?selectedSeason():el("detail-play").disabled?el("episode-list").querySelector("button"):el("detail-play")):state&&(state.continuing||state.favorites)?el("continue-types").querySelector('[aria-pressed="true"]'):el("catalog-list").querySelector("button")||el("feature-open");focus(target);return true;}
         if(code===38||code===40){var buttons=side.querySelectorAll("[data-nav]"),visible=[];for(var i=0;i<buttons.length;i++)if(!buttons[i].hidden&&!buttons[i].disabled&&buttons[i].getClientRects().length)visible.push(buttons[i]);var index=visible.indexOf(active);focus(visible[Math.max(0,Math.min(visible.length-1,index+(code===40?1:-1)))]);return true;}
-        if(code===37&&active.tagName!=="INPUT")return true;
+        if(code===37&&active.tagName!=="INPUT"){if(state&&state.kind==="live"&&el("sidebar-categories").contains(active))focus(mother());return true;}
       }
       if(active&&(active.classList.contains("tv-card")||active.classList.contains("episode-card"))){
         var list=active.parentElement,gridButtons=list.querySelectorAll("button"),rows=[],row=[],top=null,currentRow=0,currentColumn=0;
@@ -428,7 +440,7 @@
         if(code===38||code===40){
           var targetRow=rows[currentRow+(code===40?1:-1)];
           if(targetRow){focus(targetRow[Math.min(currentColumn,targetRow.length-1)]);return true;}
-          if(code===38&&state.page===0&&!active.classList.contains("episode-card")){if(state.searchOpen)focus(el("lib-search"));else if(state.continuing)focus(el("continue-types").querySelector('[aria-pressed="true"]'));else if(!el("feature").hidden)focus(el("feature-open"));return true;}
+          if(code===38&&state.page===0&&!active.classList.contains("episode-card")){if(state.searchOpen)focus(el("lib-search"));else if(state.continuing||state.favorites)focus(el("continue-types").querySelector('[aria-pressed="true"]'));else if(!el("feature").hidden)focus(el("feature-open"));return true;}
           if(code===38&&active.classList.contains("episode-card")&&episodePage===0){focus(selectedSeason());return true;}
           var episodes=active.classList.contains("episode-card"),nextPage=code===40?(episodes?"episode-next":"page-next"):(episodes?"episode-prev":"page-prev");
           if(!el(nextPage).disabled){
@@ -439,7 +451,7 @@
           return true;
         }
         if(code===37){if(currentColumn>0)focus(rows[currentRow][currentColumn-1]);else focus(subMenu?el("sidebar-category-list").querySelector(".selected")||el("sidebar-main"):el("lib-home"));return true;}
-        if(code===39){if(currentColumn+1<rows[currentRow].length)focus(rows[currentRow][currentColumn+1]);return true;}
+        if(code===39){if(currentColumn+1<rows[currentRow].length)focus(rows[currentRow][currentColumn+1]);else if(state.kind==="live"&&el("library").classList.contains("with-preview"))focus(el("expand-player"));return true;}
       }
       return false;
     }

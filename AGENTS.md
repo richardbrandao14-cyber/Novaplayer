@@ -2,6 +2,9 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.5: perfis circulares com edição separada; transporte em ícones retroceder/play-pause/avançar/ajustes. Barra focada busca por ←/→ diretamente (substitui modo OK anterior). Retomada precisa confirmação seeked/timeupdate e retries limitados, bloqueando gravação de progresso até confirmação; falha visível preserva posição. Favoritos têm filtros Filmes/Séries/TV; Continue nunca TV. TV tem segundo painel lateral com parentesco real da fonte; foco explícito canais→prévia→controles e retorno. Catálogo Voltar foca categoria mãe. Filmes/séries recolhem menu aos ícones, expansão sem reflow dos cartões. Validar controle e geometria em Chromium, confirmar mídia na LG física.
+
+
 - webOS 0.4.4 autorizado: até cinco perfis locais por fonte/conta. Exceção explícita de armazenamento público: IDs e nomes de perfil escolhidos pelo usuário, seleção e formato base; nunca credenciais. Perfil default preserva chave antiga; progresso/favoritos/Minha lista/preferências separados. Troca interrompe a reprodução antes de mudar perfil. Continue só filmes/séries, indexado por parentId, sem varrer todo progresso por série. Banner e diálogo de retomada usam apenas progresso/duração reais do perfil. Capas com três downloads visíveis/prioridade/cancelamento; sem reflow forçado do banner ou filtros pesados. Medidas Node não equivalem à TV.
 
 - webOS 0.4.3: ↑/↓ trocam canais somente com HUD oculto; HUD aberto e painéis usam as setas para navegação. ChannelUp/Down e botões próprios trocam explicitamente. Seek depende de janela seekable real. Temporadas em botões confirmados por OK, com foco inicial e ida/volta explícita aos episódios, rolagem horizontal e movimento reduzido. Não restaurar o select nativo nem o zap incondicional.
