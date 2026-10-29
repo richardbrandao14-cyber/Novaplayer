@@ -2,6 +2,9 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.6 autorizado: 12 avatares locais ilustrados, animações curtas/reduced-motion, edição de avatar/nome e reset de preferências preservando histórico/favoritos. Perfil separado no topo; preservar sua classe no highlight. Transporte centralizado. Home “De volta às séries” usa parentId/updatedAt do perfil e catálogo real, deduplicado até 12; não inventar sugestões. Acesso automático autorizado substitui senha recorrente: AES-GCM e CryptoKey não exportável no IndexedDB, nunca credenciais/chave bruta no localStorage. Não equivale a cofre nativo/PIN: quem usa a TV pode abrir. Migrar cofre antigo só após desbloqueio e gravação automática bem-sucedida; falha conserva cofre antigo e informa, sem fallback em texto aberto. Recomendações permanecem proposta, sem serviço externo.
+
+
 - webOS 0.4.5: perfis circulares com edição separada; transporte em ícones retroceder/play-pause/avançar/ajustes. Barra focada busca por ←/→ diretamente (substitui modo OK anterior). Retomada precisa confirmação seeked/timeupdate e retries limitados, bloqueando gravação de progresso até confirmação; falha visível preserva posição. Favoritos têm filtros Filmes/Séries/TV; Continue nunca TV. TV tem segundo painel lateral com parentesco real da fonte; foco explícito canais→prévia→controles e retorno. Catálogo Voltar foca categoria mãe. Filmes/séries recolhem menu aos ícones, expansão sem reflow dos cartões. Validar controle e geometria em Chromium, confirmar mídia na LG física.
 
 

@@ -149,7 +149,7 @@ async function main() {
     });
     console.log("QA: provider fixture ready");
     await page.locator("#remember-access").check();
-    await page.locator("#vault-create").fill("unlock fixture secret");
+    assert.equal(await page.locator("#vault-create").isVisible(),false);
     await page.locator("#username").fill("");
     await page.locator("#password").fill("");
     await page.locator("#server").fill("http:fixture.example/get.php?username=fixture-user&password=fixture-password&output=ts&token=fixture-token");
@@ -157,7 +157,7 @@ async function main() {
     await page.locator("#connect-source").dispatchEvent("keydown", { keyCode: 13 });
     await page.locator('#profile-list button[data-profile="default"]').click();
     await page.waitForFunction(() => document.getElementById("page-count").textContent.includes("50000"));
-    console.log("QA: authentication/catalog");
+    console.log("QA: authentication/catalog");assert.equal(await page.locator(".tv-sidebar> #lib-profiles.profile-entry").count(),1);
     const searchGeometry=await page.locator("#search-open").evaluate(node=>{const r=node.getBoundingClientRect(),parent=document.querySelector(".tv-sidebar").getBoundingClientRect();return {delta:Math.abs((r.left+r.right)/2-(parent.left+parent.right)/2),width:r.width};});
     assert.ok(searchGeometry.delta<2&&searchGeometry.width>=190);
     await page.locator("#search-open").click();
@@ -240,7 +240,7 @@ async function main() {
     await page.waitForFunction(()=>!document.getElementById("subtitle-track").disabled);
     // Setas ajustam a posição diretamente ao focar a barra, sem OK prévio.
     assert.deepEqual(await page.locator(".player-bottom .actions button").evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length&&!n.hidden).slice(0,4).map(n=>n.id)),["seek-back","play-pause","seek-forward","player-settings-open"]);
-    assert.equal(await page.locator("#play-pause").textContent(),"");assert.equal(await page.locator("#play-pause").getAttribute("aria-label"),"Reproduzir");
+    const controlsCenter=await page.locator(".player-bottom .actions").evaluate(row=>{const visible=Array.from(row.querySelectorAll("button")).filter(n=>!n.hidden&&n.getClientRects().length),first=visible[0].getBoundingClientRect(),last=visible[visible.length-1].getBoundingClientRect();return Math.abs((first.left+last.right)/2-innerWidth/2);});assert.ok(controlsCenter<3);assert.equal(await page.locator("#play-pause").textContent(),"");assert.equal(await page.locator("#play-pause").getAttribute("aria-label"),"Reproduzir");
     await page.locator("#play-pause").focus();await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.id),"timeline");
     await page.keyboard.press("ArrowLeft");await page.waitForFunction(()=>document.getElementById("video").currentTime<.5);
     assert.equal(await page.evaluate(()=>document.activeElement.id),"timeline");await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"play-pause");
@@ -417,15 +417,12 @@ async function main() {
     for(const secret of ["fixture-user","fixture-password","fixture-token","http://fixture.example","unlock fixture secret"])assert.ok(!storedBeforeReload.includes(secret));
     await page.addInitScript(()=>{window.URL=undefined;});
     await page.reload();
-    assert.equal(await page.locator("#vault-login").isVisible(),true);
-    await page.locator("#vault-password").fill("wrong password");
-    await page.locator("#vault-unlock").click();
-    await page.waitForFunction(()=>document.getElementById("vault-status").textContent.includes("incorreta"));
-    await page.locator("#vault-password").fill("unlock fixture secret");
-    await page.locator("#vault-unlock").click();
+    await page.locator('#profile-list button[data-profile="default"]').waitFor();
+    assert.equal(await page.locator("#vault-login").isVisible(),false);
+    const localAccess=await page.evaluate(async()=>{const db=await new Promise((resolve,reject)=>{const r=indexedDB.open("nex.device-access",1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(new Error("IDB failed"));});const value=await new Promise((resolve,reject)=>{const tx=db.transaction("access"),r=tx.objectStore("access").get("current");r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(new Error("read failed"));});let exportBlocked=false;try{await crypto.subtle.exportKey("raw",value.key);}catch{exportBlocked=true;}db.close();return {extractable:value.key.extractable,exportBlocked,cipherText:new TextDecoder().decode(value.cipher),legacy:localStorage.getItem("nex.vault.v1")};});assert.equal(localAccess.extractable,false);assert.equal(localAccess.exportBlocked,true);assert.equal(localAccess.legacy,null);for(const secret of ["fixture-user","fixture-password","fixture-token"])assert.ok(!localAccess.cipherText.includes(secret));
     await page.locator('#profile-list button[data-profile="default"]').click();
     await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
-    console.log("QA: vault reload");
+    console.log("QA: automatic encrypted access reload");
     await page.locator("#lib-favorites").click();
     await page.waitForFunction(()=>document.getElementById("catalog-list").textContent.includes("Canal sintético"));
     await page.locator("#lib-continue").click();
@@ -474,20 +471,24 @@ async function main() {
     assert.equal(await page.locator("#auto-next").isChecked(),false);
     assert.equal(await page.locator("#settings-live-format").inputValue(),"ts");
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-settings.png")});
-    console.log("QA: profile isolation");
+    await page.locator("#lib-home").focus();await page.keyboard.press("Enter");await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));assert.equal(await page.locator("#lib-home").getAttribute("aria-current"),"page");await page.locator("#back-series-list button").waitFor();assert.match(await page.locator("#back-series").textContent(),/De volta às séries/);assert.equal(await page.locator("#back-series-list button").count(),1);await page.locator("#back-series-list button").focus();await page.waitForTimeout(180);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-home-recent.png")});await page.locator("#back-series-list button").focus();await page.keyboard.press("Enter");await page.waitForFunction(()=>document.getElementById("detail-title").textContent==="Série sintética");await page.keyboard.press("Escape");
+    console.log("QA: profile isolation/home recent series");
     await page.locator("#lib-profiles").click();
     for(let i=2;i<=5;i++){await page.locator("#profile-add").click();await page.locator("#profile-name").fill("Pessoa "+i);await page.locator("#profile-submit").click();}
     assert.equal(await page.locator("#profile-list button").count(),5);assert.equal(await page.locator("#profile-form").isVisible(),false);assert.equal(await page.locator(".tv-sidebar").isVisible(),false);assert.equal(await page.locator("#profile-submit").isDisabled(),true);
-    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"profile-manage");await page.keyboard.press("Enter");await page.locator("#profile-rename").click();await page.locator("#profile-name").fill("Principal");await page.locator("#profile-submit").click();
-    await page.waitForTimeout(200);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-profiles.png")});
+    await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"profile-manage");await page.keyboard.press("Enter");await page.locator("#profile-picture").click();assert.equal(await page.locator("#profile-avatar-options button").count(),12);await page.locator("#profile-avatar-options").scrollIntoViewIfNeeded();await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-avatar-choices.png")});await page.locator('#profile-avatar-options [data-avatar="avatar-12"]').focus();await page.keyboard.press("Enter");await page.locator("#profile-rename").click();await page.locator("#profile-name").fill("Principal");await page.locator("#profile-submit").click();
+    await page.waitForTimeout(200);assert.equal(await page.locator("#profile-list .avatar-art").evaluateAll(nodes=>new Set(nodes.map(node=>getComputedStyle(node).backgroundPosition)).size),5);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-profiles.png")});
     await page.locator("#profile-list button").nth(1).click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#lib-favorites").click();assert.equal(await page.locator("#catalog-list button").count(),0);
-    await page.locator("#lib-continue").click();assert.equal(await page.locator("#catalog-list button").count(),0);
+    await page.locator("#lib-continue").click();assert.equal(await page.locator("#catalog-list button").count(),0);await page.locator("#lib-home").click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));assert.equal(await page.locator("#back-series").isVisible(),false);
     await page.locator("#lib-home").click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#catalog-list button").nth(2).focus();await page.keyboard.press("Enter");await page.locator("#detail-favorite").click();
     await page.locator("#lib-profiles").click();await page.locator('#profile-list button[data-profile="default"]').click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
-    assert.equal(await page.locator("#active-profile-label").textContent(),"Principal");await page.locator("#lib-favorites").click();assert.equal(await page.locator('#catalog-list button[data-content-id="3"]').count(),0);assert.equal(await page.locator('#catalog-list button[data-content-id="2"]').count(),1);
+    assert.equal(await page.locator("#active-profile-avatar").evaluate(node=>node.classList.contains("avatar-12")),true);assert.equal(await page.locator("#active-profile-label").textContent(),"Principal");await page.locator("#lib-favorites").click();assert.equal(await page.locator('#catalog-list button[data-content-id="3"]').count(),0);assert.equal(await page.locator('#catalog-list button[data-content-id="2"]').count(),1);
     await page.locator("#lib-continue").click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===2);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-continue.png")});
+    await page.evaluate(async()=>{await window.NexVault.browser().save({server:"http://fixture.example",user:"fixture-user",password:"fixture-password",apiQuery:[["token","fixture-token"]]},"legacy fixture unlock");await window.NexQuickAccess().forget();});
+    await page.reload();await page.locator("#vault-password").fill("wrong password");await page.locator("#vault-unlock").click();await page.waitForFunction(()=>document.getElementById("vault-status").textContent.includes("incorreta"));await page.locator("#vault-password").fill("legacy fixture unlock");await page.locator("#vault-unlock").click();await page.locator('#profile-list button[data-profile="default"]').waitFor();await page.reload();await page.locator('#profile-list button[data-profile="default"]').waitFor();assert.equal(await page.locator("#vault-login").isVisible(),false);await page.locator('#profile-list button[data-profile="default"]').click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
+    console.log("QA: legacy password vault migrated to automatic access");
     await page.locator("#lib-source").click();
     await page.locator("#clear-source").click();
     assert.equal(await page.locator("#username").inputValue(),"");

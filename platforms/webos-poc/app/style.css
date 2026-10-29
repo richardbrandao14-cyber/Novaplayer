@@ -105,3 +105,26 @@ button{transition:background-color 180ms,border-color 180ms,color 180ms,transfor
 #library.nav-auto .tv-main{margin-left:94px;width:calc(100% - 94px)}
 #library.tv-category-menu .tv-top,#library.tv-category-menu.with-preview .tv-top{left:542px}
 @media(max-width:1500px){#library.tv-category-menu .tv-top,#library.tv-category-menu.with-preview .tv-top{left:444px}}
+
+/* Perfis ilustrados, movimentos curtos e transporte centralizado. */
+.avatar-art{background-image:url("assets/profile-avatars.png")!important;background-size:400% 300%!important;background-repeat:no-repeat!important;display:block;flex-shrink:0}
+.avatar-1{background-position:0.0% 0%!important}
+.avatar-2{background-position:33.333333333333336% 0%!important}
+.avatar-3{background-position:66.66666666666667% 0%!important}
+.avatar-4{background-position:100.0% 0%!important}
+.avatar-5{background-position:0.0% 50%!important}
+.avatar-6{background-position:33.333333333333336% 50%!important}
+.avatar-7{background-position:66.66666666666667% 50%!important}
+.avatar-8{background-position:100.0% 50%!important}
+.avatar-9{background-position:0.0% 100%!important}
+.avatar-10{background-position:33.333333333333336% 100%!important}
+.avatar-11{background-position:66.66666666666667% 100%!important}
+.avatar-12{background-position:100.0% 100%!important}
+#profile-avatar-options{display:flex;flex-wrap:wrap;max-width:960px;margin:20px auto}#profile-avatar-editor{max-width:1040px;margin:20px auto}#profile-avatar-editor h2{text-align:center}.avatar-choice{width:120px;height:120px;min-height:120px;padding:0;margin:12px;border-radius:50%;border:3px solid transparent}.avatar-choice[aria-pressed=true]{border-color:#ff6a00}.avatar-choice:focus{transform:scale(1.06);outline:3px solid #ffab72;outline-offset:4px}
+#profiles-view:not([hidden]) .profile-card{animation:nex-profile-enter 180ms ease-out both}#profiles-view:not([hidden]) .profile-card:nth-child(2){animation-delay:25ms}#profiles-view:not([hidden]) .profile-card:nth-child(3){animation-delay:50ms}#profiles-view:not([hidden]) .profile-card:nth-child(4){animation-delay:75ms}#profiles-view:not([hidden]) .profile-card:nth-child(5){animation-delay:100ms}.profile-avatar{transition:transform 140ms}.profile-card:focus .profile-avatar{transform:scale(1.04)}@keyframes nex-profile-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.tv-sidebar>.profile-entry{display:flex;align-items:center;min-height:66px;background:transparent;border:0;border-bottom:1px solid #303237;border-radius:0;margin-bottom:18px;padding:6px 10px 18px;text-align:left}.profile-entry .avatar-art{width:46px;height:46px;border-radius:50%;margin-right:12px}.profile-entry>span{font-size:20px;overflow:hidden;text-overflow:ellipsis}.profile-entry>svg{display:none}#library.nav-compact .profile-entry{padding:0 6px 16px;width:64px;min-height:64px}#library.nav-compact .profile-entry .avatar-art{width:44px;height:44px;margin:0}#library.tv-category-menu .profile-entry{width:210px}
+#player:not(.is-preview) .player-bottom>.actions{justify-content:center}#player:not(.is-preview) #player-status{text-align:center}
+#back-series{margin:24px 0 36px}#back-series h2{font-size:28px}.recent-series-row{display:flex;overflow-x:auto;padding:10px 6px 16px;margin:0 -6px}.recent-series-card{flex:0 0 190px;width:190px;min-width:190px;background:transparent;border:0;padding:0;margin-right:22px;text-align:left}.recent-series-card .card-picture{height:255px;position:relative}.recent-series-card strong{font-size:18px;display:block;margin-top:12px}.recent-series-card progress{position:absolute;bottom:0;left:0;width:100%;height:5px}.recent-series-card:focus{outline:0;box-shadow:none;transform:translateY(-4px)}.recent-series-card:focus .card-picture{box-shadow:0 0 0 3px #fff}
+@media(max-width:1500px){.tv-sidebar>.profile-entry{min-height:58px;margin-bottom:12px}.profile-entry>span{font-size:17px}.avatar-choice{width:96px;height:96px;min-height:96px;margin:10px}#profile-avatar-options{max-width:700px}.recent-series-card{flex-basis:160px;width:160px;min-width:160px}.recent-series-card .card-picture{height:220px}#library.tv-category-menu .profile-entry{width:175px}}
+@media(prefers-reduced-motion:reduce){#profiles-view .profile-card,.profile-avatar,.avatar-choice{animation:none!important;transition:none!important}.profile-card:focus .profile-avatar,.avatar-choice:focus,.recent-series-card:focus{transform:none}}
+#player:not(.is-preview) .player-bottom>.actions>*{margin-left:7px;margin-right:7px}

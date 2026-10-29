@@ -38,3 +38,9 @@ test('perfil inválido ou falha de gravação nunca troca os dados em memória',
  const storage=memory(),messages=[],shelf=S.create(storage,x=>messages.push(x));shelf.connect(config);shelf.favorite('movie:1',true);assert.equal(shelf.selectProfile('../outro'),false);assert.equal(shelf.renameProfile('default','\n'),false);
  storage.setItem=()=>{throw new Error('quota');};assert.equal(shelf.createProfile('Teste'),'');assert.equal(shelf.profiles().length,1);assert.equal(shelf.activeProfile(),'default');assert.equal(shelf.favorites()['movie:1'],true);assert.ok(messages.length);
 });
+
+
+test('avatares persistem por perfil e reset de preferências preserva histórico e favoritos',()=>{
+ const storage=memory(),shelf=S.create(storage,()=>{});shelf.connect(config);const other=shelf.createProfile('Outro');assert.equal(shelf.avatarProfile('default','avatar-12'),true);assert.equal(shelf.avatarProfile(other,'avatar-3'),true);assert.equal(shelf.avatarProfile(other,'../../secret'),false);shelf.renameProfile('default','Principal');shelf.autoNext(false);shelf.favorite('series:1',true);shelf.save('episode:2',45,300,'1');assert.equal(shelf.resetPreferences('default'),true);assert.equal(shelf.autoNext(),true);assert.equal(shelf.progress()['episode:2'].position,45);assert.equal(shelf.favorites()['series:1'],true);
+ const reload=S.create(storage,()=>{});reload.connect(config);assert.equal(reload.profiles()[0].avatar,'avatar-12');assert.equal(reload.profiles()[1].avatar,'avatar-3');reload.selectProfile(other);reload.autoNext(false);reload.selectProfile('default');reload.resetPreferences(other);reload.selectProfile(other);assert.equal(reload.autoNext(),true);assert.equal(reload.profiles()[0].name,'Principal');
+});
