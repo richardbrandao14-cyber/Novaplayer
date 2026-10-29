@@ -160,7 +160,7 @@ async function main() {
     await page.waitForFunction(() => document.getElementById("page-count").textContent.includes("50000"));
     await page.locator("#home-movies .home-card").first().waitFor();assert.deepEqual(await page.locator("#home-collections h2").allTextContents(),["Novidades","Filmes","Séries","Ao vivo agora"]);await page.locator("#load-movies").click();
     console.log("QA: authentication/catalog");assert.equal(await page.locator(".tv-sidebar> #lib-profiles.profile-entry").count(),1);
-    const searchGeometry=await page.locator("#search-open").evaluate(node=>{const r=node.getBoundingClientRect(),parent=document.querySelector(".tv-sidebar").getBoundingClientRect();return {delta:Math.abs((r.left+r.right)/2-(parent.left+parent.right)/2),width:r.width};});
+    const searchGeometry=await page.locator("#search-open").evaluate(node=>{const r=node.getBoundingClientRect(),parent=document.querySelector(".tv-sidebar>.profile-entry").getBoundingClientRect();return {delta:Math.abs((r.left+r.right)/2-(parent.left+parent.right)/2),width:r.width};});
     assert.ok(searchGeometry.delta<2&&searchGeometry.width>=190);
     await page.locator("#search-open").click();
     assert.equal(await page.locator("#search-panel").isVisible(),true);
@@ -196,7 +196,7 @@ async function main() {
     assert.match(await page.locator("#page-count").textContent(),/49–96 de 50000/);
     await page.locator("#lib-category option[value=\"2\"]").waitFor({state:"attached"});
     await page.locator("#catalog-list button").first().focus();await page.keyboard.press("ArrowLeft");
-    await page.locator('#sidebar-category-list button[data-category-id=""]').focus();
+    await page.locator('#sidebar-category-list button[data-category-id=""]').focus();assert.equal(await page.locator("#load-movies").isVisible(),true);assert.equal(await page.locator("#load-series").isVisible(),true);assert.equal(await page.locator("#library").evaluate(node=>node.classList.contains("tv-category-menu")),true);
     await page.keyboard.press("ArrowDown");
     assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-category-id")),"1");
     await page.keyboard.press("ArrowDown");
@@ -305,7 +305,7 @@ async function main() {
     await page.locator("#catalog-list button").first().focus();await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"expand-player");
     await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"play-pause");await page.keyboard.press("Enter");assert.equal(await page.locator("video").evaluate(v=>v.paused),true);await page.keyboard.press("Enter");
     await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"player-favorite");await page.keyboard.press("Enter");
-    assert.match(await page.locator("#player-favorite").textContent(), /Favoritado/);
+    assert.match(await page.locator("#player-favorite").textContent(), /Favoritado/);assert.equal(await page.locator("#player-favorite").evaluate(button=>getComputedStyle(button.querySelector(".icon-label")).whiteSpace),"nowrap");
     await page.locator("#show-epg").click();
     await page.waitForFunction(()=>document.getElementById("epg-list").textContent.includes("Jornal sintético"));
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-epg.png")});
@@ -381,6 +381,7 @@ async function main() {
     await page.locator('#season-options button[data-season="1"]').click();
     await page.locator("#episode-list button").first().click();
     await page.waitForFunction(() => document.getElementById("video").currentTime>.1);
+    assert.equal(await page.locator("#next-episode").evaluate(button=>getComputedStyle(button.querySelector(".icon-label")).whiteSpace),"nowrap");assert.ok(await page.locator("#next-episode").evaluate(button=>button.getBoundingClientRect().height<=50));
     await page.locator("#next-episode").click();
     assert.match(await page.locator("#playing-title").textContent(), /Episódio sintético 2/);
     await page.waitForFunction(() => document.getElementById("video").currentTime>.1);
@@ -424,10 +425,11 @@ async function main() {
     await page.reload();
     await page.locator('#profile-list button[data-profile="default"]').waitFor();
     assert.equal(await page.locator("#vault-login").isVisible(),false);
-    const localAccess=await page.evaluate(async()=>{const db=await new Promise((resolve,reject)=>{const r=indexedDB.open("nex.device-access",1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(new Error("IDB failed"));});const value=await new Promise((resolve,reject)=>{const tx=db.transaction("access"),r=tx.objectStore("access").get("current");r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(new Error("read failed"));});let exportBlocked=false;try{await crypto.subtle.exportKey("raw",value.key);}catch{exportBlocked=true;}db.close();return {extractable:value.key.extractable,exportBlocked,cipherText:new TextDecoder().decode(value.cipher),legacy:localStorage.getItem("nex.vault.v1")};});assert.equal(localAccess.extractable,false);assert.equal(localAccess.exportBlocked,true);assert.equal(localAccess.legacy,null);for(const secret of ["fixture-user","fixture-password","fixture-token"])assert.ok(!localAccess.cipherText.includes(secret));
+    const localAccess=await page.evaluate(async()=>{const db=await new Promise((resolve,reject)=>{const r=indexedDB.open("nex.device-access",1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(new Error("IDB failed"));});const value=await new Promise((resolve,reject)=>{const tx=db.transaction("access"),r=tx.objectStore("access").get("current");r.onsuccess=()=>{const value=r.result;if(value&&value.version===2){const key=tx.objectStore("access").get("device-key");key.onsuccess=()=>resolve({...value,key:key.result});key.onerror=()=>reject(new Error("key read failed"));}else resolve(value);};r.onerror=()=>reject(new Error("read failed"));});let exportBlocked=false;try{await crypto.subtle.exportKey("raw",value.key);}catch{exportBlocked=true;}db.close();return {extractable:value.key.extractable,exportBlocked,cipherText:new TextDecoder().decode(new Uint8Array(value.cipher)),legacy:localStorage.getItem("nex.vault.v1")};});assert.equal(localAccess.extractable,false);assert.equal(localAccess.exportBlocked,true);assert.equal(localAccess.legacy,null);for(const secret of ["fixture-user","fixture-password","fixture-token"])assert.ok(!localAccess.cipherText.includes(secret));
     await page.locator('#profile-list button[data-profile="default"]').click();
     await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
-    console.log("QA: automatic encrypted access reload");
+    await page.evaluate(async()=>{const access=window.NexQuickAccess(),config=await access.open(),db=await new Promise((resolve,reject)=>{const r=indexedDB.open("nex.device-access",1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(new Error("fixture database"));});const values=await Promise.all(["current","device-key"].map(key=>new Promise((resolve,reject)=>{const r=db.transaction("access").objectStore("access").get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(new Error("fixture read"));})));await new Promise((resolve,reject)=>{const tx=db.transaction("access","readwrite");tx.objectStore("access").put({version:1,key:values[1],iv:new Uint8Array(values[0].iv),cipher:new Uint8Array(values[0].cipher).buffer},"current");tx.objectStore("access").delete("device-key");tx.oncomplete=resolve;tx.onerror=()=>reject(new Error("fixture write"));});db.close();const restored=await window.NexQuickAccess().open();if(JSON.stringify(config)!==JSON.stringify(restored))throw new Error("Legacy encrypted session mismatch");await window.NexQuickAccess().save(restored);});
+    console.log("QA: automatic encrypted access reload/legacy CryptoKey compatibility");
     await page.locator("#lib-favorites").click();
     await page.waitForFunction(()=>document.getElementById("catalog-list").textContent.includes("Canal sintético"));
     await page.locator("#lib-continue").click();
@@ -490,8 +492,10 @@ async function main() {
     await page.locator("#lib-profiles").click();await page.locator('#profile-list button[data-profile="default"]').click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     assert.equal(await page.locator("#active-profile-avatar").evaluate(node=>node.classList.contains("avatar-12")),true);assert.equal(await page.locator("#active-profile-label").textContent(),"Principal");await page.locator("#lib-favorites").click();assert.equal(await page.locator('#catalog-list button[data-content-id="3"]').count(),0);assert.equal(await page.locator('#catalog-list button[data-content-id="2"]').count(),1);
     await page.locator("#lib-continue").click();await page.waitForFunction(()=>document.querySelectorAll("#catalog-list button").length===2);await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-continue.png")});
+    await page.addInitScript(()=>{const original=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,key){if(key==="device-key"&&sessionStorage.getItem("nex.qa.key-blocked")==="1")throw new DOMException("fixture key clone failure","DataCloneError");return original.call(this,value,key);};});
+    await page.evaluate(()=>sessionStorage.setItem("nex.qa.key-blocked","1"));
     await page.evaluate(async()=>{await window.NexVault.browser().save({server:"http://fixture.example",user:"fixture-user",password:"fixture-password",apiQuery:[["token","fixture-token"]]},"legacy fixture unlock");await window.NexQuickAccess().forget();});
-    await page.reload();await page.locator("#vault-password").fill("wrong password");await page.locator("#vault-unlock").click();await page.waitForFunction(()=>document.getElementById("vault-status").textContent.includes("incorreta"));await page.locator("#vault-password").fill("legacy fixture unlock");await page.locator("#vault-unlock").click();await page.locator('#profile-list button[data-profile="default"]').waitFor();await page.reload();await page.locator('#profile-list button[data-profile="default"]').waitFor();assert.equal(await page.locator("#vault-login").isVisible(),false);await page.locator('#profile-list button[data-profile="default"]').click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
+    await page.reload();await page.locator("#vault-password").fill("wrong password");await page.locator("#vault-unlock").click();await page.waitForFunction(()=>document.getElementById("vault-status").textContent.includes("incorreta"));await page.locator("#vault-password").fill("legacy fixture unlock");await page.locator("#vault-unlock").click();await page.locator('#profile-list button[data-profile="default"]').waitFor();assert.equal(await page.locator("#session-notice").isVisible(),true);assert.equal(await page.evaluate(()=>!!localStorage.getItem("nex.vault.v1")),true);await page.evaluate(()=>sessionStorage.setItem("nex.qa.key-blocked","0"));await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.id),"session-retry");await page.keyboard.press("Enter");await page.waitForFunction(()=>document.getElementById("session-notice").hidden);assert.equal(await page.evaluate(()=>localStorage.getItem("nex.vault.v1")),null);await page.reload();await page.locator('#profile-list button[data-profile="default"]').waitFor();assert.equal(await page.locator("#vault-login").isVisible(),false);await page.locator('#profile-list button[data-profile="default"]').click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     console.log("QA: legacy password vault migrated to automatic access");
     await page.locator("#lib-source").click();
     await page.locator("#clear-source").click();

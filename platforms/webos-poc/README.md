@@ -1,23 +1,23 @@
-# NEX para LG webOS — 0.4.7
+# NEX para LG webOS — 0.4.8
 
 Edição de uso com fontes Xtream autorizadas. Alvo do proprietário: LG UM7510PSB, firmware 05.40.97. Canais reais e amostras locais de vídeo/áudio foram confirmados na versão anterior; esta atualização ainda precisa da confirmação física. Não fornece conteúdo, assinatura ou transcodificação.
 
 ## Atualizar sem programar
 
-Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.7_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
+Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.8_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
 
 O pacote leve não inclui vídeos HD/4K/HLS nem ferramentas de teste visíveis. Se o Dev Manager mostrar **Timeout**, feche NEX, confirme que Developer Mode/Key Server estão ativos na TV e reconecte o gerenciador antes de tentar instalar este IPK menor. Não desinstale para tentar resolver: isso pode apagar o histórico. Timeout também pode vir da conexão; tamanho menor não garante resolver sua causa.
 
 ## Usar
 
 - Cadastre servidor, usuário e senha. Aceita `http:servidor`, `https:servidor`, HTTP/HTTPS completos, `servidor:porta` e links completos Xtream; sem prefixo assume HTTP. Prefixos com barras ausentes são normalizados e HTTPS explícito não sofre downgrade. Links get.php/player_api.php podem fornecer usuário e senha; parâmetros adicionais são preservados nas consultas e cifrados no cofre. Xtream não usa protocolos arbitrários.
-- Marque **Entrar automaticamente neste aparelho** para abrir diretamente nos perfis. O acesso é cifrado com AES-GCM e uma CryptoKey não exportável guardada no IndexedDB do app. Isso permite que quem usa a TV abra sua lista; não é proteção por PIN nem garantia de um cofre do sistema operacional. O acesso antigo exige a senha uma última vez e migra após autenticação e gravação bem-sucedidas. Se WebCrypto/IndexedDB falhar, o app não grava credenciais em texto aberto e informa a limitação. Em Configurações, **Desativar entrada automática** remove o acesso salvo.
+- Marque **Entrar automaticamente neste aparelho** para abrir diretamente nos perfis. O acesso é cifrado com AES-GCM e uma CryptoKey não exportável guardada no IndexedDB do app. Isso permite que quem usa a TV abra sua lista; não é proteção por PIN nem garantia de um cofre do sistema operacional. O acesso antigo exige a senha uma última vez. A migração só termina depois de reabrir o banco e decifrar os dados salvos; se falhar, os perfis mostram um aviso com **Tentar salvar a sessão** (↑ a partir dos perfis), preservando o cofre antigo. Enquanto o acesso automático é carregado, a senha permanece oculta. Se WebCrypto/IndexedDB falhar, o app não grava credenciais em texto aberto e informa a limitação. Em Configurações, **Desativar entrada automática** remove o acesso salvo.
 - Perfis: 12 avatares locais originais. Gerenciar perfis permite escolher a imagem, editar nome e restaurar preferências sem apagar favoritos/histórico. O perfil fica separado no topo do menu.
 - Início traz **Novidades**, **Filmes**, **Séries** e **Ao vivo agora**, em fileiras limitadas e navegáveis pelo controle; os catálogos completos continuam nas seções. Novidades usa datas reais de inclusão da fonte, não data de lançamento nem popularidade. Ao vivo agora lista canais disponíveis, sem inventar programação.
 - Início mantém **De volta às séries**, ordenado pelo histórico do perfil, até 12 séries disponíveis na fonte. Sem histórico, a faixa fica oculta.
 - Início, TV ao vivo, Filmes e Séries usam somente o conteúdo da sua fonte. Busca na seção completa, categorias e páginas substituem o antigo corte em 40 registros.
 - Favoritos: filtros Todos, Filmes, Séries e TV ao vivo; Continue mantém somente filmes e séries.
-- Menu de TV mantém navegação principal e painel de categorias ao lado; grupos derivados substituem o painel quando a fonte fornece relação de parentesco. Em filmes e séries, o menu recolhe aos ícones e expande ao voltar para ele. Voltar no catálogo foca sua categoria principal.
+- TV, Filmes e Séries mantêm navegação principal e painel de categorias ao lado; grupos derivados substituem o painel quando a fonte fornece relação de parentesco. Em filmes e séries, o menu recolhe aos ícones e expande ao voltar para ele. Voltar no catálogo foca sua categoria principal.
 - TV: → na última coluna de canais alcança Tela cheia; ↓ acessa pausa e favorito; ← retorna aos canais. Primeiro clique abre prévia; segundo amplia. Voltar retorna à prévia e depois ao catálogo. **Programação** consulta o EPG oferecido pelo provedor sem parar o vídeo.
 - Filme abre detalhes; série abre temporadas e episódios com as imagens fornecidas. **Continuar assistindo** e **Favoritos** sobrevivem ao fechamento, separados por lista.
 - O próximo episódio começa após contagem de dez segundos ao terminar. **Cancelar** interrompe a contagem; a preferência fica em **Configurações**.
@@ -36,7 +36,7 @@ Favoritos e progresso armazenam IDs/posições, não URLs, capas, senhas ou dado
 4. Deixe computador e TV na mesma rede. Anote o endereço IP e a passphrase mostrados pela TV **apenas para inserir no seu computador**. Não os publique nem envie senhas no chat.
 5. No Windows, obtenha o **webOS Dev Manager** em https://github.com/webosbrew/dev-manager-desktop/releases/latest. É uma ferramenta comunitária, não um aplicativo oficial da LG. Escolha o instalador Windows x64 `.msi`.
 6. Abra o gerenciador e adicione a TV em **Developer Mode**, usando o IP e a passphrase da tela da TV. O perfil de desenvolvimento normalmente usa SSH porta 9922; o gerenciador orienta os campos.
-7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.7_all.ipk` deste pacote.
+7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.8_all.ipk` deste pacote.
 8. Abra **NEX** pela TV ou pelo gerenciador. Não abra o `.ipk` como executável Windows e não use pen drive como instalador genérico.
 
 Developer Mode é temporário e exige atenção à sessão/renovação indicada na própria TV. Não fixamos duração em horas: conferir o comportamento atual no aparelho. Não é o fluxo de distribuição comercial definitiva.
@@ -136,7 +136,7 @@ Temporadas em botões horizontais, com contagem de episódios da fonte. Ao abrir
 
 Testes: 26 unitários/contratos, lint, build e cenário Chromium completo passaram. Novas verificações incluem HUD aberto sem zap acidental, HUD oculto com zap, comandos explícitos de canal, fonte sem seekable, oito temporadas com overflow, confirmação/temporada vazia e ida/volta aos episódios. Controle físico, janela de reprodução da fonte real e visual na LG precisam de confirmação manual.
 
-### 0.4.7 — perfis, Continue e retomada
+### 0.4.8 — perfis, Continue e retomada
 
 Depois de conectar/desbloquear a lista, escolha quem vai assistir. Até cinco perfis locais por conta da fonte, com nomes editáveis e favoritos, Minha lista, progresso e preferências separados. O perfil original conserva o armazenamento anterior; atualizar não copia nem apaga seu histórico. A troca interrompe a reprodução e salva o progresso no perfil anterior antes de abrir o seguinte. Catálogo e conexão da fonte são compartilhados, sem repetir downloads por perfil. Não cria contas remotas, assinaturas extras ou sincronização entre TVs. Perfis não são protegidos individualmente por senha.
 
@@ -146,4 +146,4 @@ Página de série identifica o episódio em andamento do perfil, inclusive ao en
 
 Desempenho: índice de progresso por série elimina varreduras repetidas. Sem reflow forçado para reanimar o banner e sem filtros/sombras grandes nas capas; transições/rolagem de 140 ms, respeitando movimento reduzido. Imagens remotas da biblioteca usam até três requisições simultâneas, priorizam o destaque e carregam apenas a área visível com pequena margem; itens removidos são cancelados. Relatório e comando reproduzível em docs/WEBOS_PERFORMANCE.md. Medidas Node/Chromium não garantem desempenho na LG.
 
-Testes incluem migração sem alteração do perfil original, limite/renomeação/isolamento de cinco perfis, persistência após reconectar, erro de gravação sem troca de perfil, Continue por tipo e retomada/reinício real de episódio em mídia sintética. Nenhum usuário de teste é distribuído no pacote. A validação física da versão 0.4.7 permanece pendente.
+Testes incluem migração sem alteração do perfil original, limite/renomeação/isolamento de cinco perfis, persistência após reconectar, erro de gravação sem troca de perfil, Continue por tipo e retomada/reinício real de episódio em mídia sintética. Nenhum usuário de teste é distribuído no pacote. A validação física da versão 0.4.8 permanece pendente.

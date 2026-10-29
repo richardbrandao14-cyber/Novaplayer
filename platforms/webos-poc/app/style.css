@@ -147,3 +147,14 @@ button>.nex-icon{display:inline-block;width:24px;height:24px;vertical-align:midd
 @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.tv-sidebar>.search-launch,.tv-top>button,#player-settings,.resume-card{-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}}
 @media(prefers-reduced-motion:reduce){.home-card,.recent-series-card{transition:none}}
 #library.nav-compact #lib-watchlist:before{content:none;display:none}
+
+/* Categorias de TV, filmes e séries compartilham o painel lateral. */
+#library.tv-category-menu.nav-compact .tv-sidebar{width:94px}#library.tv-category-menu.nav-compact .tv-main{margin-left:94px;width:calc(100% - 94px)}#library.tv-category-menu.nav-compact .tv-top{left:136px}
+#library.tv-category-menu #sidebar-categories{border-radius:20px;background:rgba(20,23,29,.42)}
+#player .player-bottom>.actions{flex-wrap:wrap;align-items:center}#player .player-bottom>.actions button{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;flex-shrink:0}#player .player-bottom>.actions button .icon-label{white-space:nowrap;line-height:1.2}#player .player-bottom>.actions button .nex-icon{flex-shrink:0}
+#player #player-favorite,#player #next-episode,#player #show-epg{width:auto;max-width:none;height:50px;min-height:50px;padding:10px 16px;border-radius:999px;font-size:18px;white-space:nowrap}
+#player.is-preview .player-bottom>.actions #player-favorite,#player.is-preview .player-bottom>.actions #show-epg{display:inline-flex;height:42px;min-height:42px;padding:8px 10px;font-size:15px}#player.is-preview .player-bottom>.actions{flex-wrap:nowrap}
+#session-notice{max-width:780px;margin:18px auto;padding:18px 24px;border:1px solid #ff9b50;border-radius:20px;background:#2b211b}#session-notice p{color:#fff;margin:0 0 14px}
+@media(max-width:1500px){#player #player-favorite,#player #next-episode,#player #show-epg{height:46px;min-height:46px;font-size:16px;padding:8px 12px}}
+#library.tv-category-menu.nav-auto:not(.nav-compact) .tv-main{margin-left:500px;width:calc(100% - 500px)}
+@media(max-width:1500px){#library.tv-category-menu.nav-auto:not(.nav-compact) .tv-main{margin-left:420px;width:calc(100% - 420px)}}

@@ -97,16 +97,19 @@
     stop(); cancel(); config = null; shelf.disconnect(); library.clear();
     el("source-form").reset(); el("direct-url").value = ""; status("Dados de acesso removidos desta sessão.");
   }
+  function showEntry(){el("auto-entry-status").hidden=true;el("vault-login").hidden=!vault.exists();el("new-source").hidden=vault.exists()&&vault.available();focus(vault.exists()&&vault.available()?el("vault-password"):el("server"));}
+  function sessionNotice(message){el("session-notice").hidden=!message;el("session-notice-text").textContent=message||"";el("session-retry").disabled=!quick.available();}
+  el("session-retry").addEventListener("click",function(){if(!config)return;var generation=authGeneration;this.disabled=true;quick.save(config,function(){return generation===authGeneration;}).then(function(){if(generation!==authGeneration)return;vault.forget();sessionNotice("");el("session-retry").disabled=false;focus(el("profile-list").querySelector('[aria-pressed="true"]'));},function(){if(generation!==authGeneration)return;el("session-retry").disabled=false;sessionNotice("Esta TV ainda não confirmou a gravação protegida. Seu acesso antigo foi mantido; a senha poderá ser pedida ao reabrir.");});});
   function connect(next, remember, pass, fromVault) {
-    var generation=++authGeneration;
+    var generation=++authGeneration;sessionNotice("");
     stop();library.clear();config=null;shelf.disconnect();status("Verificando acesso à fonte…");
     request(D.api(next),function(value){
       var info=value&&value.user_info;
-      if(!info||!(info.auth===true||String(info.auth)==="1")||(info.status&&String(info.status).toLowerCase()!=="active")){status("A fonte não confirmou uma conta ativa. Confira os dados.");return;}
-      function ready(){if(generation!==authGeneration)return;config=next;el("server").value=next.server;el("username").value=next.user;shelf.connect(next);if(fromVault)el("live-format").value=shelf.format();else shelf.format(el("live-format").value);library.connect();el("password").value="";el("vault-create").value="";status("Fonte conectada.");library.enter();}
-      if(remember&&quick.available()){status("Salvando acesso neste aparelho…");quick.save(next,function(){return generation===authGeneration;}).then(function(){if(generation!==authGeneration)return;vault.forget();ready();},function(){if(generation!==authGeneration)return;ready();library.message("A TV não conseguiu lembrar o acesso. Sua lista ficará conectada nesta sessão.");});}
+      if(!info||!(info.auth===true||String(info.auth)==="1")||(info.status&&String(info.status).toLowerCase()!=="active")){showEntry();status("A fonte não confirmou uma conta ativa. Confira os dados.");return;}
+      function ready(){if(generation!==authGeneration)return;config=next;el("server").value=next.server;el("username").value=next.user;shelf.connect(next);if(fromVault)el("live-format").value=shelf.format();else shelf.format(el("live-format").value);library.connect();el("password").value="";el("vault-create").value="";el("auto-entry-status").hidden=true;status("Fonte conectada.");library.enter();if(fromVault&&!quick.available())sessionNotice("O armazenamento protegido automático não está disponível nesta TV. O acesso antigo foi preservado.");}
+      if(remember&&quick.available()){status("Salvando acesso neste aparelho…");quick.save(next,function(){return generation===authGeneration;}).then(function(){if(generation!==authGeneration)return;vault.forget();ready();},function(){if(generation!==authGeneration)return;ready();sessionNotice("A TV não confirmou a gravação da sessão. Seu acesso antigo foi mantido. Use Tentar salvar a sessão antes de fechar o app.");});}
       else if(remember){status("Protegendo seu acesso…");vault.save(next,pass,function(){return generation===authGeneration;}).then(function(){el("vault-login").hidden=false;ready();},function(error){if(generation===authGeneration){el("vault-capability").textContent=error.message;ready();}});}else ready();
-    });
+    },function(message){if(generation!==authGeneration)return;showEntry();status(message);});
   }
   el("source-form").addEventListener("submit",function(event){
     event.preventDefault();var next,remember=el("remember-access").checked,pass=el("vault-create").value;
@@ -126,7 +129,7 @@
   el("local-uhd").addEventListener("click",function(){play(localMedia("media/player-uhd.mp4"),"Teste 4K · 3840 × 2160 · Imagem sintética e áudio","local");});
   el("local-hls").addEventListener("click", function () { play(localMedia("media/hls/index.m3u8"), "Teste HLS local", "local"); });
   el("toggle-tools").addEventListener("click", function () { var open = el("test-tools").hidden; el("test-tools").hidden = !open; this.setAttribute("aria-expanded", String(open)); this.textContent = open ? "Fechar ferramentas de teste" : "Abrir ferramentas de teste"; });
-  el("source-focus").addEventListener("click", function () { el("new-source").hidden=false;el("vault-login").hidden=true;focus(el("server")); });
+  el("source-focus").addEventListener("click", function () { authGeneration++;cancel();el("auto-entry-status").hidden=true; el("new-source").hidden=false;el("vault-login").hidden=true;focus(el("server")); });
   el("player-favorite").addEventListener("click", function () { if (favoriteAction) window.NexIcons.set("player-favorite",favoriteAction() ? "Favoritado" : "Favoritar canal"); hud(); });
   el("next-episode").addEventListener("click", function () { if (nextAction) nextAction(); });
   el("back").addEventListener("click", playbackBack); el("expand-player").addEventListener("click", fullscreen);
@@ -215,7 +218,7 @@
   window.addEventListener("popstate", function () { playbackBack(); });
   function connectionLabel(){var badge=document.querySelector(".session-badge");badge.textContent=navigator.onLine===false?"Sem conexão":"Sua biblioteca";badge.className=navigator.onLine===false?"session-badge offline":"session-badge";}
   window.addEventListener("online",connectionLabel);window.addEventListener("offline",connectionLabel);connectionLabel();
-  var startupGeneration=authGeneration;if(quick.available()){el("vault-create").hidden=true;quick.open().then(function(next){if(!next||startupGeneration!==authGeneration)return;var generation=startupGeneration;try{next.server=D.base(next.server);if(!next.user||!next.password)throw new Error();if(generation===authGeneration)connect(next,false,"",true);}catch(error){status("Não foi possível abrir o acesso salvo. Conecte sua lista novamente.");}},function(){status("Não foi possível abrir o acesso automático. Conecte sua lista novamente.");});}
+  var startupGeneration=authGeneration;if(quick.available()){el("vault-create").hidden=true;el("vault-login").hidden=true;el("new-source").hidden=true;el("auto-entry-status").hidden=false;quick.open().then(function(next){if(startupGeneration!==authGeneration)return;if(!next){showEntry();return;}try{next.server=D.base(next.server);if(!next.user||!next.password)throw new Error();connect(next,false,"",true);}catch(error){showEntry();status("Não foi possível abrir o acesso salvo. Conecte sua lista novamente.");}},function(){if(startupGeneration!==authGeneration)return;showEntry();status("A TV não conseguiu abrir a sessão protegida. Seu acesso antigo foi mantido.");});}
   window.nexReady = true; var styled = parseInt(window.getComputedStyle(document.querySelector(".brand")).fontSize, 10) >= 30;
-  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.7":"Versão 0.4.7 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
+  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.8":"Versão 0.4.8 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
 }());

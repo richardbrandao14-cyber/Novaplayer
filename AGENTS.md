@@ -2,6 +2,9 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.8: filmes/séries usam o mesmo segundo painel de categorias da TV, preservando principais e navegação principal→categorias→conteúdo; hierarquia só por parent_id/parent_category_id reais. Botões do player com texto em uma linha e altura controlada. Sessão V2: CryptoKey não exportável em registro separado no mesmo IndexedDB, IV/cifra em arrays compatíveis; transação atômica, fechar/reabrir DB e decifrar para confirmar antes de apagar cofre antigo. Ler V1 sem perda. Não mostrar senha enquanto sessão salva é carregada; falha de persistência deve ter aviso e retry acessível por controle nos perfis. Checkbox de manter sessão ligado inicialmente; nunca fallback para credenciais/chave bruta no localStorage. Persistência após reiniciar a LG exige teste físico.
+
+
 - webOS 0.4.7: Home com Novidades/Filmes/Séries/Ao vivo agora em até 12 cards por faixa; Novidades só added/date_added reais, seleção incremental/cancelável sem ordenar o catálogo inteiro; manter De volta às séries e catálogos completos nas seções. Imagens de episódios aceitam info objeto/JSON e alternativas reais, fallback limitado e placeholder, nunca frames inventados. Ícones via SVG DOM, sem innerHTML. Liquid glass leve com fallback sem backdrop-filter; sem blur em vídeo nem promessa de 120 Hz. Dono relatou Timeout na instalação e autorizou retirar amostras de mídia/ferramentas de teste do pacote TV: QA continua completo no repositório/CI. build:tv gera IPK leve com mesmo ID; check:package verifica arquivo e boot Chromium, não instalação física LG. Não remover testes nem fixtures do QA. Preservar alterações Windows.
 
 

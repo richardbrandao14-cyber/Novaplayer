@@ -44,20 +44,20 @@
     function sidebar() {
       var show = subMenu && state && !state.home && !state.settings && !state.favorites && !state.watchlist && !state.continuing;
       el("sidebar-categories").hidden = !show;
-      el("library").classList.toggle("tv-category-menu",!!show&&state.kind==="live");
-      ["load-live","load-movies","load-series"].forEach(function(button){el(button).hidden=!!show&&state.kind!=="live";});
+      el("library").classList.toggle("tv-category-menu",!!show);
+      ["load-live","load-movies","load-series"].forEach(function(button){el(button).hidden=false;});
       if (!show) return;
       text("sidebar-title",categoryParent?(state.categories.filter(function(c){return String(c.category_id)===categoryParent;})[0]||{}).category_name||label(state.kind):label(state.kind));
-      text("sidebar-main",categoryParent?"← Categorias de TV":"← Menu principal");
+      text("sidebar-main",categoryParent?"← "+label(state.kind):"← Menu principal");
       var list=el("sidebar-category-list"),oldFocus=document.activeElement,hadFocus=list.contains(oldFocus),oldValue=hadFocus?oldFocus.getAttribute("data-category-id"):null;list.textContent="";
       var groups=state.categories;
-      if(state.kind==="live")groups=groups.filter(function(c){var parent=String(c.parent_id||c.parent_category_id||"");return categoryParent?parent===categoryParent:!parent||parent==="0"||!state.categories.some(function(other){return String(other.category_id)===parent;});});
+      groups=groups.filter(function(c){var parent=String(c.parent_id||c.parent_category_id||"");return categoryParent?parent===categoryParent:!parent||parent==="0"||!state.categories.some(function(other){return String(other.category_id)===parent;});});
       [{category_id:"",category_name:categoryParent?"Todos nesta categoria":"Todos os conteúdos"}].concat(groups).forEach(function(category){
         var button=document.createElement("button"),value=String(category.category_id);
         button.textContent=category.category_name||"Categoria sem nome";button.setAttribute("data-nav","");button.setAttribute("data-category-id",value);
         button.className=state.category===value?"selected":"";
         if(state.category===value)button.setAttribute("aria-current","true");
-        button.addEventListener("click",function(){if(state.kind==="live"&&value&&state.categories.some(function(c){return String(c.parent_id||c.parent_category_id||"")===value;})){categoryParent=value;sidebar();focus(list.querySelector("button"));return;}state.category=value||categoryParent;el("lib-category").value=value;filter(false);
+        button.addEventListener("click",function(){if(value&&state.categories.some(function(c){return String(c.parent_id||c.parent_category_id||"")===value;})){categoryParent=value;sidebar();focus(list.querySelector("button"));return;}state.category=value||categoryParent;el("lib-category").value=value;filter(false);
           var buttons=list.querySelectorAll("button");for(var i=0;i<buttons.length;i++){buttons[i].className=buttons[i]===button?"selected":"";buttons[i].removeAttribute("aria-current");}button.setAttribute("aria-current","true");
         });list.appendChild(button);
         if(hadFocus&&oldValue===value)focus(button);
@@ -138,7 +138,7 @@
 
     }
 
-    function categoryMatches(item,current){var value=String(item.category_id||"");if(!current.category||value===current.category)return true;if(current.kind!=="live")return false;for(var depth=0;depth<current.categories.length;depth++){var entry=current.categories.filter(function(c){return String(c.category_id)===value;})[0];if(!entry)return false;value=String(entry.parent_id||entry.parent_category_id||"");if(!value)return false;if(value===current.category)return true;}return false;}
+    function categoryMatches(item,current){var value=String(item.category_id||"");if(!current.category||value===current.category)return true;for(var depth=0;depth<current.categories.length;depth++){var entry=current.categories.filter(function(c){return String(c.category_id)===value;})[0];if(!entry)return false;value=String(entry.parent_id||entry.parent_category_id||"");if(!value)return false;if(value===current.category)return true;}return false;}
     function filter(restore) {
       var generation = ++filterGeneration, current = state, index = 0, result = [], query = state.query.toLowerCase();
       clearTimeout(filterTimer); message("Buscando no catálogo…");
@@ -282,7 +282,7 @@
     function detailView() {
       el("profiles-view").hidden=true;
       el("settings-view").hidden = true; el("browse-view").hidden = true; el("details-view").hidden = false; el("lib-search").disabled = true;el("search-open").disabled=true;el("search-panel").hidden=true;
-      el("library").className = "nav-auto"; text("detail-title", name(detail.item)); text("detail-kind", label(detail.kind));
+      el("library").className = "nav-auto";sidebar(); text("detail-title", name(detail.item)); text("detail-kind", label(detail.kind));
       el("seasons").hidden = detail.kind !== "series"; el("detail-play").disabled = detail.kind === "series";
       text("detail-play", detail.kind === "series" ? "▶︎ Assistir episódio" : hooks.progress(key(detail.item, detail.kind)) > 5 ? "▶︎ Continuar assistindo" : "▶︎ Assistir");
       text("detail-favorite", favorites[key(detail.item, detail.kind)] ? "♥ Favoritado" : "♡ Favoritar");
@@ -438,9 +438,9 @@
       if(active&&active.parentElement&&active.parentElement.classList.contains("feature-actions")){if(code===40){var selected=state.featureItem?el("catalog-list").querySelector('[data-content-id="'+id(state.featureItem,state.featureItem._nexKind||state.kind)+'"]'):null;focus(homeVisible()?home.first():!el("back-series").hidden?el("back-series-list").querySelector("button")||el("catalog-list").querySelector("button"):selected||el("catalog-list").querySelector("button"));return true;}}
       var side=document.querySelector(".tv-sidebar");
       if(side.contains(active)){
-        if(code===39&&active.tagName!=="INPUT"){if(state&&state.kind==="live"&&subMenu&&!el("sidebar-categories").contains(active)){focus(el("sidebar-category-list").querySelector(".selected")||el("sidebar-category-list").querySelector("button"));return true;}var target=homeVisible()?home.first():!el("details-view").hidden?(detail&&detail.kind==="series"?selectedSeason():el("detail-play").disabled?el("episode-list").querySelector("button"):el("detail-play")):state&&(state.continuing||state.favorites)?el("continue-types").querySelector('[aria-pressed="true"]'):el("catalog-list").querySelector("button")||el("feature-open");focus(target);return true;}
+        if(code===39&&active.tagName!=="INPUT"){if(state&&subMenu&&!el("sidebar-categories").contains(active)){focus(el("sidebar-category-list").querySelector(".selected")||el("sidebar-category-list").querySelector("button"));return true;}var target=homeVisible()?home.first():!el("details-view").hidden?(detail&&detail.kind==="series"?selectedSeason():el("detail-play").disabled?el("episode-list").querySelector("button"):el("detail-play")):state&&(state.continuing||state.favorites)?el("continue-types").querySelector('[aria-pressed="true"]'):el("catalog-list").querySelector("button")||el("feature-open");focus(target);return true;}
         if(code===38||code===40){var buttons=side.querySelectorAll("[data-nav]"),visible=[];for(var i=0;i<buttons.length;i++)if(!buttons[i].hidden&&!buttons[i].disabled&&buttons[i].getClientRects().length)visible.push(buttons[i]);var index=visible.indexOf(active);focus(visible[Math.max(0,Math.min(visible.length-1,index+(code===40?1:-1)))]);return true;}
-        if(code===37&&active.tagName!=="INPUT"){if(state&&state.kind==="live"&&el("sidebar-categories").contains(active))focus(mother());return true;}
+        if(code===37&&active.tagName!=="INPUT"){if(state&&el("sidebar-categories").contains(active))focus(mother());return true;}
       }
       if(active&&(active.classList.contains("tv-card")||active.classList.contains("episode-card"))){
         var list=active.parentElement,gridButtons=list.querySelectorAll("button"),rows=[],row=[],top=null,currentRow=0,currentColumn=0;

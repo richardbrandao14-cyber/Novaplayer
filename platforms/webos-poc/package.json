@@ -1,7 +1,7 @@
 {
   "name": "nex-webos-poc",
   "private": true,
-  "version": "0.4.7",
+  "version": "0.4.8",
   "scripts": {
     "test": "node tests/domain.check.cjs && node tests/storage.check.cjs && node tests/vault.check.cjs && node tests/playback.check.cjs && node tests/tmdb.check.cjs && node tests/artwork.check.cjs && node tests/resume.check.cjs && node tests/home.check.cjs",
     "build": "node scripts/package.cjs",
