@@ -1,0 +1,447 @@
+{
+  "repository": "https://github.com/tv-logo/tv-logos",
+  "revision": "d32e347bb7c4c640dceec23957802ad9182f58a6",
+  "files": [
+    {
+      "file": "globo-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/globo-br.png",
+      "sha256": "cdc44a736771822c6c678034aaa352ed4fb262f941d50402c884e63057f9ee08",
+      "bytes": 120777,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "record-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/record-br.png",
+      "sha256": "7c9d0719eb49100cd40f785f8efc237d2c5e93dd57f8742acbdd312f70442286",
+      "bytes": 161285,
+      "width": 512,
+      "height": 653
+    },
+    {
+      "file": "sbt-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/sbt-br.png",
+      "sha256": "392ac3541e810b0736fa34225e360ac341d2c2eda73e4583c53047588adb3a16",
+      "bytes": 51134,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "band-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/band-br.png",
+      "sha256": "a7e516db89a935097a13686110bdbc4fd62d6676c24a8c58368955d9491b2b4e",
+      "bytes": 20773,
+      "width": 512,
+      "height": 300
+    },
+    {
+      "file": "band-news-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/band-news-br.png",
+      "sha256": "2b4ee34f3d538281c5bc4aef26de05e0ce6227bc02d93eeba54daff3ed39a93e",
+      "bytes": 12988,
+      "width": 512,
+      "height": 329
+    },
+    {
+      "file": "band-sports-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/band-sports-br.png",
+      "sha256": "0a2798304808d1f28a0deedd7c97e4515c8a58e26db536d1777b01cfc123706c",
+      "bytes": 72204,
+      "width": 512,
+      "height": 189
+    },
+    {
+      "file": "sportv-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/sportv-br.png",
+      "sha256": "654629181abbfff7a15ef1d1d2844b4b301fee3d438fcf0a11d8bfdaca20eff6",
+      "bytes": 2808,
+      "width": 512,
+      "height": 136
+    },
+    {
+      "file": "sportv2-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/sportv2-br.png",
+      "sha256": "54401137862de784c9372ecde3c32c860ab46adba710dddec7bde973b8e9d536",
+      "bytes": 2804,
+      "width": 512,
+      "height": 116
+    },
+    {
+      "file": "sportv3-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/sportv3-br.png",
+      "sha256": "ac2e9383267a9d5ec7c314961a7e888ddce2947b362d27a1c6b752ba658d66c3",
+      "bytes": 2878,
+      "width": 512,
+      "height": 115
+    },
+    {
+      "file": "premiere-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/premiere-br.png",
+      "sha256": "be2895435491ec36923d04390800b5f9b6f2fb5ae31e24e0bca1b422c8fcfb3c",
+      "bytes": 1458,
+      "width": 512,
+      "height": 82
+    },
+    {
+      "file": "gnt-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/gnt-br.png",
+      "sha256": "7f43b33113cd56738b940860817ec633bdc842352d63c3e6fb218ac7b98c1693",
+      "bytes": 2292,
+      "width": 512,
+      "height": 267
+    },
+    {
+      "file": "multishow-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/multishow-br.png",
+      "sha256": "7e0bb3377601a751482755f63d30d1a38e1a903550b6a89d0f4338fdcc5cf639",
+      "bytes": 3658,
+      "width": 512,
+      "height": 256
+    },
+    {
+      "file": "gloob-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/gloob-br.png",
+      "sha256": "815005a0674e28a6397e73a3bb678b33b924cd45fcc95940635e3a24b3c782ef",
+      "bytes": 7039,
+      "width": 512,
+      "height": 210
+    },
+    {
+      "file": "gloobinho-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/gloobinho-br.png",
+      "sha256": "28e3b3cfaaca98ca9bc4b36f36496341888290f9de7e89f48361bb4644504422",
+      "bytes": 6565,
+      "width": 512,
+      "height": 308
+    },
+    {
+      "file": "megapix-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/megapix-br.png",
+      "sha256": "c56b8be6ef91d88d5005b471f4450a84dcb909230cf8185afe7b29ae82ba1429",
+      "bytes": 2562,
+      "width": 512,
+      "height": 91
+    },
+    {
+      "file": "tele-cine-premium-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tele-cine-premium-br.png",
+      "sha256": "277a02f0b987a131ce08e77253694f4d207367a4ac411f0bb2c33771cb5662d2",
+      "bytes": 4623,
+      "width": 512,
+      "height": 468
+    },
+    {
+      "file": "tele-cine-action-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tele-cine-action-br.png",
+      "sha256": "7407e3b078132aecbd262d9d91fa666bac5e9e78dd22c86ccd9406f79e9dac1d",
+      "bytes": 4484,
+      "width": 512,
+      "height": 468
+    },
+    {
+      "file": "tele-cine-pipoca-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tele-cine-pipoca-br.png",
+      "sha256": "bc86ff256435226b99dc907315a6042d673d3917f3e1154ae87a33e26c780470",
+      "bytes": 4490,
+      "width": 512,
+      "height": 468
+    },
+    {
+      "file": "tele-cine-fun-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tele-cine-fun-br.png",
+      "sha256": "a1e9dcf72b928a210f95c6490e9ba6e98277148a2c3df70469183c5e6739c043",
+      "bytes": 3764,
+      "width": 512,
+      "height": 468
+    },
+    {
+      "file": "tele-cine-cult-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tele-cine-cult-br.png",
+      "sha256": "96cf384ba1a6489fa51ea7556b0b112c1c9f46119deea50e26dcc81babcd2869",
+      "bytes": 3789,
+      "width": 512,
+      "height": 468
+    },
+    {
+      "file": "tele-cine-touch-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tele-cine-touch-br.png",
+      "sha256": "1f5bb905f6308297c9b9b6bc1a54f2d30fd17cd012549b31f9b14c650f3bab92",
+      "bytes": 4171,
+      "width": 512,
+      "height": 468
+    },
+    {
+      "file": "hbo-family-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/hbo-family-br.png",
+      "sha256": "fec6c430677dcb086766d659bbd4c9c3eabd2569ab79be0aa4fb76fba0ed7289",
+      "bytes": 5040,
+      "width": 512,
+      "height": 397
+    },
+    {
+      "file": "hbo-mundi-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/hbo-mundi-br.png",
+      "sha256": "68b211278dd1326f19abcbb4445320debf099f154e03f248396beb8b4f3f5242",
+      "bytes": 7591,
+      "width": 512,
+      "height": 350
+    },
+    {
+      "file": "hbo-plus-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/hbo-plus-br.png",
+      "sha256": "6f73177284bb60c353a2472cb32b25183024f152b158e958b4967e55a9f104c5",
+      "bytes": 4889,
+      "width": 512,
+      "height": 165
+    },
+    {
+      "file": "hbo-pop-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/hbo-pop-br.png",
+      "sha256": "fbc3a041dcc92f9a4d0811cb4c0f29f3349b962b43afd7e7c30b2ae06c52d7c7",
+      "bytes": 7388,
+      "width": 512,
+      "height": 372
+    },
+    {
+      "file": "hbo-signature-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/hbo-signature-br.png",
+      "sha256": "04daa0455174d0699fa8d2a3ba7e7491d8de99c0db8938b86086a231bdda5b70",
+      "bytes": 13353,
+      "width": 512,
+      "height": 308
+    },
+    {
+      "file": "hbo-xtreme-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/hbo-xtreme-br.png",
+      "sha256": "e457c1e6fdbbf86e0c92a451dc07b66ee4003b0048e51b6b49fc6448edc23cb2",
+      "bytes": 9905,
+      "width": 512,
+      "height": 347
+    },
+    {
+      "file": "cnn-brasil-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/cnn-brasil-br.png",
+      "sha256": "aec4819448566a91469cf09b1fb1834d3e85bfa54ea6e7546a69d89525ffbfa4",
+      "bytes": 24208,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "jovem-pan-news-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/jovem-pan-news-br.png",
+      "sha256": "e2cc87d5a4891b36767905cffa3c296b49d718f60157032254515355d4b1aae7",
+      "bytes": 26782,
+      "width": 512,
+      "height": 514
+    },
+    {
+      "file": "jovem-pan-tv-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/jovem-pan-tv-br.png",
+      "sha256": "4d90e0b2a0a2bf28ccf7653f59630f0952c1f4061799c507f8916a346324f905",
+      "bytes": 11836,
+      "width": 512,
+      "height": 330
+    },
+    {
+      "file": "rede-tv-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/rede-tv-br.png",
+      "sha256": "0e5e6294739e89695f49abbf208a5446e69781e5efcf08c8f9d2b878066ac556",
+      "bytes": 57645,
+      "width": 512,
+      "height": 305
+    },
+    {
+      "file": "tv-cultura-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tv-cultura-br.png",
+      "sha256": "0972978a5cc813380e5b8384652bc1a0b240649e0c04d9c6df98bd7bd29202d1",
+      "bytes": 3093,
+      "width": 512,
+      "height": 444
+    },
+    {
+      "file": "tv-brasil-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tv-brasil-br.png",
+      "sha256": "ce8b6963b48cfa84664192236d716137f5c3864b4a16f46442eef4d1e529e28d",
+      "bytes": 22517,
+      "width": 512,
+      "height": 141
+    },
+    {
+      "file": "tv-camara-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tv-camara-br.png",
+      "sha256": "4c0acc0d33746136368a54ee7314e425cefcb689d6d28a5dde61cf0749343963",
+      "bytes": 36722,
+      "width": 512,
+      "height": 598
+    },
+    {
+      "file": "tv-senado-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tv-senado-br.png",
+      "sha256": "b6c100373bce45215940c5f2fe33bcfb662c4de4d407baa80ca496288796e2b0",
+      "bytes": 12899,
+      "width": 512,
+      "height": 189
+    },
+    {
+      "file": "canal-brasil-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/canal-brasil-br.png",
+      "sha256": "8bf1977cc1c6226e2f3968f7be50d3c3e7a7fe772ff29aac96fc5f7f32f4f11d",
+      "bytes": 5139,
+      "width": 512,
+      "height": 409
+    },
+    {
+      "file": "canal-off-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/canal-off-br.png",
+      "sha256": "ebb786e6bf387f5ef54b5ecde916537b9a27491babb64b81687abb3f82936d82",
+      "bytes": 5034,
+      "width": 512,
+      "height": 346
+    },
+    {
+      "file": "bis-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/bis-br.png",
+      "sha256": "48e5a1471b30e54a0ece8f68d1f136882c49a94767972a48ac927e7079bb16d3",
+      "bytes": 2047,
+      "width": 512,
+      "height": 254
+    },
+    {
+      "file": "arte1-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/arte1-br.png",
+      "sha256": "49664f7b8b60fb05bb20e90c5b4a5aa862e609259165f05d729681131423305b",
+      "bytes": 8392,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "sony-channel-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/sony-channel-br.png",
+      "sha256": "12dab6246e6627dbc204efa40482fced35bcd2c0f15206e727aa3a3807390b62",
+      "bytes": 109523,
+      "width": 512,
+      "height": 514
+    },
+    {
+      "file": "sony-movies-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/sony-movies-br.png",
+      "sha256": "e38ac8ba552e2373923a4f969444ded4d17f179b2931e2e7e82406c06599c63b",
+      "bytes": 164369,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "space-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/space-br.png",
+      "sha256": "0be128caa6a99ac16b6d5aa23170a73716d211ebbcf72756509e4bb364ce63ba",
+      "bytes": 3188,
+      "width": 512,
+      "height": 121
+    },
+    {
+      "file": "warner-channel-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/warner-channel-br.png",
+      "sha256": "2bb908b5d5ced372fc2eb2b61085b82ee29757a5efec1190cc36663b393e0fe0",
+      "bytes": 17938,
+      "width": 512,
+      "height": 470
+    },
+    {
+      "file": "tnt-series-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tnt-series-br.png",
+      "sha256": "5823960bff84e39abe2ce650403ba5201866dac1a976a093d9315daeb05dcd51",
+      "bytes": 5098,
+      "width": 512,
+      "height": 642
+    },
+    {
+      "file": "discovery-kids-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/discovery-kids-br.png",
+      "sha256": "000103b721e2e1665882052f06e070a6b60b8c4bb5e374f8ae25ddec86f512e4",
+      "bytes": 7168,
+      "width": 512,
+      "height": 443
+    },
+    {
+      "file": "discovery-turbo-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/discovery-turbo-br.png",
+      "sha256": "36d1402ece4b7e3eea2f1f5613e8852f779ba4adde6630d820880da9abe9386b",
+      "bytes": 3785,
+      "width": 512,
+      "height": 236
+    },
+    {
+      "file": "dreamworks-channel-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/dreamworks-channel-br.png",
+      "sha256": "8a5a07a2b59af756e34db854dd8b49bd4db8e1f6d19eb3fa746b9d5573ff392f",
+      "bytes": 5586,
+      "width": 512,
+      "height": 301
+    },
+    {
+      "file": "futura-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/futura-br.png",
+      "sha256": "1d22c5a9b7e2e69590e0cb63343d8980c0b1edca9139613c3dd202237f51755f",
+      "bytes": 3746,
+      "width": 512,
+      "height": 202
+    },
+    {
+      "file": "rede-vida-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/rede-vida-br.png",
+      "sha256": "f0ac6a1d21fc300ffd55d018270885ded75401462a1db5042340ac8538cb9e76",
+      "bytes": 102004,
+      "width": 512,
+      "height": 468
+    },
+    {
+      "file": "tv-aparecida-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/tv-aparecida-br.png",
+      "sha256": "71a7ba388ed2faaaa561e5d40dace9c4cc5dd16cadb5736161f16ec8dbd0ed48",
+      "bytes": 231955,
+      "width": 512,
+      "height": 547
+    },
+    {
+      "file": "cancao-nova-tv-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/cancao-nova-tv-br.png",
+      "sha256": "56fabba31101a5da6351d1397861b528084dd9c7bad931422c5d094911cb1337",
+      "bytes": 7693,
+      "width": 512,
+      "height": 428
+    },
+    {
+      "file": "novo-tempo-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/novo-tempo-br.png",
+      "sha256": "da6bbce88cf5e57caf11047f27e4865de49ad2e474dff0578a00f5239cc3ed81",
+      "bytes": 37127,
+      "width": 512,
+      "height": 394
+    },
+    {
+      "file": "canal-rural-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/canal-rural-br.png",
+      "sha256": "3afb739c47c88a494452bb56aad76381ee7baff2bc632f493351f4e83381ab75",
+      "bytes": 51859,
+      "width": 512,
+      "height": 349
+    },
+    {
+      "file": "agro-mais-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/agro-mais-br.png",
+      "sha256": "4dfeb8806ade98e99dfee0f35f0e937f1da69032573e08a005ddf0b0a82aed7c",
+      "bytes": 16501,
+      "width": 512,
+      "height": 223
+    },
+    {
+      "file": "fish-tv-br.png",
+      "source": "https://raw.githubusercontent.com/tv-logo/tv-logos/d32e347bb7c4c640dceec23957802ad9182f58a6/countries/brazil/fish-tv-br.png",
+      "sha256": "3dab9ba377561e79395cf3fdcde75d5ff57a6a081aae257d2e51bc2e8cc4ed03",
+      "bytes": 2376,
+      "width": 512,
+      "height": 146
+    }
+  ],
+  "rights": "Marcas dos titulares. O projeto de origem cita CC BY-SA/CC BY-NC-SA sem licença individual por arquivo; não presumir autorização comercial. Revisão de direitos obrigatória antes de publicação comercial."
+}

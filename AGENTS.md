@@ -2,6 +2,8 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.12: Atualizar catálogo no rodapé lateral acima de Minha fonte compartilha handler de Configurações, acessível por setas/OK e só ícone recolhido. Ao trocar canal na prévia, stop() restaura foco antigo: play() deve confirmar novo alvo depois de encerrar sessão anterior; testar primeiro→segundo→primeiro. Banco local105 logos (55 novos PNG brasileiros, Globo consolidado); aliases regionais explícitos e qualificadores técnicos, sem inferência genérica de afiliadas. BR_SOURCES/BRAZIL_NOTICE preservam autoria/hashes/condições: origem cita CC BY-SA/CC BY-NC-SA sem licença por imagem; revisar autorização antes de distribuição comercial, não presumir que GPL cobre marcas.
+
 - webOS 0.4.11: revalidar caches a cada 30 min em fila XHR independente/serial (30s/32MB); reprodução/app oculto/perfis/consulta interativa adiam. Snapshot por seção só após itens+categorias válidos; erros preservam cache e retry5min; troca de fonte cancela respostas antigas. Não roubar foco ao aplicar dados. Menu filmes/séries sobrepõe sem redimensionar grade; capas 2:3 com contain; banner preserva pôster inteiro quando não há backdrop e ações trazem título à tela. TV: foco laranja forte distinto do canal em reprodução. Movimento190ms/rolagem210ms com reduced-motion, sem animar vídeo. Validar testes e aparelho separadamente.
 
 - webOS 0.4.10: vidro fumê sem blur de tela/vídeo; banco inicial de 51 logos reais locais (picons GPL, fontes/hashes preservados). Logo da fonte primeiro, fallback local só por alias exato normalizado; preservar números/regiões, nunca usar marca parecida para canal desconhecido. Logos em contain, cores originais. Prévias usam fonte fictícia interceptada e não fazem parte do IPK. Ver docs/CHANNEL_LOGOS.md.

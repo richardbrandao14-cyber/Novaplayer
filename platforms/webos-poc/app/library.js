@@ -383,7 +383,9 @@
     document.addEventListener("visibilitychange",function(){if(!document.hidden)refresh.check();});
     window.addEventListener("online",function(){refresh.check();});
     window.addEventListener("pagehide",function(){refresh.stop();});
-    el("refresh-catalog").addEventListener("click",function(){refresh.stop();catalogCache={};refresh.start();enter("movie",true);});
+    function refreshCatalog(){refresh.stop();catalogCache={};refresh.start();enter("movie",true);}
+    el("refresh-catalog").addEventListener("click",refreshCatalog);
+    el("lib-refresh").addEventListener("click",refreshCatalog);
     var erasePending=false;
     el("erase-library").addEventListener("click",function(){if(!erasePending){erasePending=true;text("settings-status","Pressione o botão novamente para confirmar a exclusão de favoritos e progresso deste perfil.");return;}hooks.shelf.erase();favorites=hooks.shelf.favorites();erasePending=false;text("settings-status","Favoritos, Minha lista e progresso deste perfil foram apagados.");});
     el("lib-watchlist").addEventListener("click",function(){enter("movie",false,false,false,true);});

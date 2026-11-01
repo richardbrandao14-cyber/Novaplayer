@@ -86,7 +86,7 @@
     videoGeometry(); video.src = url; video.load();
     playbackDeadline = setTimeout(function () { playerStatus("O vídeo não iniciou. Estado de mídia " + video.readyState + "/" + video.networkState + ". Tente outra fonte ou formato."); hud(); }, 15000);
     var promise = video.play(); if (promise && promise.catch) promise.catch(function () { playerStatus("Pressione Reproduzir. Confira fonte, rede e formato se persistir."); hud(); });
-    hud(); if (!preview) focus(el("play-pause"));
+    hud(); if (!preview) focus(el("play-pause"));else if(kind==="live")focus(target);
   }
   function playbackIcon(){var playing=resumer&&resumer.pending()?resumer.wanted():!video.paused;var button=el("play-pause");button.textContent="";var holder=document.createElement("span");holder.className=playing?"pause-icon":"play-icon";holder.setAttribute("aria-hidden","true");button.appendChild(holder);button.setAttribute("aria-label",playing?"Pausar":"Reproduzir");button.title=playing?"Pausar":"Reproduzir";}
   resumer=window.NexResume(video,{done:function(){pendingResume=0;playbackIcon();playerStatus(resumer.wanted()?"Reproduzindo":"Pausado");},message:playerStatus,failed:function(message){playerStatus(message);hud();playbackIcon();}});
@@ -220,5 +220,5 @@
   window.addEventListener("online",connectionLabel);window.addEventListener("offline",connectionLabel);connectionLabel();
   var startupGeneration=authGeneration;if(quick.available()){el("vault-create").hidden=true;el("vault-login").hidden=true;el("new-source").hidden=true;el("auto-entry-status").hidden=false;quick.open().then(function(next){if(startupGeneration!==authGeneration)return;if(!next){showEntry();return;}try{next.server=D.base(next.server);if(!next.user||!next.password)throw new Error();connect(next,false,"",true);}catch(error){showEntry();status("Não foi possível abrir o acesso salvo. Conecte sua lista novamente.");}},function(){if(startupGeneration!==authGeneration)return;showEntry();status("A TV não conseguiu abrir a sessão protegida. Seu acesso antigo foi mantido.");});}
   window.nexReady = true; var styled = parseInt(window.getComputedStyle(document.querySelector(".brand")).fontSize, 10) >= 30;
-  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.11":"Versão 0.4.11 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
+  el("initialization-status").setAttribute("data-initialization",styled?"ready":"style-failure");el("initialization-status").textContent = styled?"NEX TV · Versão 0.4.12":"Versão 0.4.12 · Estilo não carregado"; focus(vault.exists()&&vault.available()?el("vault-password"):el("source-focus"));
 }());

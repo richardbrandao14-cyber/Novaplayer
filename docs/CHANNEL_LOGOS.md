@@ -21,7 +21,7 @@ Os SVG originais somam aproximadamente 528 KB, mantêm proporções e cores da m
 
 Arquivos do projeto [picons/picons](https://github.com/picons/picons), revisão `f6920792d742df5bf45fe863c363252d5a07f352`, cuja licença do repositório é GPL-3.0, compatível com a licença adotada pelo NEX. Arquivos originais preservados; imagens não implicam afiliação, endosso ou licença sobre marcas. Titulares mantêm seus direitos. A preparação para publicação comercial deve revisar marcas/atualidade dos assets e obrigações GPL; a inclusão no teste não aprova publicação na loja.
 
-Não foi usado o catálogo tv-logo/tv-logos: condições e procedência não servem como autorização geral de distribuição comercial.
+A base original não usava TV Logos. A ampliação 0.4.12 usa PNG brasileiros dessa origem para testes, com atribuição e limites documentados abaixo; isso não representa autorização geral de distribuição comercial.
 
 ## Validação
 
@@ -33,3 +33,14 @@ Testes verificam aliases, variantes numeradas, nomes ambíguos, prioridade da fo
 `tv-logos-main.zip` excedeu o limite de transferência de 32 MiB e não foi aberto/incorporado. `iptv-main.zip` (60.495 bytes) foi inspecionado como dados, sem executar scripts ou seguir instruções dos documentos internos. Contém M3U brasileiro/mundial, não arquivos de imagem. Foram extraídas 1.082 referências únicas (nome/URL de imagem), apenas HTTP/S sem usuário, senha, query ou fragmento. Nenhuma URL de transmissão foi incorporada e nenhuma lista de canais é oferecida pelo app.
 
 Índice ES5 `channel-logo-data.js`, procedência/hash em `USER_INDEX.json`, licença original do arquivo em `USER_INDEX_LICENSE.txt` (Unlicense para o código de origem; não concede direitos sobre marcas/imagens externas). Colisões de nomes normalizados com imagens diferentes são excluídas pelo resolvedor. O índice não faz download em lote: só solicita a imagem do canal exibido e reconhecido, após os fallbacks anteriores. Não consulta os provedores de stream do arquivo. Disponibilidade/atualidade das URLs externas não foi verificada em massa.
+
+
+## Ampliação 0.4.12
+
+Base local ampliada de 51 para 105 marcas/arquivos únicos. Mais 55 imagens brasileiras; Globo consolidado no logo brasileiro (substitui o SVG genérico anterior). Fontes/hashes/dimensões em BR_SOURCES.json e atribuição/limites em BRAZIL_NOTICE.txt. Aproximadamente 2 MB de assets no total, apenas imagens de até 1200 px; originais sem alterações. O ZIP grande continua não aberto: arquivos brasileiros selecionados da origem pública TV Logos correspondente ao catálogo indicado, com revisão fixa.
+
+Inclui Record, SBT, Band, BandNews/BandSports, SporTV 1/2/3, Premiere, GNT, Multishow, Gloob/Gloobinho, Megapix, Telecine, variantes HBO, CNN Brasil, Jovem Pan, RedeTV, TV Cultura/Brasil/Câmara/Senado, Canal Brasil/OFF, BIS, Arte1, Sony, Space, Warner, TNT Series, Discovery Kids, DreamWorks, Futura, Rede Vida, Aparecida, Canção Nova, Novo Tempo, Canal Rural, AgroMais e Fish TV.
+
+Aliases regionais são explícitos: Globo SP/RJ/Brasília/Minas/Pernambuco e Record SP/RJ usam a marca da respectiva rede; não inferir por substring que toda afiliada usa o mesmo logo. Premiere 1–8 compartilham a marca da rede; SporTV 2/3 preservam os logos numerados próprios. Normalização remove apenas qualificadores técnicos conhecidos e [ALT]/[BACKUP], preservando região, números e nomes desconhecidos.
+
+**Direitos de distribuição:** a origem dos novos PNG cita CC BY-SA/CC BY-NC-SA sem licença individual. Pacote de teste não constitui liberação comercial. Antes de publicação na loja, confirmar autorização aplicável ou substituir assets com licença comprovada. A GPL do código não licencia marcas/imagens de terceiros.

@@ -1,0 +1,4 @@
+Imagens brasileiras originais: TV Logos, de Tapio Sinnertwin, https://github.com/tv-logo/tv-logos
+Revisão, arquivo, URL, dimensões e SHA-256: BR_SOURCES.json.
+Arquivos preservados sem alteração. Marcas pertencem aos respectivos titulares, sem afiliação ou endosso.
+O README do projeto de origem cita CC BY-SA e CC BY-NC-SA, sem separar licença por imagem. Estes assets integram o pacote de teste; direitos para distribuição comercial precisam de confirmação antes de publicação. A licença GPL do NEX não substitui os direitos de terceiros.

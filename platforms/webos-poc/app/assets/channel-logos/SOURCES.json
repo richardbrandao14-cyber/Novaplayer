@@ -5,12 +5,6 @@
   "trademarks": "As marcas pertencem aos respectivos titulares; não há afiliação ou endosso.",
   "files": [
     {
-      "file": "tvglobo.default.svg",
-      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/tvglobo.default.svg",
-      "sha256": "09a0dbbeb44bb6fc67ed64d00c0d2edcf53d9015160339b124f30eb7e73f22cc",
-      "bytes": 2281
-    },
-    {
       "file": "globonews.default.svg",
       "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/globonews.default.svg",
       "sha256": "316dd86379b4c428943a77336d197b8321ba476a74c5798b31b6f00678c060bd",

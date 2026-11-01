@@ -314,6 +314,9 @@ async function main() {
     await page.setViewportSize({width:1920,height:1080});
 
 
+    await page.locator("#catalog-list button").first().focus();await page.keyboard.press("ArrowDown");await page.keyboard.press("Enter");
+    assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-content-id")),"3");await page.waitForTimeout(300);assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-content-id")),"3");assert.equal(await page.locator("#player").evaluate(node=>node.classList.contains("is-preview")),true);
+    await page.keyboard.press("ArrowUp");await page.keyboard.press("Enter");assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-content-id")),"2");
     await page.locator("#catalog-list button").first().focus();await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"expand-player");
     await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"play-pause");await page.keyboard.press("Enter");assert.equal(await page.locator("video").evaluate(v=>v.paused),true);await page.keyboard.press("Enter");
     await page.keyboard.press("ArrowDown");assert.equal(await page.evaluate(()=>document.activeElement.id),"player-favorite");await page.keyboard.press("Enter");
@@ -514,6 +517,9 @@ async function main() {
     await page.evaluate(async()=>{await window.NexVault.browser().save({server:"http://fixture.example",user:"fixture-user",password:"fixture-password",apiQuery:[["token","fixture-token"]]},"legacy fixture unlock");await window.NexQuickAccess().forget();});
     await page.reload();await page.locator("#vault-password").fill("wrong password");await page.locator("#vault-unlock").click();await page.waitForFunction(()=>document.getElementById("vault-status").textContent.includes("incorreta"));await page.locator("#vault-password").fill("legacy fixture unlock");await page.locator("#vault-unlock").click();await page.locator('#profile-list button[data-profile="default"]').waitFor();assert.equal(await page.locator("#session-notice").isVisible(),true);assert.equal(await page.evaluate(()=>!!localStorage.getItem("nex.vault.v1")),true);await page.evaluate(()=>sessionStorage.setItem("nex.qa.key-blocked","0"));await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.id),"session-retry");await page.keyboard.press("Enter");await page.waitForFunction(()=>document.getElementById("session-notice").hidden);assert.equal(await page.evaluate(()=>localStorage.getItem("nex.vault.v1")),null);await page.reload();await page.locator('#profile-list button[data-profile="default"]').waitFor();assert.equal(await page.locator("#vault-login").isVisible(),false);await page.locator('#profile-list button[data-profile="default"]').click();await page.waitForFunction(()=>document.getElementById("page-count").textContent.includes("50000"));
     console.log("QA: legacy password vault migrated to automatic access");
+    const requestsBeforeRefresh=requests.filter(action=>action==="get_vod_streams").length;
+    await page.locator("#lib-source").focus();await page.keyboard.press("ArrowUp");assert.equal(await page.evaluate(()=>document.activeElement.id),"lib-refresh");await page.keyboard.press("Enter");
+    await page.waitForFunction(()=>document.querySelectorAll("#home-movies .home-card").length>0);assert.equal(requests.filter(action=>action==="get_vod_streams").length,requestsBeforeRefresh+1);
     await page.locator("#lib-source").click();
     await page.locator("#clear-source").click();
     assert.equal(await page.locator("#username").inputValue(),"");

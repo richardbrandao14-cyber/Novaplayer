@@ -1,4 +1,6 @@
-Logos originais: projeto PICONS, https://github.com/picons/picons
+SVG originais: projeto PICONS, https://github.com/picons/picons
 Revisão e hashes por arquivo: SOURCES.json.
 Licença do repositório de origem: GNU GPL versão 3; texto integral em LICENSE na raiz do aplicativo e do repositório NEX.
 Marcas e identidade visual pertencem aos respectivos titulares. Não há afiliação ou endosso. Arquivos preservados sem alterações.
+
+PNG brasileiros: ver BR_SOURCES.json e BRAZIL_NOTICE.txt. A licença de cada origem não se estende automaticamente aos arquivos das outras origens.

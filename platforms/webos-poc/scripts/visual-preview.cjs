@@ -44,10 +44,17 @@ async function main(){
     await page.locator('#lib-home').click();await page.locator('#home-movies .home-card').first().waitFor();await page.locator('#feature-open').focus();await page.evaluate(()=>document.getElementById('library').scrollTop=0);await page.waitForTimeout(250);await capture('inicio');
     await page.locator('#load-series').click();await page.locator('#catalog-list button').first().focus();await page.keyboard.press('Enter');await page.locator('#episode-list button').first().waitFor();await page.locator('#season-options button').first().focus();await page.evaluate(()=>document.getElementById('library').scrollTop=0);await page.waitForTimeout(250);await capture('serie');
     await page.locator('#load-live').click();await page.locator('#catalog-list button').first().focus();await page.keyboard.press('Enter');await page.waitForFunction(()=>document.querySelector('#player video').videoWidth>0);await page.locator('#load-live').focus();await page.evaluate(()=>document.getElementById('library').scrollTop=0);await page.waitForFunction(()=>{const imgs=Array.from(document.querySelectorAll('#catalog-list .channel-logo img'));return imgs.length===5&&imgs.every(img=>img.naturalWidth>0);});await page.locator('#lib-status').evaluate(node=>node.textContent='PRÉVIA · Logos reais locais · Vídeo sintético de teste, sem transmissão dos canais');await page.locator('#catalog-list button').first().focus();await page.waitForTimeout(240);await capture('tv');
+    await page.locator('#catalog-list button').first().focus();await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');await page.waitForTimeout(250);
+    if(await page.evaluate(()=>document.activeElement.getAttribute('data-content-id'))!=='2')throw new Error('Foco voltou ao canal anterior');
     const sources=JSON.parse(fs.readFileSync(path.join(root,'assets/channel-logos/SOURCES.json'),'utf8'));
-    await page.evaluate(async files=>{await Promise.all(files.map(file=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>img.naturalWidth>0?resolve():reject(new Error('Logo vazio'));img.onerror=()=>reject(new Error('Logo não decodificou: '+file));img.src='assets/channel-logos/'+file;})));},sources.files.map(file=>file.file));
+    await page.evaluate(async files=>{await Promise.all(files.map(file=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>img.naturalWidth>0?resolve():reject(new Error('Logo vazio'));img.onerror=()=>reject(new Error('Logo não decodificou: '+file));img.src='assets/channel-logos/'+file;})));},sources.files.concat(JSON.parse(fs.readFileSync(path.join(root,'assets/channel-logos/BR_SOURCES.json'),'utf8')).files).map(file=>file.file));
+    await page.locator('#lib-source').focus();await page.keyboard.press('ArrowUp');
+    if(await page.evaluate(()=>document.activeElement.id)!=='lib-refresh')throw new Error('Atualização fora do caminho do controle');
+    await page.keyboard.press('Enter');await page.locator('#home-movies .home-card').first().waitFor();
+    await page.setViewportSize({width:1280,height:720});await page.locator('#lib-refresh').focus();
+    const refreshBounds=await page.locator('#lib-refresh').boundingBox();if(refreshBounds.y<0||refreshBounds.y+refreshBounds.height>720)throw new Error('Atualizar fora da tela 720p');
     if(errors.length)throw new Error(errors.join('\n'));
-    console.log('PASS: quatro capturas da interface real e 51 logos locais decodificados; fonte fictícia interceptada, sem API externa.');
+    console.log('PASS: quatro capturas da interface real e 105 logos locais decodificados; fonte fictícia interceptada, sem API externa.');
   }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
 }
 main().catch(error=>{console.error(error);server.close();process.exitCode=1;});

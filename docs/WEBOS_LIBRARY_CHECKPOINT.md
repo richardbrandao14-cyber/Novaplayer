@@ -154,3 +154,12 @@ Vídeo enviado de 36,5 s analisado por amostras: recorte de pôsteres, cabeçalh
 Consulta ao conectar já existia; nova revalidação periódica30min é serial e independente das requisições interativas. Limites30s/32MB, snapshots de itens+categorias, retry5min, bloqueio/deferimento durante vídeo/perfis/app oculto e cancelamento por geração ao trocar fonte. Cache atualizado sem limpar a tela; aplicação na seção preserva filtro/página quando possível e restaura foco pelo ID. Estado em Configurações. Sem promessa de tempo exato durante reprodução contínua.
 
 Transições190ms por opacity/transform, scroll210ms, cancelamento/reduced-motion. Sem blur ou animação de vídeo nativo. Testes unitários com relógio controlado cobrem TTL, snapshot, retry, adiamento e resposta tardia. Resultado físico/FPS LG pendente; gravação de celular não mede diretamente FPS do aplicativo.
+
+
+## 0.4.12 — Atalho de atualização
+
+Atualizar catálogo acima de Minha fonte no rodapé lateral; ícone SVG original, rótulo acessível, ícone sozinho ao recolher. Compartilha o handler de Configurações e a atualização automática permanece. Verificação por controle: Minha fonte → ↑ → Atualizar → OK; consulta nova e Home carregada, com geometria também em 1280×720. Teste LG físico pendente.
+
+0.4.12 também corrige foco ao trocar canal: play() encerrava a sessão anterior e stop() restaurava returnFocus antigo; preview não focava o novo alvo depois. Agora o início de prévia live confirma foco no alvo novo. Regressão: primeiro→segundo→primeiro por setas/OK, mantendo foco após início da mídia e preservando segundo OK/fullscreen.
+
+Logos 0.4.12: banco de 105 arquivos locais (mais55 brasileiros e consolidação do Globo), nomes regionais explícitos e [ALT]/codec normalizados. Não prometer cobertura universal. Dados/procedência/condições de distribuição comercial em CHANNEL_LOGOS.md; PNG originais não implicam licença comercial geral.

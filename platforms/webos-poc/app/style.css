@@ -385,3 +385,5 @@ button>.nex-icon{display:inline-block;width:24px;height:24px;vertical-align:midd
   #library.live-library .tv-card:focus,#library.live-library.with-preview .tv-card:focus { transform:none!important; }
 }
 #library.nav-auto.tv-category-menu:not(.nav-compact) .tv-main { margin-left:94px; width:calc(100% - 94px); }
+#library .tv-sidebar .nav-bottom #lib-refresh { font-size:17px; }
+#library .tv-sidebar .nav-bottom #lib-refresh .icon-label { white-space:nowrap; }
