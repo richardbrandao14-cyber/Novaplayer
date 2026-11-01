@@ -1,0 +1,2 @@
+# Preserve third-party originals and hashes, including original indentation/CRLF.
+*.svg -text whitespace=cr-at-eol,-blank-at-eol,-space-before-tab
