@@ -135,3 +135,13 @@ Validação 0.4.8: 36 testes/contratos, ESLint, regressão completa Chromium, bu
 Menu principal agrupado na área central esquerda, perfil separado no topo, sem borda/painel de vidro: sombra em degradê e seleção por contraste suave. Mantidos os dois níveis de categorias e os contratos do controle. Capas com transição de transform em 160 ms e elevação moderada; movimento reduzido desativa o efeito. Sem bibliotecas, imagens ou serviços adicionais. Não anima o plano de vídeo nativo.
 
 Referência enviada: https://www.youtube.com/watch?v=cWaC_7_fwQs — acesso negado pelo proxy (403); decisões baseadas na descrição do proprietário, sem alegar análise do vídeo. Testes de geometria/foco e capturas usam catálogo sintético identificado. Navegação, mídia e fluidez na LG física continuam dependentes de teste do proprietário; não há medição que sustente promessa de 120 Hz ou melhoria de FPS.
+
+
+## 0.4.10 — Vidro fumê e logos reais locais
+
+Superfícies grafite translúcidas, banner integrado, grupos da Home e episódios com profundidade discreta. Blur de 8 px apenas em pequenos botões suportados; fallback sem blur, sem animar vídeo nativo. TV com linhas mais compactas e foco legível.
+
+Banco inicial de 51 logos reais com aliases conservadores e fallback após ausência/erro da imagem da fonte. Imagens originais, revisão, hashes e limites em docs/CHANNEL_LOGOS.md. Prévias da UI real por scripts/visual-preview.cjs com catálogo fictício e mídia sintética claramente identificados, sem consulta a provedor real. Testes locais e resultado físico LG são estados distintos.
+
+
+Índice adicional de logos: `iptv-main.zip` do proprietário forneceu 1.082 referências nome/imagem, sem streams. Exatas após normalização, colisões ignoradas; local primeiro, remoto sob demanda quando exibido. Referências remotas dependem da rede; não equivalem a logos offline. `tv-logos-main.zip` não foi aberto (limite de 32 MiB). Detalhes em docs/CHANNEL_LOGOS.md.

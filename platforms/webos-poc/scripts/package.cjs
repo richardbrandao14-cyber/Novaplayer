@@ -12,7 +12,7 @@ fs.mkdirSync(app, { recursive: true });
 fs.cpSync(path.join(root, "app"), app, { recursive: true });
 fs.copyFileSync(path.join(repo, "LICENSE"), path.join(app, "LICENSE"));
 // Recursos locais embutidos: o runtime da TV não precisa resolvê-los pela origem file:.
-const inlineFiles = ["boot.js", "domain.js", "storage.js", "vault.js", "quick-access.js", "playback.js", "tmdb.js", "navigation.js", "profiles.js", "artwork.js", "home.js", "library.js", "resume.js", "icons.js", "app.js"];
+const inlineFiles = ["boot.js", "domain.js", "storage.js", "vault.js", "quick-access.js", "playback.js", "tmdb.js", "navigation.js", "profiles.js", "artwork.js", "home.js", "channel-logo-data.js", "channel-logos.js", "library.js", "resume.js", "icons.js", "app.js"];
 const css = fs
   .readFileSync(path.join(app, "style.css"), "utf8")
   .replace(/\r\n?/g, "\n");

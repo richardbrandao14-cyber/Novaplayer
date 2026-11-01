@@ -1,0 +1,314 @@
+{
+  "repository": "https://github.com/picons/picons",
+  "revision": "f6920792d742df5bf45fe863c363252d5a07f352",
+  "repositoryLicense": "GPL-3.0",
+  "trademarks": "As marcas pertencem aos respectivos titulares; não há afiliação ou endosso.",
+  "files": [
+    {
+      "file": "tvglobo.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/tvglobo.default.svg",
+      "sha256": "09a0dbbeb44bb6fc67ed64d00c0d2edcf53d9015160339b124f30eb7e73f22cc",
+      "bytes": 2281
+    },
+    {
+      "file": "globonews.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/globonews.default.svg",
+      "sha256": "316dd86379b4c428943a77336d197b8321ba476a74c5798b31b6f00678c060bd",
+      "bytes": 5350
+    },
+    {
+      "file": "recordnews.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/recordnews.default.svg",
+      "sha256": "2cd6e22beb9cdfa642b75fb5c451984847dad795eb58426c472feff7b762001a",
+      "bytes": 2783
+    },
+    {
+      "file": "hbo.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/hbo.light.svg",
+      "sha256": "c16fd6faa61e4f5b185cc9f4f1af853e0bd67bcba09e0ef09afecb398f862ddd",
+      "bytes": 2965
+    },
+    {
+      "file": "hbo2.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/hbo2.light.svg",
+      "sha256": "d987a530076a008f49d5bf4b3046be960e75ea61f645f4eb7d07c7651e64a35f",
+      "bytes": 4898
+    },
+    {
+      "file": "espn.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/espn.default.svg",
+      "sha256": "c0ef0d3f81779cfd047d2172343341ef29c4557fd539b202a6a3f423ecb57735",
+      "bytes": 1779
+    },
+    {
+      "file": "espn2.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/espn2.default.svg",
+      "sha256": "a7d44a5c5862813566f0e0ec4688a5b944f1ab16d07c365990709bb2579965cc",
+      "bytes": 1514
+    },
+    {
+      "file": "espn3.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/espn3.default.svg",
+      "sha256": "efca6e0119ac69c4720f3de3ca00372588b1a3ea982d7c3b85ac35bd437fd666",
+      "bytes": 1814
+    },
+    {
+      "file": "espn4.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/espn4.default.svg",
+      "sha256": "a4f87776931c57d0d783fe3a95a89875b0bc18d266e01b3a4c0a41e0e9a621b8",
+      "bytes": 1515
+    },
+    {
+      "file": "espn5.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/espn5.default.svg",
+      "sha256": "613437dca33af1f5f6a2b0cf15e30badc0cfa2c7d09865a7b05e68cb74e4190d",
+      "bytes": 1694
+    },
+    {
+      "file": "axn.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/axn.light.svg",
+      "sha256": "5b614f131c7ba6097191d653ecf7ede9f9e052af2af1944a7b3445de484cb75d",
+      "bytes": 3893
+    },
+    {
+      "file": "cartoonnetwork.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/cartoonnetwork.light.svg",
+      "sha256": "ddd568c9324c2c60df597a2ebff4456ddd6d4a3fb9fd2cc608f0827ce07fb0a8",
+      "bytes": 5520
+    },
+    {
+      "file": "cinemax.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/cinemax.light.svg",
+      "sha256": "1b0da01d5516e7eeb2d5a8d4951662696f0c0ec94a76fc9a43f9520d776f0dce",
+      "bytes": 1459
+    },
+    {
+      "file": "discoverychannel.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/discoverychannel.light.svg",
+      "sha256": "b27af20ebe077e35690d3c285a9cba22f813a19aedb2b69e59294da4dbe1f341",
+      "bytes": 132247
+    },
+    {
+      "file": "animalplanet.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/animalplanet.default.svg",
+      "sha256": "c7124c8346c9f937787b16b5bfb572269dfec1694a4b32ba422f3f715b47856c",
+      "bytes": 4068
+    },
+    {
+      "file": "nationalgeographic.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/nationalgeographic.default.svg",
+      "sha256": "b6169f5dd7d52b6b866b489f4150619d5e0c499d5bee5e08d5958a49d19684a3",
+      "bytes": 4266
+    },
+    {
+      "file": "tnt.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/tnt.default.svg",
+      "sha256": "cd61a3b47054012d4f47147b6b9de72fe9a35ae024dd8e9e1ad9314c91b904bb",
+      "bytes": 711
+    },
+    {
+      "file": "tcm.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/tcm.light.svg",
+      "sha256": "dc71bdf7019eb2fce18c7153bc0f411d486af94a1c8d4e0f5dbf1741dda6ec6c",
+      "bytes": 7598
+    },
+    {
+      "file": "universalchannel.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/universalchannel.light.svg",
+      "sha256": "f66ed180956099d7aea7b75c9e2adf784d875dad540c2d5eda8c42f75a13c4f6",
+      "bytes": 94066
+    },
+    {
+      "file": "universaltv.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/universaltv.default.svg",
+      "sha256": "32d5cfdf27990318c5b21d8cdd922e7a166ad7d66ea1aa5d7561abef426471fd",
+      "bytes": 2606
+    },
+    {
+      "file": "paramountnetwork.white.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/paramountnetwork.white.svg",
+      "sha256": "47404c783dfa9e66efadfb19da245d31a784ebe5b3f28391189b6437978ae33b",
+      "bytes": 7980
+    },
+    {
+      "file": "paramountchannel.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/paramountchannel.default.svg",
+      "sha256": "f45dabf4c134db1b1ec31a4fd9f20bce0aa191fbdad48bfcbd0571809e274bfc",
+      "bytes": 12535
+    },
+    {
+      "file": "mtv.white.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/mtv.white.svg",
+      "sha256": "3badf37d719d5be2d4b64f2fec8f1133782ae8c52e1ff95f9bef5cf1cbfe6f47",
+      "bytes": 2265
+    },
+    {
+      "file": "boomerang.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/boomerang.default.svg",
+      "sha256": "0c7f856270ea4dde830793404172f2d00641516245333b4ff22b01e83f2cf0be",
+      "bytes": 6551
+    },
+    {
+      "file": "cartoonito.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/cartoonito.light.svg",
+      "sha256": "7e906785b6866499e97139e8da66ae1fdfaa8d4717fa74dd956d69e4c3de61bd",
+      "bytes": 9759
+    },
+    {
+      "file": "discoveryturbo.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/discoveryturbo.light.svg",
+      "sha256": "ea424ffb28f82ed0c96908f9c2217da8fc836c2a93cea86b37dd0a647c3be773",
+      "bytes": 4294
+    },
+    {
+      "file": "investigationdiscovery.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/investigationdiscovery.light.svg",
+      "sha256": "36a099b2bd96d89bb5268b74f1671cca318e2da590462ec84b51bd68c01dc934",
+      "bytes": 20738
+    },
+    {
+      "file": "history.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/history.light.svg",
+      "sha256": "ac6ac6a4700e86eb3418cf5bd0b53cad88e06fcd27b1ef376aa65404d404d521",
+      "bytes": 11785
+    },
+    {
+      "file": "history2.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/history2.light.svg",
+      "sha256": "2b390772cc828b9bb1a7ab7443877c26687a5b4269dde9b2721dca44bb26d7fa",
+      "bytes": 19858
+    },
+    {
+      "file": "tlc.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/tlc.default.svg",
+      "sha256": "f8d61c5c47fc81f966956c16081b4c78a34db506ba4eb49168348736f8c3d4fa",
+      "bytes": 1530
+    },
+    {
+      "file": "ae.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/ae.light.svg",
+      "sha256": "c402de3cb47a573dfb2cea7831b18c5adb80b759d057f2872f3bd9fc4666f6c2",
+      "bytes": 2554
+    },
+    {
+      "file": "amc.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/amc.light.svg",
+      "sha256": "2f3c81d51814e22156702970cd72fe9ccf637272d6e8ebae2705ae0eed80bed8",
+      "bytes": 1029
+    },
+    {
+      "file": "cnn.white.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/cnn.white.svg",
+      "sha256": "c4dc7e0e700759bb69ef858d3f75ee468d2ac354d28f7e548a8f92e9d6cdd213",
+      "bytes": 2245
+    },
+    {
+      "file": "bbcnews.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/bbcnews.light.svg",
+      "sha256": "7bda1a3131e2190a70109ac3623ce98bdfafa53d25e841c6b725a892070c4bb2",
+      "bytes": 3014
+    },
+    {
+      "file": "bbcearth.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/bbcearth.light.svg",
+      "sha256": "fadd003613920c22ab07e0893f55ddb584779382f2b76f002bcd6a859a6867f5",
+      "bytes": 3706
+    },
+    {
+      "file": "bloomberg.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/bloomberg.light.svg",
+      "sha256": "d0ca28493b2d64cdb4e62c79e917d440b06e98ec1c082578b82996c90ef0a7e4",
+      "bytes": 11238
+    },
+    {
+      "file": "deutschewelle.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/deutschewelle.light.svg",
+      "sha256": "9e70996b76fbdde0e678b12a033820f2f071963b5a5f4b0135f0b74b206b88ce",
+      "bytes": 831
+    },
+    {
+      "file": "france24.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/france24.default.svg",
+      "sha256": "dfcf49121b0640fe565159e47198c36b4b6644d27a321473f96ce399d0ca66bd",
+      "bytes": 5397
+    },
+    {
+      "file": "euronews.white.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/euronews.white.svg",
+      "sha256": "7595b528efc3ff6dcb069404ed9191af2723ef621e2ab03ce173457bf4d8bae4",
+      "bytes": 4810
+    },
+    {
+      "file": "aljazeera.white.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/aljazeera.white.svg",
+      "sha256": "d8362a694a5e575ba3427e067ab6575020e4247ad27f56957826135ca2e94d71",
+      "bytes": 6367
+    },
+    {
+      "file": "foodnetwork.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/foodnetwork.default.svg",
+      "sha256": "ca1ae9d469aafe7440b8c0c7e2a8e87defa21d6f0e67c5f27e1eb5cba1204965",
+      "bytes": 13414
+    },
+    {
+      "file": "travelchannel.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/travelchannel.default.svg",
+      "sha256": "e1c7962ef9b0b8b3436692a75d3a0ac288141ac0aad33c5b6d4f5498ebd279b8",
+      "bytes": 6710
+    },
+    {
+      "file": "fashiontv.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/fashiontv.default.svg",
+      "sha256": "c03df42c90c10c116ee0d0614f9bd84245075958e1e49d57864e417b71450cdc",
+      "bytes": 9517
+    },
+    {
+      "file": "syfy.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/syfy.light.svg",
+      "sha256": "94db34036a43adcd19dcbbc5c09cc96d2c4923539beaad3ea9ecac64a0b26636",
+      "bytes": 1086
+    },
+    {
+      "file": "espn6.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/espn6.default.svg",
+      "sha256": "52760009ae8c9bbeb2d55988d5a115f3acc6da204643c55b1057aedaf1c34730",
+      "bytes": 1739
+    },
+    {
+      "file": "foxnews.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/foxnews.default.svg",
+      "sha256": "20b4da876e9c492cde5459a1ef2af59d1ae3c0797dd201b64f010f08f187f649",
+      "bytes": 26788
+    },
+    {
+      "file": "foxsports.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/foxsports.default.svg",
+      "sha256": "56639648fa6d5df64c12db34bd6f752ddcb3f7b289f14eb72298829feef776e0",
+      "bytes": 26321
+    },
+    {
+      "file": "foxsports2.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/foxsports2.light.svg",
+      "sha256": "d31edc29a3baf517d6456e6625ac7c7603670863c81bee1c8b67506240c99147",
+      "bytes": 2904
+    },
+    {
+      "file": "eurosport1.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/eurosport1.light.svg",
+      "sha256": "2e3b452abd1ceec4a8eebc2a3ec81b542e527244b3a6b2900fde020887a142e5",
+      "bytes": 13288
+    },
+    {
+      "file": "eurosport2.light.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/eurosport2.light.svg",
+      "sha256": "a2ba3a531753e9ccf1c1c7b0870ebe0ef699ced947429e896172ca4cacb081f0",
+      "bytes": 14038
+    },
+    {
+      "file": "tv5monde.default.svg",
+      "source": "https://raw.githubusercontent.com/picons/picons/f6920792d742df5bf45fe863c363252d5a07f352/build-source/logos/tv5monde.default.svg",
+      "sha256": "d57d4cd415de73c9b8e48fc99ef43f17a5976d1db6336f22051415fde1dcac1e",
+      "bytes": 2819
+    }
+  ]
+}

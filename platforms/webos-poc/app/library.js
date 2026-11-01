@@ -13,12 +13,12 @@
     function id(item, kind) { return String(kind === "series" ? item.series_id : item.stream_id); }
     function key(item, kind) { return kind === "series" && item.series_id === undefined ? "episode:" + String(item.id) : kind + ":" + id(item, kind); }
     function image(parent, url, className) {
-      parent.textContent="";var urls=(Array.isArray(url)?url:[url]).map(function(value){return D.imageUrl(value,hooks.config()&&hooks.config().server);}).filter(function(value,index,all){return value&&all.indexOf(value)===index;}).slice(0,8);if(!urls.length)return;
+      parent.textContent="";var urls=(Array.isArray(url)?url:[url]).map(function(value){return window.NexChannelLogos.isLocal(value)?value:D.imageUrl(value,hooks.config()&&hooks.config().server);}).filter(function(value,index,all){return value&&all.indexOf(value)===index;}).slice(0,8);if(!urls.length){if(parent.classList.contains("channel-logo")){var empty=document.createElement("span");empty.className="art-placeholder channel-initials";empty.textContent=window.NexChannelLogos.initials(parent.getAttribute("data-channel-name"));parent.appendChild(empty);}return;}
       var img=document.createElement("img"),index=0;img.alt="";img.className=className||"";img.referrerPolicy="no-referrer";
-      img.addEventListener("error",function(){if(!img.parentNode)return;if(++index<urls.length){img.removeAttribute("src");window.NexArtwork.add(img,urls[index],parent.classList.contains("episode-image")?5:0);return;}parent.removeChild(img);var fallback=document.createElement("span");fallback.className="art-placeholder";fallback.textContent=parent.classList.contains("episode-image")?"Imagem indisponível":parent.classList.contains("channel-logo")?"TV":"nex.";parent.appendChild(fallback);});
+      img.addEventListener("error",function(){if(!img.parentNode)return;if(++index<urls.length){img.removeAttribute("src");window.NexArtwork.add(img,urls[index],parent.classList.contains("episode-image")?5:0);return;}parent.removeChild(img);var fallback=document.createElement("span");fallback.className="art-placeholder";fallback.textContent=parent.classList.contains("episode-image")?"Imagem indisponível":parent.classList.contains("channel-logo")?window.NexChannelLogos.initials(parent.getAttribute("data-channel-name")):"nex.";parent.appendChild(fallback);});
       parent.appendChild(img);window.NexArtwork.add(img,urls[0],parent.id==="feature-art"||parent.id==="detail-art"?10:parent.classList.contains("episode-image")?5:0);
     }
-    function art(item) { return item.stream_icon || item.logo || item["tvg-logo"] || item.cover || item.movie_image || ""; }
+    function art(item,kind) { if(kind==="live")return window.NexChannelLogos.candidates(item);return item.stream_icon || item.logo || item["tvg-logo"] || item.cover || item.movie_image || ""; }
     function cancel() { if(home)home.cancel(); resumePending=null;el("resume-choice").hidden=true;hooks.cancel(); filterGeneration++; detailGeneration++; clearTimeout(filterTimer); clearTimeout(queryTimer);clearTimeout(featureTimer); }
     function message(value) { text("lib-status", value);el("catalog-retry").hidden=true; }
     function failed(value){if(state)state.error=value;message(value);el("catalog-retry").hidden=!state||!!detail||!!state.settings;}
@@ -102,7 +102,7 @@
       items.slice(state.page * pageSize, (state.page + 1) * pageSize).forEach(function (item) {
         var kind = item._nexKind || state.kind, button = document.createElement("button"), picture = document.createElement("span"), title = document.createElement("strong"), subtitle = document.createElement("small");
         button.className = "tv-card"+(kind==="live"&&key(item,kind)===liveKey?" selected-channel":""); button.setAttribute("data-nav", ""); button.setAttribute("data-content-id", id(item, kind));
-        picture.className = kind==="live"?"card-picture channel-logo":"card-picture"; image(picture, art(item));
+        picture.className = kind==="live"?"card-picture channel-logo":"card-picture"; if(kind==="live")picture.setAttribute("data-channel-name",name(item)); image(picture, art(item,kind));
         if (!picture.firstChild) { var placeholder = document.createElement("span"); placeholder.className = "art-placeholder"; placeholder.textContent = kind === "live" ? "◉" : "nex."; picture.appendChild(placeholder); }
         var saved=hooks.shelf.progress()[key(item,kind)];
         if(saved&&saved.position>0&&saved.duration>0){var bar=document.createElement("span");bar.className="saved-progress";var fill=document.createElement("progress");fill.max=saved.duration;fill.value=saved.position;bar.appendChild(fill);picture.appendChild(bar);}

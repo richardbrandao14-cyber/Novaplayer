@@ -30,6 +30,9 @@ jobs:
       - run: node platforms/webos-poc/scripts/smoke.cjs
         env:
           NOVA_CHROMIUM_PATH: ''
+      - run: node platforms/webos-poc/scripts/visual-preview.cjs
+        env:
+          NOVA_CHROMIUM_PATH: ''
       - run: npm --prefix platforms/webos-poc run build:tv
       - run: npm --prefix platforms/webos-poc run check:package
       - run: cp platforms/webos-poc/README.md platforms/webos-poc/dist/LEIA-ME.md

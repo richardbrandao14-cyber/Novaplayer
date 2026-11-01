@@ -1,0 +1,11 @@
+{
+  "archive": "iptv-main.zip",
+  "sha256": "99a7a2b0afd1c6e6b3c2843f03d4dbe6014663b063f8b1290a9aa5d3aed835c7",
+  "sourceFiles": [
+    "lists/brazil.m3u",
+    "lists/world.m3u"
+  ],
+  "imageReferences": 1082,
+  "remoteImages": true,
+  "rules": "Somente HTTP/S sem credenciais, query ou fragmento. Sem URLs de transmissão. Nomes ambíguos com imagens diferentes são ignorados pelo resolvedor."
+}

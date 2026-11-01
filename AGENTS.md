@@ -2,6 +2,8 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.10: vidro fumê sem blur de tela/vídeo; banco inicial de 51 logos reais locais (picons GPL, fontes/hashes preservados). Logo da fonte primeiro, fallback local só por alias exato normalizado; preservar números/regiões, nunca usar marca parecida para canal desconhecido. Logos em contain, cores originais. Prévias usam fonte fictícia interceptada e não fazem parte do IPK. Ver docs/CHANNEL_LOGOS.md.
+
 - webOS 0.4.9: menu centralizado à esquerda com sombra em degradê, sem bordas ou blur de painel; perfil no topo e seleção por contraste, preservar categorias/foco por controle. Movimento curto por transform, reduced-motion; não animar vídeo nativo nem prometer FPS sem medir na LG. Referência YouTube bloqueada, não alegar ter assistido.
 
 - webOS 0.4.8: filmes/séries usam o mesmo segundo painel de categorias da TV, preservando principais e navegação principal→categorias→conteúdo; hierarquia só por parent_id/parent_category_id reais. Botões do player com texto em uma linha e altura controlada. Sessão V2: CryptoKey não exportável em registro separado no mesmo IndexedDB, IV/cifra em arrays compatíveis; transação atômica, fechar/reabrir DB e decifrar para confirmar antes de apagar cofre antigo. Ler V1 sem perda. Não mostrar senha enquanto sessão salva é carregada; falha de persistência deve ter aviso e retry acessível por controle nos perfis. Checkbox de manter sessão ligado inicialmente; nunca fallback para credenciais/chave bruta no localStorage. Persistência após reiniciar a LG exige teste físico.
@@ -65,3 +67,6 @@
 - Não prometer desempenho, suporte universal a provedores/codecs ou timeshift sem validação.
 - Após cada fase informar: implementação, testes executados, testes não realizados, erros, riscos e próxima etapa. Não iniciar a próxima fase automaticamente.
 - Na configuração cloud, mudanças em código e manifests pertencem à tarefa de desenvolvimento autorizada, não ao onboarding. Salvar instruções de instalação/startup somente quando existirem passos reais testados.
+
+
+Índice adicional de logos: `iptv-main.zip` do proprietário forneceu 1.082 referências nome/imagem, sem streams. Exatas após normalização, colisões ignoradas; local primeiro, remoto sob demanda quando exibido. Referências remotas dependem da rede; não equivalem a logos offline. `tv-logos-main.zip` não foi aberto (limite de 32 MiB). Detalhes em docs/CHANNEL_LOGOS.md.
