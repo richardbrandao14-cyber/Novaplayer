@@ -128,3 +128,10 @@ Relato físico: senha exigida em toda abertura. A causa específica na LG não f
 Inicialização oculta a senha enquanto tenta o acesso salvo; erros de fonte restauram formulário, sem bloqueio de recuperação. Manter sessão vem marcado por padrão. Falha de gravação deixa aviso nos perfis e retry acessível por ↑/OK; preserva cofre antigo. Não promete persistência física se o firmware recusar esse armazenamento. Teste Chromium simula DataCloneError da chave, confirma aviso/cofre preservado, retry, remoção do cofre só após sucesso e nova recarga sem senha, além de leitura do formato anterior. Instalação e reabertura na LG permanecem pendentes.
 
 Validação 0.4.8: 36 testes/contratos, ESLint, regressão completa Chromium, build TV leve e check:package aprovados. Browser verifica principais visíveis junto do submenu de filmes, texto nowrap em favorito/next, leitura de sessão V1, gravação V2 validada, falha DataCloneError preservando cofre, retry por ↑/OK e reload direto sem senha. Hardware LG continua pendente.
+
+
+## 0.4.9 — Navegação visual para TV (01/11/2026)
+
+Menu principal agrupado na área central esquerda, perfil separado no topo, sem borda/painel de vidro: sombra em degradê e seleção por contraste suave. Mantidos os dois níveis de categorias e os contratos do controle. Capas com transição de transform em 160 ms e elevação moderada; movimento reduzido desativa o efeito. Sem bibliotecas, imagens ou serviços adicionais. Não anima o plano de vídeo nativo.
+
+Referência enviada: https://www.youtube.com/watch?v=cWaC_7_fwQs — acesso negado pelo proxy (403); decisões baseadas na descrição do proprietário, sem alegar análise do vídeo. Testes de geometria/foco e capturas usam catálogo sintético identificado. Navegação, mídia e fluidez na LG física continuam dependentes de teste do proprietário; não há medição que sustente promessa de 120 Hz ou melhoria de FPS.

@@ -2,6 +2,8 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.9: menu centralizado à esquerda com sombra em degradê, sem bordas ou blur de painel; perfil no topo e seleção por contraste, preservar categorias/foco por controle. Movimento curto por transform, reduced-motion; não animar vídeo nativo nem prometer FPS sem medir na LG. Referência YouTube bloqueada, não alegar ter assistido.
+
 - webOS 0.4.8: filmes/séries usam o mesmo segundo painel de categorias da TV, preservando principais e navegação principal→categorias→conteúdo; hierarquia só por parent_id/parent_category_id reais. Botões do player com texto em uma linha e altura controlada. Sessão V2: CryptoKey não exportável em registro separado no mesmo IndexedDB, IV/cifra em arrays compatíveis; transação atômica, fechar/reabrir DB e decifrar para confirmar antes de apagar cofre antigo. Ler V1 sem perda. Não mostrar senha enquanto sessão salva é carregada; falha de persistência deve ter aviso e retry acessível por controle nos perfis. Checkbox de manter sessão ligado inicialmente; nunca fallback para credenciais/chave bruta no localStorage. Persistência após reiniciar a LG exige teste físico.
 
 

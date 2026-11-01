@@ -197,6 +197,12 @@ async function main() {
     await page.locator("#lib-category option[value=\"2\"]").waitFor({state:"attached"});
     await page.locator("#catalog-list button").first().focus();await page.keyboard.press("ArrowLeft");
     await page.locator('#sidebar-category-list button[data-category-id=""]').focus();assert.equal(await page.locator("#load-movies").isVisible(),true);assert.equal(await page.locator("#load-series").isVisible(),true);assert.equal(await page.locator("#library").evaluate(node=>node.classList.contains("tv-category-menu")),true);
+    await page.waitForTimeout(180);
+    const sideStyle=await page.locator(".tv-sidebar").evaluate(node=>{const s=getComputedStyle(node);return {border:s.borderRightWidth,shadow:s.boxShadow,background:s.backgroundImage};});
+    assert.equal(sideStyle.border,"0px");assert.equal(sideStyle.shadow,"none");assert.match(sideStyle.background,/linear-gradient/);
+    const mainNavigation=await page.locator('.tv-sidebar>nav').boundingBox();
+    assert.ok(mainNavigation.y>150 && mainNavigation.y+mainNavigation.height<1000,"Opções principais ficam no corpo central do menu, sem sair da tela");
+    await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-sidebar-review.png")});
     await page.keyboard.press("ArrowDown");
     assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-category-id")),"1");
     await page.keyboard.press("ArrowDown");

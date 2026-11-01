@@ -1,10 +1,10 @@
-# NEX para LG webOS — 0.4.8
+# NEX para LG webOS — 0.4.9
 
 Edição de uso com fontes Xtream autorizadas. Alvo do proprietário: LG UM7510PSB, firmware 05.40.97. Canais reais e amostras locais de vídeo/áudio foram confirmados na versão anterior; esta atualização ainda precisa da confirmação física. Não fornece conteúdo, assinatura ou transcodificação.
 
 ## Atualizar sem programar
 
-Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.8_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
+Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.9_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
 
 O pacote leve não inclui vídeos HD/4K/HLS nem ferramentas de teste visíveis. Se o Dev Manager mostrar **Timeout**, feche NEX, confirme que Developer Mode/Key Server estão ativos na TV e reconecte o gerenciador antes de tentar instalar este IPK menor. Não desinstale para tentar resolver: isso pode apagar o histórico. Timeout também pode vir da conexão; tamanho menor não garante resolver sua causa.
 
@@ -36,7 +36,7 @@ Favoritos e progresso armazenam IDs/posições, não URLs, capas, senhas ou dado
 4. Deixe computador e TV na mesma rede. Anote o endereço IP e a passphrase mostrados pela TV **apenas para inserir no seu computador**. Não os publique nem envie senhas no chat.
 5. No Windows, obtenha o **webOS Dev Manager** em https://github.com/webosbrew/dev-manager-desktop/releases/latest. É uma ferramenta comunitária, não um aplicativo oficial da LG. Escolha o instalador Windows x64 `.msi`.
 6. Abra o gerenciador e adicione a TV em **Developer Mode**, usando o IP e a passphrase da tela da TV. O perfil de desenvolvimento normalmente usa SSH porta 9922; o gerenciador orienta os campos.
-7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.8_all.ipk` deste pacote.
+7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.9_all.ipk` deste pacote.
 8. Abra **NEX** pela TV ou pelo gerenciador. Não abra o `.ipk` como executável Windows e não use pen drive como instalador genérico.
 
 Developer Mode é temporário e exige atenção à sessão/renovação indicada na própria TV. Não fixamos duração em horas: conferir o comportamento atual no aparelho. Não é o fluxo de distribuição comercial definitiva.
@@ -147,3 +147,8 @@ Página de série identifica o episódio em andamento do perfil, inclusive ao en
 Desempenho: índice de progresso por série elimina varreduras repetidas. Sem reflow forçado para reanimar o banner e sem filtros/sombras grandes nas capas; transições/rolagem de 140 ms, respeitando movimento reduzido. Imagens remotas da biblioteca usam até três requisições simultâneas, priorizam o destaque e carregam apenas a área visível com pequena margem; itens removidos são cancelados. Relatório e comando reproduzível em docs/WEBOS_PERFORMANCE.md. Medidas Node/Chromium não garantem desempenho na LG.
 
 Testes incluem migração sem alteração do perfil original, limite/renomeação/isolamento de cinco perfis, persistência após reconectar, erro de gravação sem troca de perfil, Continue por tipo e retomada/reinício real de episódio em mídia sintética. Nenhum usuário de teste é distribuído no pacote. A validação física da versão 0.4.8 permanece pendente.
+
+
+### 0.4.9 — Menu flutuante para TV
+
+Navegação principal centralizada à esquerda, perfil no topo, sombra em degradê sem moldura, foco por contraste e movimentos curtos. Categorias e funções do controle preservadas. Sem dependências ou mídia novas; respeita movimento reduzido. Fluidez na LG ainda requer teste físico.

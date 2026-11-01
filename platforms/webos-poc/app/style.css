@@ -158,3 +158,65 @@ button>.nex-icon{display:inline-block;width:24px;height:24px;vertical-align:midd
 @media(max-width:1500px){#player #player-favorite,#player #next-episode,#player #show-epg{height:46px;min-height:46px;font-size:16px;padding:8px 12px}}
 #library.tv-category-menu.nav-auto:not(.nav-compact) .tv-main{margin-left:500px;width:calc(100% - 500px)}
 @media(max-width:1500px){#library.tv-category-menu.nav-auto:not(.nav-compact) .tv-main{margin-left:420px;width:calc(100% - 420px)}}
+
+/* NEX TV: navegação suspensa sobre sombra, sem moldura de painel. */
+#library .tv-sidebar {
+  background:linear-gradient(90deg,rgba(8,9,12,.98) 0%,rgba(8,9,12,.94) 65%,rgba(8,9,12,.72) 88%,rgba(8,9,12,0) 100%);
+  border:0;
+  box-shadow:none;
+  padding-right:28px;
+}
+#library .tv-sidebar>.brand { margin-bottom:18px; }
+#library .tv-sidebar>.profile-entry { border:0; padding-bottom:8px; margin-bottom:12px; }
+#library .tv-sidebar>.search-launch { margin-top:auto; margin-bottom:10px; border:0; background:transparent; box-shadow:none; }
+#library .tv-sidebar>nav { flex:0 1 auto; padding:8px; margin:-8px; }
+#library .tv-sidebar>.nav-bottom { padding-top:20px; margin-top:auto; }
+#library .tv-sidebar nav button,
+#library .tv-sidebar>.search-launch,
+#library .tv-sidebar .nav-bottom button {
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  color:#aeb0b8;
+  transition:color 150ms ease-out,background-color 150ms ease-out,transform 150ms ease-out;
+}
+#library .tv-sidebar nav button.selected { background:transparent; color:#ff8a32; }
+#library .tv-sidebar button:focus,
+#library .tv-sidebar nav button.selected:focus {
+  outline:none;
+  box-shadow:none;
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  transform:translateX(3px);
+  border-radius:14px;
+}
+#library .tv-sidebar button:focus svg { stroke:currentColor; }
+#library.tv-category-menu #sidebar-categories {
+  background:transparent;
+  border:0;
+  border-radius:0;
+  padding-left:12px;
+}
+#library #sidebar-category-list button { border:0; border-radius:12px; }
+#library #sidebar-main { background:transparent; color:#b8bac1; border:0; white-space:nowrap; font-size:17px; padding-left:12px; padding-right:12px; }
+#library #sidebar-title { color:#f4f1ec; font-size:21px; }
+#library.nav-compact .tv-sidebar { padding-right:14px; }
+#library.nav-compact .tv-sidebar>.search-launch { min-height:52px; }
+#library.nav-compact .tv-sidebar nav button { min-height:52px; margin-top:3px; margin-bottom:3px; }
+#library .tv-sidebar>.search-launch { -webkit-backdrop-filter:none; backdrop-filter:none; }
+#library .tv-card,#library .episode-card,#library .home-card,#library .recent-series-card {
+  transition:transform 160ms cubic-bezier(.2,.7,.3,1),background-color 150ms;
+}
+#library .home-card:focus,#library .recent-series-card:focus { transform:translateY(-5px) scale(1.025); }
+#library .tv-card:focus { transform:translateY(-5px) scale(1.025); }
+#library.live-library .tv-card:focus { transform:translateX(3px) scale(1.01); }
+@media(max-height:760px) {
+  #library .tv-sidebar { padding-top:16px; padding-bottom:16px; }
+  #library .tv-sidebar>.brand { margin-bottom:8px; }
+  #library .tv-sidebar>.profile-entry { margin-bottom:4px; }
+  #library .tv-sidebar nav button { margin-top:2px; margin-bottom:2px; }
+  #library .tv-sidebar>.nav-bottom { padding-top:8px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #library .tv-sidebar button,#library .tv-card,#library .episode-card,#library .home-card,#library .recent-series-card { transition:none!important; transform:none!important; }
+}
