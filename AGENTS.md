@@ -2,6 +2,8 @@
 
 ## Autoridade e escopo
 
+- webOS 0.4.11: revalidar caches a cada 30 min em fila XHR independente/serial (30s/32MB); reprodução/app oculto/perfis/consulta interativa adiam. Snapshot por seção só após itens+categorias válidos; erros preservam cache e retry5min; troca de fonte cancela respostas antigas. Não roubar foco ao aplicar dados. Menu filmes/séries sobrepõe sem redimensionar grade; capas 2:3 com contain; banner preserva pôster inteiro quando não há backdrop e ações trazem título à tela. TV: foco laranja forte distinto do canal em reprodução. Movimento190ms/rolagem210ms com reduced-motion, sem animar vídeo. Validar testes e aparelho separadamente.
+
 - webOS 0.4.10: vidro fumê sem blur de tela/vídeo; banco inicial de 51 logos reais locais (picons GPL, fontes/hashes preservados). Logo da fonte primeiro, fallback local só por alias exato normalizado; preservar números/regiões, nunca usar marca parecida para canal desconhecido. Logos em contain, cores originais. Prévias usam fonte fictícia interceptada e não fazem parte do IPK. Ver docs/CHANNEL_LOGOS.md.
 
 - webOS 0.4.9: menu centralizado à esquerda com sombra em degradê, sem bordas ou blur de painel; perfil no topo e seleção por contraste, preservar categorias/foco por controle. Movimento curto por transform, reduced-motion; não animar vídeo nativo nem prometer FPS sem medir na LG. Referência YouTube bloqueada, não alegar ter assistido.

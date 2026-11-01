@@ -203,6 +203,12 @@ async function main() {
     const mainNavigation=await page.locator('.tv-sidebar>nav').boundingBox();
     assert.ok(mainNavigation.y>150 && mainNavigation.y+mainNavigation.height<1000,"Opções principais ficam no corpo central do menu, sem sair da tela");
     await page.screenshot({path:path.resolve(__dirname,"../dist/nex-webos-sidebar-review.png")});
+    const expandedGrid=await page.locator("#catalog-list").boundingBox();
+    await page.locator("#catalog-list button").first().focus();await page.waitForTimeout(220);
+    const compactGrid=await page.locator("#catalog-list").boundingBox();assert.ok(Math.abs(expandedGrid.x-compactGrid.x)<1&&Math.abs(expandedGrid.width-compactGrid.width)<1,"Menu não redimensiona a grade");
+    const posterStyle=await page.locator("#catalog-list .card-picture img").first().evaluate(node=>getComputedStyle(node).objectFit);assert.equal(posterStyle,"contain");
+    await page.keyboard.press("ArrowLeft");
+    await page.locator('#sidebar-category-list button[data-category-id=""]').focus();
     await page.keyboard.press("ArrowDown");
     assert.equal(await page.evaluate(()=>document.activeElement.getAttribute("data-category-id")),"1");
     await page.keyboard.press("ArrowDown");
@@ -288,7 +294,7 @@ async function main() {
     await page.locator("#load-live").click();
     await page.locator("#catalog-retry").waitFor({state:"visible"});
     assert.match(await page.locator("#lib-status").textContent(),/HTTP 503/);
-    await page.locator("#catalog-retry").click();
+    await page.keyboard.press("ArrowRight");if(await page.evaluate(()=>document.activeElement.id)!=="catalog-retry")await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"catalog-retry");await page.keyboard.press("Enter");
     await page.getByRole("button",{name:/Canal sintético/}).waitFor();
     await page.waitForFunction(()=>{const logos=document.querySelectorAll("#catalog-list .channel-logo img");return logos.length===3&&Array.from(logos).every(img=>img.complete&&img.naturalWidth>0);});
     assert.deepEqual(await page.locator("#catalog-list .channel-logo img").evaluateAll(images=>images.map(img=>img.src)),["https://fixture.example/logos/one.svg","http://fixture.example/logos/two.svg","http://fixture.example/logos/three.svg"]);
@@ -360,7 +366,7 @@ async function main() {
     await page.locator("#load-series").click();
     await page.locator("#catalog-retry").waitFor({state:"visible"});
     assert.match(await page.locator("#lib-status").textContent(),/zero registros/);
-    await page.locator("#catalog-retry").click();
+    await page.keyboard.press("ArrowRight");if(await page.evaluate(()=>document.activeElement.id)!=="catalog-retry")await page.keyboard.press("ArrowRight");assert.equal(await page.evaluate(()=>document.activeElement.id),"catalog-retry");await page.keyboard.press("Enter");
     await page.locator("#catalog-list button").first().waitFor();
     await page.locator("#catalog-list button").first().focus();await page.keyboard.press("Enter");
     await page.waitForFunction(() => document.querySelectorAll("#episode-list button").length===24);
@@ -424,6 +430,11 @@ async function main() {
     await page.setViewportSize({width:1920,height:1080});
     assert.equal(requests.filter(action=>action==="get_vod_streams").length,1,"Navegar não deve duplicar catálogos grandes na memória");
     assert.ok(requests.includes("get_vod_info") && requests.includes("get_series_info"));
+    await page.locator("#feature-open").focus();await page.waitForTimeout(260);
+    assert.ok((await page.locator("#feature-title").boundingBox()).y>=0,"Ações do banner trazem título de volta à tela");
+    await page.emulateMedia({reducedMotion:"reduce"});
+    assert.equal(await page.evaluate(()=>{const node=document.getElementById("browse-view");window.NexNavigation.cancel();window.NexNavigation.reveal(node);return node.getAnimations().length;}),0);
+    await page.emulateMedia({reducedMotion:"no-preference"});
     console.log("QA: screenshots");
     const storedBeforeReload=await page.evaluate(()=>JSON.stringify(localStorage));
     for(const secret of ["fixture-user","fixture-password","fixture-token","http://fixture.example","unlock fixture secret"])assert.ok(!storedBeforeReload.includes(secret));

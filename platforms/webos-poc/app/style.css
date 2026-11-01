@@ -340,3 +340,48 @@ button>.nex-icon{display:inline-block;width:24px;height:24px;vertical-align:midd
 #library .channel-logo img { width:100%; height:100%; object-fit:contain; padding:8px; }
 #library .home-channel .channel-logo img { padding:22px; }
 #library .channel-logo .art-placeholder { color:#dddfe5; font-size:21px; font-weight:600; letter-spacing:1px; }
+
+/* Mudança de seção suave, sem filtros e sem envolver o plano do player. */
+.nex-view-enter { animation:nex-view-reveal 190ms cubic-bezier(.2,.7,.3,1); }
+@keyframes nex-view-reveal { from { opacity:.65; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+#library .tv-card,#library .episode-card,#library .home-card,#library .recent-series-card { transition:transform 190ms cubic-bezier(.2,.7,.3,1),background-color 160ms; }
+@media(prefers-reduced-motion:reduce) { .nex-view-enter { animation:none!important; } }
+
+/* Menu sobreposto: a grade não muda de largura ao abrir/recolher a navegação. */
+#library.nav-auto .tv-main,#library.nav-auto.tv-category-menu .tv-main,#library.nav-auto.tv-category-menu.nav-compact .tv-main { margin-left:94px; width:calc(100% - 94px); }
+#library.nav-auto .tv-top,#library.nav-auto.tv-category-menu .tv-top { left:136px; }
+#library.nav-auto:not(.nav-compact) .tv-sidebar .icon-label { animation:nex-menu-enter 150ms ease-out; }
+/* Proporção do pôster: quadro 2:3 sem cortar a imagem fornecida. */
+#library .tv-card .card-picture:not(.channel-logo),#library .home-card .card-picture:not(.channel-logo),#library .recent-series-card .card-picture {
+  height:auto; min-height:0; position:relative;
+}
+#library .tv-card .card-picture:not(.channel-logo):before,#library .home-card .card-picture:not(.channel-logo):before,#library .recent-series-card .card-picture:before { content:""; display:block; padding-top:150%; }
+#library .card-picture:not(.channel-logo)>img { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; }
+#library .card-picture:not(.channel-logo)>.art-placeholder { position:absolute; top:0; left:0; width:100%; height:100%; }
+#feature-art img { position:absolute; top:0; left:0; transition:opacity 180ms; }
+#feature-art .banner-pending { opacity:0; }
+#feature-art .banner-ready { opacity:1; }
+#library #feature-art.poster-backdrop img { left:auto; right:5%; top:4%; width:36%; height:88%; object-fit:contain; object-position:center; }
+#library .tv-feature h1 { min-height:116px; max-height:116px; overflow:hidden; }
+#library .feature-copy>p:not(.eyebrow):not(.feature-hint) { min-height:64px; max-height:64px; }
+/* Foco de TV claramente diferente do canal que está em reprodução. */
+#library.live-library .tv-card.selected-channel { background:rgba(255,134,50,.13); border-color:rgba(255,153,80,.55); }
+#library.live-library .tv-card:focus,#library.live-library.with-preview .tv-card:focus {
+  background:#ff872e; color:#17100c; outline:none; box-shadow:inset 0 0 0 3px #ffd5b5; transform:translateX(3px);
+}
+#library.live-library .tv-card:focus strong,#library.live-library .tv-card:focus small { color:#17100c; }
+#library.live-library .tv-card:focus .card-picture { background:rgba(17,20,26,.8); border-color:transparent; }
+@media(max-width:1500px) {
+  #library.nav-auto .tv-top,#library.nav-auto.tv-category-menu .tv-top { left:124px; }
+  #library .tv-feature h1 { min-height:100px; max-height:100px; }
+}
+@media(max-height:800px) {
+  #library .tv-feature h1 { min-height:88px; max-height:88px; }
+  #library .feature-copy>p:not(.eyebrow):not(.feature-hint) { min-height:54px; max-height:54px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #feature-art img { transition:none!important; }
+  #library.nav-auto:not(.nav-compact) .tv-sidebar .icon-label { animation:none!important; }
+  #library.live-library .tv-card:focus,#library.live-library.with-preview .tv-card:focus { transform:none!important; }
+}
+#library.nav-auto.tv-category-menu:not(.nav-compact) .tv-main { margin-left:94px; width:calc(100% - 94px); }

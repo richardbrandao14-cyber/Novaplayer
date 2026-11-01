@@ -145,3 +145,12 @@ Banco inicial de 51 logos reais com aliases conservadores e fallback após ausê
 
 
 Índice adicional de logos: `iptv-main.zip` do proprietário forneceu 1.082 referências nome/imagem, sem streams. Exatas após normalização, colisões ignoradas; local primeiro, remoto sob demanda quando exibido. Referências remotas dependem da rede; não equivalem a logos offline. `tv-logos-main.zip` não foi aberto (limite de 32 MiB). Detalhes em docs/CHANNEL_LOGOS.md.
+
+
+## 0.4.11 — Revalidação e navegação após vídeo do proprietário
+
+Vídeo enviado de 36,5 s analisado por amostras: recorte de pôsteres, cabeçalho do banner fora da área ao focar ações e baixo contraste do foco de TV. Não comprova uma causa única de queda de FPS. A expansão de menu alterava a largura da grade no CSS; agora filmes/séries usam menu sobreposto e grade de largura constante. Teste geométrico compara largura/posição nos dois estados. Quadros de pôster 2:3 com contain; banner usa pôster inteiro à direita na ausência de backdrop, carregamento de imagem em estágio e área de texto de altura estável. Ações reposicionam banner completo. TV sob foco tem laranja forte, reprodução mantém estado discreto separado.
+
+Consulta ao conectar já existia; nova revalidação periódica30min é serial e independente das requisições interativas. Limites30s/32MB, snapshots de itens+categorias, retry5min, bloqueio/deferimento durante vídeo/perfis/app oculto e cancelamento por geração ao trocar fonte. Cache atualizado sem limpar a tela; aplicação na seção preserva filtro/página quando possível e restaura foco pelo ID. Estado em Configurações. Sem promessa de tempo exato durante reprodução contínua.
+
+Transições190ms por opacity/transform, scroll210ms, cancelamento/reduced-motion. Sem blur ou animação de vídeo nativo. Testes unitários com relógio controlado cobrem TTL, snapshot, retry, adiamento e resposta tardia. Resultado físico/FPS LG pendente; gravação de celular não mede diretamente FPS do aplicativo.

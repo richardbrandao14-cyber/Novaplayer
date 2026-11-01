@@ -1,10 +1,10 @@
-# NEX para LG webOS — 0.4.10
+# NEX para LG webOS — 0.4.11
 
 Edição de uso com fontes Xtream autorizadas. Alvo do proprietário: LG UM7510PSB, firmware 05.40.97. Canais reais e amostras locais de vídeo/áudio foram confirmados na versão anterior; esta atualização ainda precisa da confirmação física. Não fornece conteúdo, assinatura ou transcodificação.
 
 ## Atualizar sem programar
 
-Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.10_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
+Feche NEX na TV, extraia o ZIP e instale `com.nex.poc.webos_0.4.11_all.ipk` pelo **Install** do Dev Manager. Abra **NEX**. Não desinstale a cada atualização: uma atualização do mesmo ID preserva o armazenamento local; desinstalar pode removê-lo.
 
 O pacote leve não inclui vídeos HD/4K/HLS nem ferramentas de teste visíveis. Se o Dev Manager mostrar **Timeout**, feche NEX, confirme que Developer Mode/Key Server estão ativos na TV e reconecte o gerenciador antes de tentar instalar este IPK menor. Não desinstale para tentar resolver: isso pode apagar o histórico. Timeout também pode vir da conexão; tamanho menor não garante resolver sua causa.
 
@@ -36,7 +36,7 @@ Favoritos e progresso armazenam IDs/posições, não URLs, capas, senhas ou dado
 4. Deixe computador e TV na mesma rede. Anote o endereço IP e a passphrase mostrados pela TV **apenas para inserir no seu computador**. Não os publique nem envie senhas no chat.
 5. No Windows, obtenha o **webOS Dev Manager** em https://github.com/webosbrew/dev-manager-desktop/releases/latest. É uma ferramenta comunitária, não um aplicativo oficial da LG. Escolha o instalador Windows x64 `.msi`.
 6. Abra o gerenciador e adicione a TV em **Developer Mode**, usando o IP e a passphrase da tela da TV. O perfil de desenvolvimento normalmente usa SSH porta 9922; o gerenciador orienta os campos.
-7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.10_all.ipk` deste pacote.
+7. Na área de aplicativos do gerenciador, use **Install** e selecione `com.nex.poc.webos_0.4.11_all.ipk` deste pacote.
 8. Abra **NEX** pela TV ou pelo gerenciador. Não abra o `.ipk` como executável Windows e não use pen drive como instalador genérico.
 
 Developer Mode é temporário e exige atenção à sessão/renovação indicada na própria TV. Não fixamos duração em horas: conferir o comportamento atual no aparelho. Não é o fluxo de distribuição comercial definitiva.
@@ -162,3 +162,12 @@ Prévias demonstrativas: depois de build, `NOVA_CHROMIUM_PATH=/usr/bin/chromium 
 
 
 Índice adicional de logos: `iptv-main.zip` do proprietário forneceu 1.082 referências nome/imagem, sem streams. Exatas após normalização, colisões ignoradas; local primeiro, remoto sob demanda quando exibido. Referências remotas dependem da rede; não equivalem a logos offline. `tv-logos-main.zip` não foi aberto (limite de 32 MiB). Detalhes em docs/CHANNEL_LOGOS.md.
+
+
+### 0.4.11 — Atualização automática e movimento
+
+Ao conectar, catálogos são consultados normalmente. Durante o uso, seções em cache são revalidadas a cada 30 minutos, em fila separada e serial. Reprodução, app oculto, perfis e consultas interativas adiam a atualização. Falhas preservam o snapshot e fazem nova tentativa após cinco minutos, sem limpar a tela. Troca de fonte cancela respostas antigas. Sem foco roubado: grade em uso conserva snapshot até voltar ao menu/seção; atualização pode levar mais que 30 minutos quando a reprodução tem prioridade. Status em Configurações.
+
+Seções entram com opacidade/translate leves em 190 ms; rolagem por foco em 210 ms e cancelamento a cada novo destino. Movimento reduzido desativa os efeitos. Nenhum blur/transform no player. Fluidez/FPS na LG física ainda não medidos.
+
+Correções guiadas pelo vídeo: pôster completo (2:3/contain), fallback do banner com pôster em proporção original, ações do banner trazem título à vista, grade com largura constante ao recolher/expandir menu e foco laranja evidente na TV. Capturas usam somente amostras fictícias.
