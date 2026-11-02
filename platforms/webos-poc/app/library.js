@@ -56,7 +56,7 @@
     }
     function parentCategory(value){var entry=state.categories.filter(function(c){return String(c.category_id)===value;})[0];var parent=entry&&String(entry.parent_id||entry.parent_category_id||"");return parent&&parent!=="0"?parent:"";}
     function mother(){return el(state&&state.home?"lib-home":state&&state.favorites?"lib-favorites":state&&state.continuing?"lib-continue":state&&state.watchlist?"lib-watchlist":state&&state.kind==="live"?"load-live":state&&state.kind==="series"?"load-series":"load-movies");}
-    function compact(value){el("library").classList.toggle("nav-auto",!!state&&state.kind!=="live"&&!state.settings);el("library").classList.toggle("nav-compact",!!value&&!!state&&state.kind!=="live"&&!state.settings);}
+    function compact(value){var wasCompact=el("library").classList.contains("nav-compact");el("library").classList.toggle("nav-auto",!!state&&state.kind!=="live"&&!state.settings);el("library").classList.toggle("nav-compact",!!value&&!!state&&state.kind!=="live"&&!state.settings);if(wasCompact!==el("library").classList.contains("nav-compact"))window.NexNavigation.invalidate();}
     document.querySelector(".tv-sidebar").addEventListener("mouseenter",function(){compact(false);});
     document.querySelector(".tv-sidebar").addEventListener("mouseleave",function(){compact(true);});
     document.addEventListener("focusin",function(event){if(el("library").hidden||!el("profiles-view").hidden)return;compact(!document.querySelector(".tv-sidebar").contains(event.target));if(state&&document.querySelector(".tv-sidebar").contains(event.target))applyCatalogUpdate(state.kind);});
@@ -469,13 +469,7 @@
         if(code===37&&active.tagName!=="INPUT"){if(state&&el("sidebar-categories").contains(active))focus(mother());return true;}
       }
       if(active&&(active.classList.contains("tv-card")||active.classList.contains("episode-card"))){
-        var list=active.parentElement,gridButtons=list.querySelectorAll("button"),rows=[],row=[],top=null,currentRow=0,currentColumn=0;
-        for(var j=0;j<gridButtons.length;j++){
-          if(top!==null&&Math.abs(gridButtons[j].offsetTop-top)>10){rows.push(row);row=[];}
-          if(!row.length)top=gridButtons[j].offsetTop;
-          row.push(gridButtons[j]);if(gridButtons[j]===active){currentRow=rows.length;currentColumn=row.length-1;}
-        }
-        if(row.length)rows.push(row);
+        var list=active.parentElement,rows=window.NexNavigation.rows(list),currentRow=active._nexGridRow||0,currentColumn=active._nexGridColumn||0;
         if(code===38||code===40){
           var targetRow=rows[currentRow+(code===40?1:-1)];
           if(targetRow){focus(targetRow[Math.min(currentColumn,targetRow.length-1)]);return true;}

@@ -387,3 +387,22 @@ button>.nex-icon{display:inline-block;width:24px;height:24px;vertical-align:midd
 #library.nav-auto.tv-category-menu:not(.nav-compact) .tv-main { margin-left:94px; width:calc(100% - 94px); }
 #library .tv-sidebar .nav-bottom #lib-refresh { font-size:17px; }
 #library .tv-sidebar .nav-bottom #lib-refresh .icon-label { white-space:nowrap; }
+
+/* Menu: seção aberta em âmbar discreto; foco/ponteiro com laranja nítido. */
+#library .tv-sidebar nav button.selected,#library .tv-sidebar nav button[aria-current="page"] {
+  background:linear-gradient(110deg,rgba(255,135,46,.22),rgba(255,135,46,.08));
+  color:#ffb77e;
+  box-shadow:inset 3px 0 rgba(255,154,78,.8);
+}
+#library .tv-sidebar button:hover:not(:disabled) {
+  background:rgba(255,142,55,.30); color:#ffe1c9; box-shadow:inset 0 0 0 1px rgba(255,191,141,.5); transform:translateX(2px);
+}
+#library .tv-sidebar button:focus,#library .tv-sidebar button:focus:hover,#library .tv-sidebar nav button.selected:focus {
+  background:linear-gradient(110deg,#ff923e,#ff791f);
+  color:#211309;
+  outline:none;
+  box-shadow:inset 0 0 0 2px rgba(255,219,186,.8);
+  transform:translateX(2px);
+}
+#library .tv-sidebar button:focus svg,#library .tv-sidebar button:hover svg { stroke:currentColor; }
+@media(prefers-reduced-motion:reduce) { #library .tv-sidebar button:focus,#library .tv-sidebar button:hover:not(:disabled) { transform:none!important; } }
