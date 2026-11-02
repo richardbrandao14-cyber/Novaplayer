@@ -21,7 +21,9 @@
     "desktop:build": "tauri build --no-bundle",
     "rust:test": "cargo test --manifest-path src-tauri/Cargo.toml --locked",
     "rust:core": "cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --locked",
-    "rust:core:lint": "cargo clippy --manifest-path src-tauri/Cargo.toml --no-default-features --locked --all-targets -- -D warnings"
+    "rust:core:lint": "cargo clippy --manifest-path src-tauri/Cargo.toml --no-default-features --locked --all-targets -- -D warnings",
+    "webos:build": "npm --prefix platforms/webos-poc run build",
+    "webos:preview": "vite preview --outDir platforms/webos-poc/dist/app --host 127.0.0.1 --port 5174 --strictPort"
   },
   "dependencies": {
     "@tauri-apps/api": "2.12.4",

@@ -1,5 +1,11 @@
 # NEX
 
+## Continuar no Windows com Codex
+
+Código completo na branch **`work`**: [guia de clonagem, prévia webOS e execução desktop](docs/CONTINUAR_NO_WINDOWS.md). A branch inclui os trabalhos Windows e webOS que estavam pendentes na cloud. Sem merge em `main`.
+
+Prévia da edição LG: `npm ci`, `npm --prefix platforms/webos-poc ci --ignore-scripts`, `npm run webos:build`, `npm run webos:preview`. Abra http://127.0.0.1:5174. O restante desta página mantém o histórico dos marcos; links antigos não representam a revisão atual.
+
 ## Teste LG webOS
 
 A versão 0.1.0 foi reportada como não funcional na TV (tela preta e botões sem resposta). A revisão 0.1.1 embute estilo/scripts com hashes CSP, trata OK do controle explicitamente, inclui diagnóstico visível e amostra HD. A regressão passou no navegador; confirmação na LG ainda pendente. **[Baixar webOS 0.1.1 de teste](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40717793626/artifacts/12829516444)** · [CI](https://github.com/richardbrandao14-cyber/Novaplayer/actions/runs/40717793626). Feche o app antes de atualizar e instale o arquivo `com.nex.poc.webos_0.1.1_all.ipk`.
