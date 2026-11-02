@@ -241,6 +241,13 @@ impl Backend {
             .set_library(id, favorite, watchlist)
             .map_err(core_error)
     }
+    pub fn set_feedback(&self, id: &str, value: i8) -> Result<crate::core::models::LibraryState> {
+        self.db
+            .lock()
+            .map_err(|_| ServiceError::storage())?
+            .set_feedback(id, value)
+            .map_err(core_error)
+    }
     pub fn save_progress(
         &self,
         id: &str,

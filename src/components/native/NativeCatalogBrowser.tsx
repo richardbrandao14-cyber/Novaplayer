@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { previewNative, useContentPreview } from "../../state/useContentPreview";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   ArrowRight,
   ChevronLeft,
@@ -258,13 +259,15 @@ export function NativeCatalogBrowser({
   kind,
   title,
   collection,
+  filterBar,
 }: {
   kind?: CatalogKind;
   title: string;
   collection?: "favorites" | "watchlist" | "continue";
+  filterBar?: ReactNode;
 }) {
   if (!nativeAvailable()) return <DesktopRequired />;
-  return kind === "live" ? (
+  return kind === "live" && !collection ? (
     <LiveWorkspace />
   ) : (
     <MediaCatalog
@@ -272,6 +275,7 @@ export function NativeCatalogBrowser({
       kind={kind}
       title={title}
       collection={collection}
+      filterBar={filterBar}
     />
   );
 }
@@ -279,10 +283,12 @@ function MediaCatalog({
   kind,
   title,
   collection,
+  filterBar,
 }: {
   kind: CatalogKind | undefined;
   title: string;
   collection: "favorites" | "watchlist" | "continue" | undefined;
+  filterBar?: ReactNode;
 }) {
   const model = useBrowse(kind, collection);
   const open = useMediaNavigation((s) => s.open);
@@ -299,6 +305,7 @@ function MediaCatalog({
   return (
     <div className="media-browse-page">
       <SourceSearch model={model} title={title} />
+      {filterBar}
       {!model.contextual && <Categories model={model} />}
       {model.error && (
         <p role="alert" className="notice">
@@ -366,7 +373,8 @@ function MediaCatalog({
             <button
               className="cinema-poster"
               key={item.id}
-              onClick={() => choose(item)}
+              {...previewNative(item)}
+              onClick={() => { useContentPreview.getState().close(); choose(item); }}
               aria-label={`Ver detalhes de ${item.name || "registro sem nome"}`}
             >
               <div className="cinema-poster-image">
@@ -506,7 +514,8 @@ function LiveWorkspace() {
                 <div className="live-channel-entry" key={item.id}>
                   <button
                     className={`live-channel-row ${current?.id === item.id ? "active" : ""}`}
-                    onClick={() => choose(item)}
+                    {...previewNative(item)}
+              onClick={() => { useContentPreview.getState().close(); choose(item); }}
                     aria-label={`${current?.id === item.id ? "Ampliar" : "Prévia de"} ${item.name || "canal"}`}
                   >
                     <NativeArtwork

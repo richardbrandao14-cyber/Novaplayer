@@ -57,7 +57,7 @@ impl Database {
         let version: u32 = connection
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .map_err(db_error)?;
-        if version > 2 {
+        if version > 3 {
             return Err(CoreError::new(
                 "database_version",
                 "O banco foi criado por uma versão mais recente do aplicativo.",
@@ -72,6 +72,12 @@ impl Database {
         if version < 2 {
             let tx = connection.transaction().map_err(db_error)?;
             tx.execute_batch(include_str!("../../migrations/002_library.sql"))
+                .map_err(db_error)?;
+            tx.commit().map_err(db_error)?;
+        }
+        if version < 3 {
+            let tx = connection.transaction().map_err(db_error)?;
+            tx.execute_batch(include_str!("../../migrations/003_feedback.sql"))
                 .map_err(db_error)?;
             tx.commit().map_err(db_error)?;
         }
@@ -428,12 +434,18 @@ impl Database {
     }
     pub fn library_state(&self, id: &str) -> CoreResult<LibraryState> {
         self.media(id)?;
-        let (favorite, watchlist) = self
+        let (favorite, watchlist, feedback) = self
             .connection
             .query_row(
-                "SELECT favorite,watchlist FROM library_state WHERE media_id=?1",
+                "SELECT favorite,watchlist,feedback FROM library_state WHERE media_id=?1",
                 [id],
-                |r| Ok((r.get::<_, bool>(0)?, r.get::<_, bool>(1)?)),
+                |r| {
+                    Ok((
+                        r.get::<_, bool>(0)?,
+                        r.get::<_, bool>(1)?,
+                        r.get::<_, i8>(2)?,
+                    ))
+                },
             )
             .optional()
             .map_err(db_error)?
@@ -443,6 +455,7 @@ impl Database {
         Ok(LibraryState {
             favorite,
             watchlist,
+            feedback,
             position,
             duration,
             episode_id: if episode.is_empty() {
@@ -460,6 +473,20 @@ impl Database {
     ) -> CoreResult<LibraryState> {
         self.media(id)?;
         self.connection.execute("INSERT INTO library_state(media_id,favorite,watchlist)VALUES(?1,?2,?3)ON CONFLICT(media_id)DO UPDATE SET favorite=excluded.favorite,watchlist=excluded.watchlist",params![id,favorite,watchlist]).map_err(db_error)?;
+        self.library_state(id)
+    }
+    pub fn set_feedback(&self, id: &str, value: i8) -> CoreResult<LibraryState> {
+        if !matches!(value, -1..=1) {
+            return Err(CoreError::new(
+                "validation",
+                "Escolha uma avaliação válida.",
+            ));
+        }
+        self.media(id)?;
+        self.connection.execute(
+            "INSERT INTO library_state(media_id,feedback)VALUES(?1,?2)ON CONFLICT(media_id)DO UPDATE SET feedback=excluded.feedback",
+            params![id, value],
+        ).map_err(db_error)?;
         self.library_state(id)
     }
     pub fn save_progress(
@@ -644,6 +671,103 @@ mod tests {
             .unwrap();
         db
     }
+    #[test]
+    fn feedback_migrates_v2_preserves_library_and_survives_reopen_and_refresh() {
+        let path =
+            std::env::temp_dir().join(format!("nex-feedback-{}.sqlite", uuid::Uuid::new_v4()));
+        let id;
+        let mut movie = item("feedback-movie", "Filme avaliado");
+        movie.kind = "movie".into();
+        // Banco real no esquema 002, com favoritos e progresso anteriores.
+        {
+            let connection = Connection::open(&path).unwrap();
+            connection
+                .execute_batch(include_str!("../../migrations/001_catalog.sql"))
+                .unwrap();
+            connection
+                .execute_batch(include_str!("../../migrations/002_library.sql"))
+                .unwrap();
+            let mut old = Database { connection };
+            old.save_source("one", "Fonte", "xtream", b"sealed-fixture")
+                .unwrap();
+            old.replace_catalog(
+                "one",
+                std::slice::from_ref(&movie),
+                &FixtureProtector,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            id = old
+                .catalog(&CatalogQuery {
+                    limit: 1,
+                    ..Default::default()
+                })
+                .unwrap()
+                .items[0]
+                .id
+                .clone();
+            old.connection
+                .execute(
+                    "INSERT INTO library_state(media_id,favorite,watchlist)VALUES(?1,1,1)",
+                    [&id],
+                )
+                .unwrap();
+            old.save_progress(&id, None, 80.0, 3600.0).unwrap();
+        }
+        {
+            let db = Database::open(&path).unwrap();
+            let prior = db.library_state(&id).unwrap();
+            assert_eq!(prior.feedback, 0);
+            assert!(prior.favorite && prior.watchlist);
+            assert_eq!(prior.position, 80.0);
+            let liked = db.set_feedback(&id, 1).unwrap();
+            assert!(liked.favorite && liked.watchlist);
+            assert_eq!(liked.position, 80.0);
+            assert_eq!(liked.feedback, 1);
+            for invalid in [-128, -2, 2, 127] {
+                assert_eq!(
+                    db.set_feedback(&id, invalid).unwrap_err().code,
+                    "validation"
+                );
+            }
+            assert_eq!(db.library_state(&id).unwrap().feedback, 1);
+            assert!(db.set_feedback("missing-id", 1).is_err());
+            let unchanged = db.set_library(&id, false, true).unwrap();
+            assert_eq!(unchanged.feedback, 1);
+            assert!(!unchanged.favorite && unchanged.watchlist);
+        }
+        {
+            let mut db = Database::open(&path).unwrap();
+            assert_eq!(db.library_state(&id).unwrap().feedback, 1);
+            db.replace_catalog(
+                "one",
+                std::slice::from_ref(&movie),
+                &FixtureProtector,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+            assert_eq!(db.library_state(&id).unwrap().feedback, 1);
+            let disliked = db.set_feedback(&id, -1).unwrap();
+            assert_eq!(disliked.feedback, -1);
+            assert!(disliked.watchlist);
+            assert_eq!(disliked.position, 80.0);
+        }
+        {
+            let db = Database::open(&path).unwrap();
+            assert_eq!(db.library_state(&id).unwrap().feedback, -1);
+            assert_eq!(db.set_feedback(&id, 0).unwrap().feedback, 0);
+            assert!(db
+                .connection
+                .execute(
+                    "UPDATE library_state SET feedback=2 WHERE media_id=?1",
+                    [&id]
+                )
+                .is_err());
+            assert_eq!(db.library_state(&id).unwrap().feedback, 0);
+        }
+        let _ = std::fs::remove_file(path);
+    }
+
     #[test]
     fn library_migrates_existing_database_and_survives_refresh_and_reopen() {
         let path =

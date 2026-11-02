@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState } from "react";
-import { ArrowLeft, Check, Heart, Play, Plus, RotateCcw } from "lucide-react";
+import { ArrowLeft, Check, Heart, Play, Plus, RotateCcw, ThumbsUp, ThumbsDown } from "lucide-react";
 import { usePlaybackStore } from "../../state/usePlaybackStore";
 import { useLibraryRevision } from "../../state/useMediaNavigation";
 import type {
@@ -102,6 +102,14 @@ function DetailsPage({
       setSaving(false);
     }
   }
+  async function rate(value: -1 | 1) {
+    setSaving(true); setError("");
+    try {
+      setLibrary(await nativeApi.setFeedback(item.id, library.feedback === value ? 0 : value));
+      bump();
+    } catch (e) { setError(nativeError(e)); }
+    finally { setSaving(false); }
+  }
   const current = details?.find((s) => String(s.id ?? s.number) === season);
   const canResume =
     library.position >= 5 && library.duration - library.position > 15;
@@ -200,6 +208,12 @@ function DetailsPage({
                 <RotateCcw size={15} /> Assistir do início
               </button>
             )}
+          </div>
+          <div className="personal-feedback" role="group" aria-label="Sua avaliação">
+            <span>O que você achou?</span>
+            <button aria-label="Gostei" aria-pressed={library.feedback === 1} disabled={!libraryReady || saving} onClick={() => void rate(1)}><ThumbsUp size={17}/>Gostei</button>
+            <button aria-label="Não é para mim" aria-pressed={library.feedback === -1} disabled={!libraryReady || saving} onClick={() => void rate(-1)}><ThumbsDown size={17}/>Não é para mim</button>
+            <small>Sua opinião fica neste dispositivo.</small>
           </div>
           {canResume && (
             <div className="detail-resume">

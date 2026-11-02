@@ -5,8 +5,12 @@ interface AppState {
   page: PageId;
   collapsed: boolean;
   demo: boolean;
+  motionPreviews: boolean;
+  setMotionPreviews: (value: boolean) => void;
   search: string;
   favorites: string[];
+  feedback: Record<string, -1 | 0 | 1>;
+  rate: (id: string, value: -1 | 0 | 1) => void;
   historyIds: string[];
   sources: DemoSource[];
   notification: string;
@@ -26,8 +30,12 @@ export const useAppStore = create<AppState>()(
       page: "home",
       collapsed: false,
       demo: true,
+      motionPreviews: true,
+      setMotionPreviews: (motionPreviews) => set({ motionPreviews }),
       search: "",
       favorites: ["aurora", "ocean", "nova-live"],
+      feedback: {},
+      rate: (id, value) => set((s) => ({ feedback: { ...s.feedback, [id]: value } })),
       historyIds: ["aurora", "atlas"],
       sources: [],
       notification: "",
@@ -70,7 +78,7 @@ export const useAppStore = create<AppState>()(
       version: 1,
       storage: createJSONStorage(() => localStorage),
       // Somente preferências visuais: catálogo, histórico, favoritos e fontes são efêmeros.
-      partialize: ({ collapsed, demo }) => ({ collapsed, demo }),
+      partialize: ({ collapsed, demo, motionPreviews }) => ({ collapsed, demo, motionPreviews }),
     },
   ),
 );

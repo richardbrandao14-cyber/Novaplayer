@@ -115,7 +115,13 @@ export function playbackLifecycle(work: () => Promise<void>): Promise<void> {
   lifecycle = next.catch(() => {});
   return next;
 }
+export interface ConnectionStatus {
+  state: "unknown" | "success" | "failure";
+  durationMs: number | null;
+  ageSeconds: number | null;
+}
 export const nativeApi = {
+  connectionStatus: () => call<ConnectionStatus>("connection_status"),
   surface: (rect: SurfaceRect) => call<void>("player_surface", { rect }),
   play: (mediaId: string, episodeId?: string, resume = false) =>
     call<void>("play_media", {
@@ -127,6 +133,8 @@ export const nativeApi = {
     call<NativeLibraryState>("library_state", { mediaId }),
   setLibrary: (mediaId: string, favorite: boolean, watchlist: boolean) =>
     call<NativeLibraryState>("set_library", { mediaId, favorite, watchlist }),
+  setFeedback: (mediaId: string, value: -1 | 0 | 1) =>
+    call<NativeLibraryState>("set_feedback", { mediaId, value }),
   saveProgress: (
     mediaId: string,
     episodeId: string | undefined,

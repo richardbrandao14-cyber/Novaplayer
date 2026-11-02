@@ -77,6 +77,7 @@ export interface NativeSeason {
 export type NativeSeriesDetails = NativeSeason[];
 
 export interface NativeLibraryState {
+  feedback?: -1 | 0 | 1;
   favorite: boolean;
   watchlist: boolean;
   position: number;

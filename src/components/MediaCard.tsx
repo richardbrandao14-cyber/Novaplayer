@@ -1,3 +1,4 @@
+import { previewDemo, useContentPreview } from "../state/useContentPreview";
 import { Heart, MoreHorizontal, Info } from "lucide-react";
 import { DropdownMenu, ContextMenu } from "radix-ui";
 import type { MediaItem } from "../domain/types";
@@ -30,7 +31,8 @@ export function MediaCard({
         <article className="media-card">
           <button
             className="card-open"
-            onClick={() => onSelect(item)}
+            {...previewDemo(item)}
+            onClick={() => { useContentPreview.getState().close(); onSelect(item); }}
             aria-label={`Ver detalhes de ${item.title}`}
           >
             <Artwork name={item.artwork} />

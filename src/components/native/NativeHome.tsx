@@ -1,3 +1,4 @@
+import { previewNative, useContentPreview } from "../../state/useContentPreview";
 import { Brand } from "../Brand";
 import {
   useMediaNavigation,
@@ -200,7 +201,8 @@ export function NativeHome() {
                   <button
                     key={item.id}
                     className="cinema-poster"
-                    onClick={() => choose(item)}
+                    {...previewNative(item)}
+                    onClick={() => { useContentPreview.getState().close(); choose(item); }}
                     aria-label={`${item.kind === "series" ? "Ver episódios de" : item.kind === "live" ? "Prévia de" : "Ver detalhes de"} ${item.name || "conteúdo"}`}
                   >
                     <div className="cinema-poster-image">

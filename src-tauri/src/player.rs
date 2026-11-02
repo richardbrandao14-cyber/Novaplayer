@@ -228,7 +228,7 @@ pub(crate) fn extract_frame(
     if cancel.load(Ordering::Relaxed) {
         return Err(error());
     }
-    let mut engine = Engine::open_mode(dll, true, None, Some(directory))?;
+    let mut engine = Engine::open_mode(dll, true, None, Some((directory, false)))?;
     engine.command(&[
         "loadfile",
         url,
@@ -260,6 +260,81 @@ pub(crate) fn extract_frame(
     }
     let _ = engine.command(&["stop"]);
     Err(error())
+}
+
+/// Até três cenas reais a 1 fps, sem áudio/janela, na mesma instância libmpv.
+/// O prazo é compartilhado pelo pedido inteiro, inclusive fallback de fonte curta.
+pub(crate) fn extract_storyboard(
+    dll: &Path,
+    url: &str,
+    directory: &Path,
+    cancel: Arc<AtomicBool>,
+) -> Result<Vec<Vec<u8>>> {
+    if cancel.load(Ordering::Relaxed) {
+        return Err(error());
+    }
+    let mut engine = Engine::open_mode(dll, true, None, Some((directory, true)))?;
+    engine.command(&["loadfile", url, "replace", "-1", "start=10"])?;
+    let deadline = std::time::Instant::now() + Duration::from_secs(12);
+    let mut fallback = false;
+    let mut ended = false;
+    let mut frames = Vec::new();
+    while std::time::Instant::now() < deadline && !cancel.load(Ordering::Relaxed) {
+        for _ in 0..32 {
+            let event = unsafe { (engine.wait)(engine.handle, 0.0) };
+            if event.is_null() || unsafe { (*event).id } == 0 { break; }
+            match unsafe { (*event).id } {
+                6 => ended = false,
+                7 => ended = true,
+                _ => {}
+            }
+        }
+        let mut files = std::fs::read_dir(directory)
+            .map_err(|_| error())?
+            .flatten()
+            .map(|entry| entry.path())
+            .filter(|path| path.extension().is_some_and(|v| v == "png"))
+            .collect::<Vec<_>>();
+        files.sort();
+        frames.clear();
+        for file in files.iter().take(3) {
+            if !file.metadata().is_ok_and(|m| m.len() > 0 && m.len() <= 2 * 1024 * 1024) {
+                continue;
+            }
+            if let Ok(bytes) = std::fs::read(file) {
+                if image::load_from_memory(&bytes).is_ok_and(|image| {
+                    image.width() > 0 && image.width() <= 640
+                        && image.height() > 0 && image.height() <= 360
+                }) {
+                    frames.push(bytes);
+                }
+            }
+        }
+        if frames.len() == 3 {
+            break;
+        }
+        if ended {
+            if !frames.is_empty() {
+                break;
+            }
+            if !fallback {
+                fallback = true;
+                ended = false;
+                engine.command(&["loadfile", url, "replace", "-1", "start=0"])?;
+            } else {
+                break;
+            }
+        }
+        std::thread::sleep(Duration::from_millis(40));
+    }
+    let _ = engine.command(&["stop"]);
+    if cancel.load(Ordering::Relaxed) {
+        return Err(error());
+    }
+    if frames.is_empty() {
+        return Err(error());
+    }
+    Ok(frames)
 }
 
 #[repr(C)]
@@ -323,7 +398,7 @@ impl Engine {
         path: &Path,
         headless: bool,
         target: Option<isize>,
-        frame: Option<&Path>,
+        frame: Option<(&Path, bool)>,
     ) -> Result<Self> {
         use std::os::windows::ffi::OsStrExt;
         if !path.is_absolute() || !path.is_file() {
@@ -478,17 +553,21 @@ impl Engine {
             engine.option("ao", "wasapi")?;
             engine.option("force-window", "yes")?;
         }
-        if let Some(directory) = frame {
+        if let Some((directory, storyboard)) = frame {
             engine.option("vo", "image")?;
             engine.option("vo-image-format", "png")?;
             engine.option("vo-image-outdir", directory.to_str().ok_or_else(error)?)?;
             engine.option("vo-image-png-compression", "3")?;
-            engine.option("frames", "1")?;
+            engine.option("frames", if storyboard { "3" } else { "1" })?;
             engine.option("audio", "no")?;
             engine.option("network-timeout", "3")?;
             engine.option(
                 "vf",
-                "lavfi=[scale=640:360:force_original_aspect_ratio=decrease]",
+                if storyboard {
+                    "lavfi=[fps=1,scale=640:360:force_original_aspect_ratio=decrease]"
+                } else {
+                    "lavfi=[scale=640:360:force_original_aspect_ratio=decrease]"
+                },
             )?;
         }
         if unsafe { initialize(handle) } < 0 {

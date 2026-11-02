@@ -1,4 +1,5 @@
 pub mod cache;
+pub mod connection;
 pub mod http;
 pub mod imports;
 pub mod secrets;

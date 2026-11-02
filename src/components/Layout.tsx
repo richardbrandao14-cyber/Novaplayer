@@ -1,3 +1,5 @@
+import { ContentPreview } from "./ContentPreview";
+import { ConnectionIndicator } from "./ConnectionIndicator";
 import { Brand } from "./Brand";
 import { CatalogSidebar } from "./native/CatalogSidebar";
 import type { PageId } from "../domain/types";
@@ -81,6 +83,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <Brand />
           </button>
           <GlobalSearch />
+          <ConnectionIndicator />
           <button
             className="icon-button"
             aria-label="Abrir configurações"
@@ -239,6 +242,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </footer>
         </main>
         <Notification />
+        <ContentPreview />
       </div>
     </Tooltip.Provider>
   );

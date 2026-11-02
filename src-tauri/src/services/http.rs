@@ -6,7 +6,7 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
-    time::Duration,
+    time::{Duration, Instant},
 };
 use url::Url;
 
@@ -43,7 +43,14 @@ impl HttpClient {
         Ok(url)
     }
     pub async fn bytes(&self, url: Url, cancel: Arc<AtomicBool>) -> Result<Vec<u8>> {
-        self.fetch(url, cancel, false).await.map(|v| v.0)
+        let started = Instant::now();
+        let result = self.fetch(url, cancel, false).await.map(|v| v.0);
+        // Cancellation is an intentional user action, not a failed source query.
+        // Images use a separate path and must not imply source/Internet quality.
+        if !matches!(&result, Err(error) if error.code == "cancelled") {
+            super::connection::record(started.elapsed(), result.is_ok());
+        }
+        result
     }
     pub async fn image(&self, url: Url, cancel: Arc<AtomicBool>) -> Result<(Vec<u8>, String)> {
         self.fetch(url, cancel, true).await

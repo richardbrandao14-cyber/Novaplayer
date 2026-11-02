@@ -83,6 +83,9 @@ pub struct NormalizedEpisode {
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LibraryState {
+    /// -1: não é para mim; 0: sem avaliação; 1: gostei. Nunca é nota do provedor.
+    #[serde(default)]
+    pub feedback: i8,
     pub favorite: bool,
     pub watchlist: bool,
     pub position: f64,

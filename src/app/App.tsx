@@ -1,3 +1,4 @@
+import { useContentPreview } from "../state/useContentPreview";
 import { BrandEntrance } from "../components/BrandEntrance";
 import { useMediaNavigation } from "../state/useMediaNavigation";
 import { NativeDetails } from "../components/native/NativeDetails";
@@ -24,6 +25,7 @@ export function App() {
   const reducedMotion = useReducedMotion();
   const page = useAppStore((s) => s.page);
   useLayoutEffect(() => {
+    useContentPreview.getState().close();
     window.scrollTo({ top: 0, behavior: "instant" });
     const playback = usePlaybackStore.getState();
     if (page !== "live" && playback.session?.mode === "docked")

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, Heart } from "lucide-react";
+import { Play, Heart, ThumbsUp, ThumbsDown } from "lucide-react";
 import type { MediaItem } from "../domain/types";
 import { Modal } from "../ui/Dialog";
 import { Button } from "../ui/Button";
@@ -10,6 +10,8 @@ function DetailBody({ item }: { item: MediaItem }) {
   const [notice, setNotice] = useState(false);
   const favorite = useAppStore((s) => s.favorites.includes(item.id));
   const toggle = useAppStore((s) => s.toggleFavorite);
+  const feedback = useAppStore((s) => s.feedback[item.id] || 0);
+  const rate = useAppStore((s) => s.rate);
   const season = item.seasons?.find((s) => s.id === seasonId);
   return (
     <>
@@ -35,6 +37,11 @@ function DetailBody({ item }: { item: MediaItem }) {
           <Heart size={16} fill={favorite ? "currentColor" : "none"} />
           {favorite ? "Nos favoritos" : "Favoritar"}
         </Button>
+      </div>
+      <div className="personal-feedback" role="group" aria-label="Sua avaliação demonstrativa">
+        <button aria-pressed={feedback === 1} onClick={() => rate(item.id, feedback === 1 ? 0 : 1)}><ThumbsUp size={17}/>Gostei</button>
+        <button aria-pressed={feedback === -1} onClick={() => rate(item.id, feedback === -1 ? 0 : -1)}><ThumbsDown size={17}/>Não é para mim</button>
+        <small>Avaliação demonstrativa · Nesta sessão</small>
       </div>
       {notice && (
         <p role="status" className="notice">

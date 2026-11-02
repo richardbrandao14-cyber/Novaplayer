@@ -214,6 +214,15 @@ pub async fn set_library(
     blocking(move || backend.set_library(&media_id, favorite, watchlist)).await
 }
 #[tauri::command]
+pub async fn set_feedback(
+    media_id: String,
+    value: i8,
+    backend: State<'_, Arc<Backend>>,
+) -> Result<crate::core::models::LibraryState> {
+    let backend = backend.inner().clone();
+    blocking(move || backend.set_feedback(&media_id, value)).await
+}
+#[tauri::command]
 pub async fn save_progress(
     media_id: String,
     episode_id: Option<String>,
@@ -250,4 +259,9 @@ pub async fn thumbnail_for(
     previews
         .frame(&key, url, matches!(active.as_str(), "playing" | "loading"))
         .await
+}
+
+#[tauri::command]
+pub fn connection_status() -> crate::services::connection::ConnectionStatus {
+    crate::services::connection::latest()
 }

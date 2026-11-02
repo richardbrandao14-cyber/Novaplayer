@@ -3,6 +3,7 @@ fn main() {
     tauri_build::try_build(tauri_build::Attributes::new().app_manifest(
         tauri_build::AppManifest::new().commands(&[
             "app_info",
+            "connection_status",
             "list_sources",
             "save_source",
             "pick_m3u_file",
@@ -21,6 +22,7 @@ fn main() {
             "thumbnail_for",
             "save_progress",
             "set_library",
+            "set_feedback",
             "library_state",
         ]),
     ))

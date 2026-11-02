@@ -10,6 +10,7 @@
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
     "allow-app-info",
+    "allow-connection-status",
     "allow-list-sources",
     "allow-save-source",
     "allow-pick-m3u-file",
@@ -28,6 +29,7 @@
     "allow-thumbnail-for",
     "allow-save-progress",
     "allow-set-library",
+    "allow-set-feedback",
     "allow-library-state"
   ]
 }

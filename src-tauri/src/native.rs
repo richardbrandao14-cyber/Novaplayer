@@ -28,6 +28,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::app_info,
+            commands::connection_status,
             commands::list_sources,
             commands::save_source,
             commands::pick_m3u_file,
@@ -42,6 +43,7 @@ pub fn run() {
             commands::thumbnail_for,
             commands::save_progress,
             commands::set_library,
+            commands::set_feedback,
             commands::library_state,
             commands::play_media,
             commands::player_control,
